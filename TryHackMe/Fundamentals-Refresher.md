@@ -62,5 +62,12 @@ and Blue Team (Defensive).
 
 ---
 
-## Room: [Next Room]
+## Room: [Windows Fundamentals 2]
+**Key Takeaways:**
+* msconfig launches System Configuration. comgmgmt.msc opens Computer Management.
+* Event Viewer has five different types of events that can be logged. [Event Viewer Info](https://learn.microsoft.com/en-us/windows/win32/eventlog/event-types)
+* Standard logs are also viewable [Standard logs Info](https://learn.microsoft.com/en-us/windows/win32/eventlog/eventlog-key)
+* Learned about resource monitor (resmon), System Information (msinfo32)
+* Retrive help manual for a command in CMD with /?
+* ipconfig, netstat (shows network connections and can be used by typing netstat -a to view all active connections, including listening ports)
 
