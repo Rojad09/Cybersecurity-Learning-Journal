@@ -71,3 +71,15 @@ and Blue Team (Defensive).
 * Retrive help manual for a command in CMD with /?
 * ipconfig, netstat (shows network connections and can be used by typing netstat -a to view all active connections, including listening ports)
 
+---
+
+## Room: [Windows Fundamentals 3]
+**Key Notes:**
+* Windows firewall & network protection, Domain - The domain profile applies to networks where the host system can authenticate to a domain controller. Private - The private profile is a user-assigned profile and is used to designate private or home networks. Public - The default profile is the public profile, used to designate public networks such as Wi-Fi hotspots at airports, etc.
+* Bitlocker Drive Encryption - a Windows security feauture that encrypts an entire disk drive to protect data from unauthorized access, especially if a computer is lost or stolen.
+* Volume Shadow Copy Service (VSS) - a Windows technology that creates consistent point-in-time copies of files and volumes, known as "shadow copies" or "snapshots," while applications are still running. If VSS is enabled, in advanced system settings you can: Create a restore point, Perform system restore, Configure restore settings, Delete restore points.
+
+---
+
+## Room: [Next Room]
+
