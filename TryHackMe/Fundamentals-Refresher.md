@@ -54,4 +54,13 @@ and Blue Team (Defensive).
 ---
 
 ## Room: [Windows Fundamentals 1] 
+**Key Takeaways:**
+*  NTFS (New Technology File System), known as journaling file system. Better version of FAT16/32. Standard file system for all modern Windows OS. provides security, reliability, and data integrity.
+* Alternate Data Streams (ADS), a feature of the NTFS file system, known as hidden files within a file (allows a single file to contain more than one stream of data). Can be used to store metadata or extra information. Can be utilized by attackers to hide code.
+* lusrmgr.msc in run is a shortcut to Local Users and Groups tab. 
+* UAC (User Account Control) - "Apps and tasks always run in the security context of a non-administrator account, unless an administrator specifically authorizes administrator-level access to the system."
+
+---
+
+## Room: [Next Room]
 
