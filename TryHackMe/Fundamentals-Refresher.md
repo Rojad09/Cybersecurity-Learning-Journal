@@ -105,7 +105,7 @@ and Blue Team (Defensive).
 * Default OU's - **Builtin:** Contains default groups available to any Windows host. **Computers:** Any machine joininig the network will be put here by default. You can move them if needed. **Domain Controllers:** Default OU that contains the DCs in your network. **Users:** Default users and groups that apply to a domain-wide context. **Managed Service Accounts:** Holds accounts used by services in your Windows domain.
 * Security Groups are used to grant permissions over resources (allow some users to access a shared folder or network printer. Users can be a part of many groups), OUs are for applying plicies to users and computers (specific configurations that pertain to sets of users depending on their particular role. One single OU at a time, as it applies policies).
 * Delegation - grants users specific privileges to perform advanced tasks on OUs without needing a Domain Administrator.
-* **Task 4:** Proceeded to RDP into an account after being shown delegation to change the password of an user utilizing powershell. Used xfreerdp on the attackbox to do so.
+* **Task 4:** Proceeded to RDP into an account after being shown delegation to change the password of a user by utilizing powershell. Used xfreerdp on the attackbox to do so.
 * Segregating devices according to their use is important. A least three categories
     * Workstations - Most common devices within an Active Directory domain. users will be logging into a workstation. should never have a privileged user signed into them.
     * Servers - Second most common, generally used to provide services to users or other servers.
