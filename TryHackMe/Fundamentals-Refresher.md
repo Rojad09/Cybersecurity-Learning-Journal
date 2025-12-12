@@ -88,9 +88,34 @@ and Blue Team (Defensive).
 * Idea behind a domain is to centralise the administration of common components of a Windows computer network in AD (Active Directory). The server that runs AD is known as Domain Controller (DC).
 * In school/university networks, you will often be provided with a username and password that you can use on any of the computers available on campus. Your credentials are valid for all machines because whenever you input them on a machine, it will forward the authentication process back to the Active Directory, where your credentials will be checked. Thanks to Active Directory, your credentials don't need to exist in each machine and are available throughout the network. Also used to restrict - (Copied from THM)
 * Active Directory Domain Service (AD DS) - a Microsoft server role that acts as a centralized directory for managing and storing information about network resources like users, computers, and devices. verify credentials, define access rights for all members of a windows domain.
+    * Users - one of the most common object types in Active Directory. they can be authenticated by the domain and be assigned privileges over resources like files or printers (commonly referred to as security principal). Represents two types of entities, people ( persons in an organization, ex. employee) and services (service users only have the privileges needed to run their specific service)
+    * Machines - Every computer that joins the Active Directory, a machine object is created. also considered a security principal, assigned an account like any other user. Machine account names are usually followed by a dollar sign (DC01 = DC01$)
+    
+    * Security Groups - Define user groups to assign access rights to files or other resources to entire groups instead of single users. adding user to group, making them inherit the group's privileges. considered security principal, can have privileges over resources on the network. Groups can have both users and mechines as members, can also have other groups.
+* Most Important Groups in a Domain: 
+    * Domain Admins - Users of this group have administrative privileges over the entire domain. By default, they can administer any computer on the domain, including the DCs. 
+    * Server Operators - Users in this group can administer Domain Controllers. They cannot change any administrative group memberships.
+    * Backup Operators - Users in this group are allowed to access any file, ignoring their permissions. They are used to perform backups of data on computers.
+    * Account Operators - Users in this group can create or modify other accounts in the domain.
+    * Domain Users - Includes all existing user accounts in the domain.
+    * Domain Computers - Includes all existing computers in the domain.
+    * Domain Controllers - Includes all existing DCs on the domain.
+* Organizational Units (OUs) - hierarchical containers used in IT systems like Active Directory and AWS Organizations to logically group user accounts, computer accounts, and other objects.
+* Default OU's - **Builtin:** Contains default groups available to any Windows host. **Computers:** Any machine joininig the network will be put here by default. You can move them if needed. **Domain Controllers:** Default OU that contains the DCs in your network. **Users:** Default users and groups that apply to a domain-wide context. **Managed Service Accounts:** Holds accounts used by services in your Windows domain.
+* Security Groups are used to grant permissions over resources (allow some users to access a shared folder or network printer. Users can be a part of many groups), OUs are for applying plicies to users and computers (specific configurations that pertain to sets of users depending on their particular role. One single OU at a time, as it applies policies).
+* Delegation - grants users specific privileges to perform advanced tasks on OUs without needing a Domain Administrator.
+* **Task 4:** Proceeded to RDP into an account after being shown delegation to change the password of an user utilizing powershell. Used xfreerdp on the attackbox to do so.
+* Segregating devices according to their use is important. A least three categories
+    * Workstations - Most common devices within an Active Directory domain. users will be logging into a workstation. should never have a privileged user signed into them.
+    * Servers - Second most common, generally used to provide services to users or other servers.
+    * Domain Controllers - Device which allows you to manage the Active Directory Domain. contains hashed passwords for all user accounts within the environment. 
+* GPO - A collection of settings that can be applied to OUs.
+* Might take 2 hours for computers to catch up with GPO change, gpupdate /force sync's GPO's immediately.
+* Kerberos - the default authentication protocol of Windows.
+
 
 ---
 
 #### Side Note:
-*   Have been completing this year's TryHackMe's AOC, might take a while to get back to note writing.
+*   Have been completing this year's TryHackMe AOC, might take a while to get back to note writing. (Dec 8th, 2025)
 
