@@ -120,3 +120,38 @@ and Blue Team (Defensive).
 #### Side Note:
 *   Have been completing this year's TryHackMe AOC, might take a while to get back to note writing. (Dec 8th, 2025)
 
+
+---
+
+## Room: [Windows Command Line]
+**Key Notes:**
+* **Basic Commands**: 
+    * **set** - Checks the path from the command line (shows the path where MS Windows will execute commands, as indicated by the line starting with Path=.). 
+    * **ver** - determines the operating system (OS) version. 
+    * **systeminfo** - lists info about the system such as OS info, system details, processor and memory.
+    * **help** - Provies help info for a specific command
+    * **cls** - Clears the CMD prompt screen.
+    * Piping it through more (ex: driverquery | more) shortens the output, allowing you to see it page by page (CTRL+C to exit).
+* **Network Commands**
+    * **ipconfig** - allows you to check network inforamtion (using ipconfig /all for more info about your network).
+    * **ping** - checks if the PC is able to get a response from a server.
+    * **tracert** - checks to see what route is taken to get to the target.
+    * **nslookup** - looks up a host or domain and returns it's IP address.
+    * **netstat** - Displays current network connections and listening ports. (run netstat -h for more options. -a, -b, -o, -n)
+* **File Commands** - 
+    * **cd** - displays currect drive and directory. also sued to change directories.
+    * **dir** - view child directories (dir /a - displays hidden and system files. dir /s displays files in the currect directory and subdirectories)
+    * **tree** - visually represents dir and subdir
+    * **mkdir** - creates directory, rmdir - removes directory
+    * **type** - view text files. 
+    * **copy** - allows you to copy files, move files using move command.
+    * **del/erase** - delete file. (Using the wildcard character * refers to multiple files, (copy *.md C:\Markdown) will copy all files with the extension md to the directory.)
+* **Process Management**
+    * **tasklist** - shows list running processes (tasklst /? shows all filters.) (Ex. tasklist /FI "imagename eq sshd.exe". /FI is used to set the filter image name equals sshd.exe) 
+    * **taskkill** - terminates the specified task, taskkill /PID 4567.
+
+---
+
+## Room: [Next Room] 
+
+**Key Notes:**
