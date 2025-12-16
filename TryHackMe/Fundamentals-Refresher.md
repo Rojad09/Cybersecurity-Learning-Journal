@@ -191,7 +191,7 @@ and Blue Team (Defensive).
     *  log analysis, detecting anomalies, and extracting indicators of compromise (IOCs) can be automated with Powershell Scripts [Blue Team].
     * system enumeration, executing remote commands, and crafting obfuscated scripts to bypass defences can be automated with Powershell scripts [Red Team]
     * System Administrators benefit, as they can automate integrity checks, managing system configs, and securnig networks.
-    * Invoke-Command - used to run commands or scripts on local or remote computers and return all output to the local console
+    * Invoke-Command - used to run commands or scripts on local or remote computers and return all output to the local console.
 
 ---
 
