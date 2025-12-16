@@ -152,6 +152,47 @@ and Blue Team (Defensive).
 
 ---
 
-## Room: [Next Room] 
+## Room: [Windows PowerShell] 
 
 **Key Notes:**
+* **Basics**
+    * Object: an item with properties (characteristics) and methods (actions). Ex:  a car object might have properties like Color, Model, and FuelLevel, and methods like Drive(), HonkHorn(), and Refuel().
+    * Powershell commands are known as cmdlets (more powerful than traditional windows commands, as they allow for advanced data manipulation).
+    * Verb-noun naming convention (verb describes the action, noun specifies the object on which action is performed.)
+        * Get-Content: Retrieves (gets) the content of a file and displays it in the console. (Shows all usable cmdlets)
+        * Set-Location: Changes (sets) the current working directory.
+    * It is possible to filter the list of commands based on displayed property values. (only want to display available commands of type "function", you would use Get-Command -CommandType "Function")
+    * Get-Help - cmdlet that provides detailed info about other comdlets (usage, parameters, and examples)
+        * Get-Alias - Lists all aliases (used by individuals who are familiar with other command-line tools) (dir is an alias for Get-ChildItem, and cd is an alias for Set-Location.)
+    * cmdlets are downloadable (Find-Module -Name "PowerShell*") Cmdlet -Property "pattern*",  Install-Module is used after.
+* **Navigation**
+    * Get-Childitem: (similar to the dir or ls command) lists the files and directories in a location specified with the -Path parameter.
+    * Set-Location: (similar to cd) changes the current directory.
+    * New-Item: creates an item, specification of the path of the item and it's type (file or directory) is necessary.
+    * Remove-item: removes both directories and files (akin to rmdir and del)
+    * Copy-item: copy or moves files/directories
+    * Get-Content: (type of cat command) read and displays content of a file.
+* **Piping in PS**
+    * Piping = output of one command to be used as the imput for another (Represented by | )
+        * Get-ChildItem | Where-Object -Property "Extension" -eq ".txt" (Filters object based on specified condition, in this case, .txt)
+    * -eq (equal to), set of comparison operators (-ne (not equal), -gt(greater than), ge(greater than or equal to), lt(less than), le(less than or equal to) )
+    * Select-String: similar to grep or findstr, used for finding specific content within log files.
+    * Select-Object, Where-Object, Sort-Object
+* **System Info**
+    * Get-ComputerInfo - system info gather (systeminfo only gets a small set of the same details)
+    * Get-LocalUser lists all local user accounts.
+    * Get-NetIPConfiguration & Get-NetIPAddress
+* **Real Time Sys Analysis**
+    * Get-Process - detailed view of all running processes.
+    * Get-Service - status of services on the machine.
+    * Get-NetTCPConnection displays current TCP connections,
+    * Get-FileHash - useful cmdlet for generating file hashes (Get-FileHash -Path .\[Insert Destination])
+* **Scripting**
+    *  log analysis, detecting anomalies, and extracting indicators of compromise (IOCs) can be automated with Powershell Scripts [Blue Team].
+    * system enumeration, executing remote commands, and crafting obfuscated scripts to bypass defences can be automated with Powershell scripts [Red Team]
+    * System Administrators benefit, as they can automate integrity checks, managing system configs, and securnig networks.
+    * Invoke-Command - used to run commands or scripts on local or remote computers and return all output to the local console
+
+---
+
+## Room: [Next Room] 
