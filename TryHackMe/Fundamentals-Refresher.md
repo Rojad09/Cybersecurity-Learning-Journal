@@ -195,4 +195,15 @@ and Blue Team (Defensive).
 
 ---
 
-## Room: [Next Room] 
+## Room: [Linux Shell] 
+
+**Key Notes:**
+* To view what shell you're using: echo $SHELL
+* /etc/shells shows all of the installed shells
+* type the shell name that is present on your OS to use wanted shell.
+* to permanently change default shell, use command - chsh -s /usr/bin/[nameofshell]
+*   **Shells**
+    * Bourne Again Shell (Bash): default shell for most Linux distributions. Borrowing capabilities from most shells, it is seen as the enchanced version.
+    * Friendly Interactive Shell (Fish) - focuses on user-friendliness than other shells. 
+    * Z Shell (Zsh) - Modern shell that combines things from other shells. 
+* **Scripting**
