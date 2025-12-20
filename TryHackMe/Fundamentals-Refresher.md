@@ -207,3 +207,15 @@ and Blue Team (Defensive).
     * Friendly Interactive Shell (Fish) - focuses on user-friendliness than other shells. 
     * Z Shell (Zsh) - Modern shell that combines things from other shells. 
 * **Scripting**
+    * Scripting can be done in various programming languages, not only shell.
+    * Create a file using any text edior for the script. must be named with extension .sh (default extension for bash scripts).
+    * Shebang - a special sequence of characters at the very beginning of a script that tells the system which interpreter to use to execute the file (usually #!, followed by the name of the interpreter to use while executing the script).
+    * Variable - stores a value inside, you can store values in a variable and use the variable name as substitute
+    * chmod +x [scriptname] gives scriipt execution permissions. (use ./ before script name to execute, to show it is in the current directory)
+    * Loops - something that is repeating (send the same message to a multitude of people without having to do it one by one)
+    * Conditional Statements - execute a specific code only when a condition is satisfied (if... then)
+    * Make comments with #
+
+---
+
+## Room: [Next Room]
