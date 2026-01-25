@@ -221,5 +221,32 @@ and Blue Team (Defensive).
 #### Break:
 * Break passed, beginning notes again now.
 
-## Room: [Next Room]
+## Room: [Networking Concepts]
+
+**Key Notes:**
+* OSI model defines a framework for computer network communications.
+* The OSI model is composed of seven layers: 1. Physical Layer, 2. Data Link Layer, 3. Network Layer, 4. Transport Layer, 5. Session Layer, 6. Presentation Layer 7. Application Layer
+* **(People Don't Need These Stupid Packets Anyways, Learned from CCNA)**
+* **Layer 1** deals with physical connections between devices, **Layer 2** deals with mac addresses, etc. **Layer 3** focueses on sending data between different networks. **Layer 4** enables end-to-end communication between running applications on different hosts. Example: TCP and UDP. **Layer 5** responsible for establishing, maintaining, and synchronising communication between  applications running on different hosts. Example: NFS and RPC. **Layer 6** Ensures data is delivered in a form the application layer can understand (handles encoding, decoding, encryption, etc). **Layer 7** provides network services directly to end-user applications. Layer 7 protocols are HTTP, FTP, DNS, POP3, SMTP, and IMAP.
+* **TCP/IP**
+    * The TCP/IP (Transmission Control Protocol/Internet Protocol) model only has 4 sections (Application Layer, Transport Layer, Internet Layer, Link Layer)
+    * The application layer in the TCP/IP model contains layers 5, 6, and 7 of the OSI model. Internet layer is layer 3, the rest is self-explanatory.
+* **IP and Subnets**
+    * "One analogy of an IP address is your home postal address. Your postal address allows you to receive letters and parcels from all over the world. Furthermore, it can identify your home without ambiguity; otherwise, you cannot shop online!"
+    *  An IP address comprises four octets, i.e., 32 bits. Being 8 bits, an octet allows us to represent a decimal number between 0 and 255.
+    * (between 0 and 255, /24 subnet, 192.168.1.0 would be the network address while 192.168.1.255 would be the broadcast)
+* **UDP&TCP**
+    * The IP protocol allows us to reach a destination host on the network; the host is identified by its IP address. We need protocols that would enable processes on networked hosts to communicate with each other. There are two transport protocols to achieve that: UDP and TCP.
+    * UDP is the dumbed down version of TCP, it is a simple connectionless protocol that operates at the transport layer. it does not even provide a mechanism to know that the packet has been delivered.
+    * A real-life example similar to UDP is the standard mail service, with no delivery confirmation. 
+    * An IP address identifies the host; we need a mechanism to determine the sending and receiving process. This can be achieved by using port numbers.
+    * TCP  utilizes various mechanisms to ensure reliable data delivery.
+    * As each data octet has a sequence number, it makes it easy for the receiver to identify lost or duplicated packets. 
+    * A TCP connection is established by utilizing a three-way handshake, with the flags SYN (synchronise) and ACK (Acknowledgement)
+    * PC to Server (SYN), Server back to PC to confirm (SYN-ACK), PC back to server (ACK).
+* **Encapsulation**
+    * The process of every layer adding a header/trailer to the received unit of data and sending the "encapsulated" unit to the layer below
+    * It gets encapsulated, then broken down at other layers, then re-encapsulated sometimes. whether it's to save time or space.
+    * Everything starts at the application layer, then heads to the physical layer, top to bottom.
+    * Is reversed on the receiving end.
 
