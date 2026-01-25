@@ -250,3 +250,41 @@ and Blue Team (Defensive).
     * Everything starts at the application layer, then heads to the physical layer, top to bottom.
     * Is reversed on the receiving end.
 
+---
+(Going to try and take a different approach with my notes, I feel like i'm writing long, rather than truly condensed, and important concepts, will be trying to focus on that going forward.)
+## Room: [Networking Essentials]
+
+**Key Notes**
+* DHCP is an application-level protocol, used to automatically assign ip addresses to devices. used on internet protocol (IP) networks, uses a client-server architecture. 
+* Discover, Offer, Request, Acknowledge (DORA for Short)
+*  **DHCP Discover** - The client broadcasts a DHCPDISCOVER message seeking the local DHCP server if one exists.
+* **DHCP Offer** - The server responds with a DHCPOFFER message with an IP address available for the client to accept.
+* **DHCP Request** - The client responds with a DHCPREQUEST message to indicate that it has accepted the offered IP.
+* **DHCP Acknowledge** - The server responds with a DHCPACK message to confirm that the offered IP address is now assigned to this client.
+* **ARP** 
+    * Address resolution protocol (ARP) is used to find the physical hardware address (MAC address) of a device when only its logical Internet Protocol (IP) address is known. 
+    * Responsible for finding the MAC address related to a specific IP address. works by broadcasting an ARP query "Who has this IP address? Teach me." and gets a response back.
+    * ARP request is encapsulated directly within an Ethernet frame.
+    * It is considered Layer 2.
+* **ICMP**
+    * ICMP (Internet Control Message Protocol): utilized for network diagnostics and error reporting.
+    * The two commands that rely on ICMP are: ping, tracert (traceroute).
+* **Routing**
+    * Speaks about how, although there are many paths that routing can take to get to one location to the other (PC to Web Server), different type of routing procedures are there to be able to do that as quickly as possible. one of them being:
+    * **OSPF:** routing protocol that allows routers to share information about the network topology and calculate the most efficient paths for data transmission. It does this by having routers exchange updates about the state of their connected links and networks. This way, each router has a complete map of the network and can determine the best routes to reach any destination. (EIGRP is Cisco)
+    * BGP and RIP also exist (RIP is outdated)
+* **NAT**
+    * One solution to address depletion is Network Address Translation (NAT).
+    * The idea behind NAT lies in using one public IP address to provide Internet access to many private IP addresses. In other words, if you are connecting a company with twenty computers, you can provide Internet access to all twenty computers by using a single public IP address instead of twenty public IP addresses.
+    * NAT changes the Internal network to a different external network, almost as if it was spoofing the IP, giving it a new face.
+    * Network Address Translation (NAT) (specifically PAT/Overloading) allows multiple devices on a private network (192.168.1.x) to share a single public IP address (203.0.113.1) to access the internet. The router translates internal IP/port combinations to the public IP with a unique source port, mapping traffic back correctly upon return.
+    * **Inside Local:** The actual private IP (192.168.1.10). **Inside Global:** The public IP representing the host (203.0.113.1). **Overloading:** Using port numbers to map multiple local addresses to one global address.
+
+---
+
+## Room: [Networking Core Protocols]
+
+**Key Notes**
+ 
+
+
