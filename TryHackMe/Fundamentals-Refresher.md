@@ -285,6 +285,51 @@ and Blue Team (Defensive).
 ## Room: [Networking Core Protocols]
 
 **Key Notes**
- 
+* **DNS**
+    * Domain Name System (DNS) is responsible for mapping a domain name to an IP Address.
+    * DNS operates at the Application Layer, uses UDP port 53 as default/TCP port 53 as default fallback.
+    * DNS Records -
+        * A record: A (Address) record maps a hostname to one or more IPv4 addresses. Ex. example.com resolves to 172.17.2.172
+        * AAAA Record: similar to A Record, but for IPv6.
+        * CNAME Record: (Canonical Name) record maps a domain name to another domain name. (example.com = example.org/www.example.com)
+        * MX Record: (Mail Exchange) specifies mail server responsible for handling emails for a domain. (when you try to send an email to test@example.com, the mail server would query the DNS server to find the MX record.)
+    * nslookup (site) - look up the ip address of a domain from the command line.
+    * Whoever registers a domain name is granted the ability to set any valid DNS records.
+    * Pay an annual fee, information is part of WHOIS records.
+    * whois - looks up the WHOIS records of any registered domain name on Linux systems. provides name, phone number, email, and address. (Can be protected by privacy protection)
+* **HTTP(S)**
+    *  HTTP stands for Hypertext Transfer Protocol; the S in HTTPS stands for Secure. Relies on TCP.
+    * Uses ports 80 (HTTP) and 443 (HTTPS)
+* **FTP & SMTP**   
+    * File Transfer Protocol, designed to transfer files.
+    * TCP port 21 
+    * ftp [IP] - allows you to connect to the remote FTP server.
+    * **SMTP** (Simple Mail Transfer Protocol): a protocol used to send the email to an SMTP server, more specifically to a Mail Submission Agent (MSA) or a Mail Transfer Agent (MTA).
+    * defines how a mail client talks with a mail server and how a mail server talks with another.
+    * Similar to the process of when you go to local post office to send package.
+        * **HELO or EHLO** initiates an SMTP session/**MAIL FROM** specifies the sender’s email address/**RCPT TO** specifies the recipient’s email address/**DATA** indicates that the client will begin sending the content of the email message/. is sent on a line by itself to indicate the end of the email message
+* **POP3 & IMAP**
+    * Designed to allow the client to communicate with a mail server and retrieve email messages. (downloads emails from the server to a local device).
+    * Listens on TCP port 110
+    * Commands: 
+        *   **USER** <username> identifies the user
+        *   **PASS** <password> provides the user’s password
+        *    **STAT** requests the number of messages and total size
+        *    **LIST** lists all messages and their sizes
+        *    **RETR** <message_number> retrieves the specified message
+        *    **DELE** <message_number> marks a message for deletion
+        *    **QUIT** ends the POP3 session applying changes, such as deletions
+    * **IMAP** -  a protocol for receiving email. Protocols standardize technical processes so computers and servers can connect with each other regardless of whether or not they use the same hardware or software.
+    * As POP3 emails are deleted from the remote server, IMAP uses more storage as email is kept on the server and synchronized across email clients.
+    * uses TCP port 143
+
+---
+
+## Room: [Next Room]
+
+
+
+
+
 
 
