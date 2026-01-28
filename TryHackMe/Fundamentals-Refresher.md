@@ -325,8 +325,45 @@ and Blue Team (Defensive).
 
 ---
 
-## Room: [Next Room]
+## Room: [Networking Secure Prot.]
 
+**Key Notes**
+* When it comes to security, HTTP, POP3, SMTP, and IMAP become HTTPS, POP3S, SMTPS, and IMAPS, where the appended “S” stands for Secure.
+* Telnet is unsecure, use SSH.
+* **TLS**
+    * Predecessor of TLS (Transport Layer Security) is SSL (Secure Sockets Layer), TLS grows upon, and improves SSL.
+    * TLS: a cryptographic protocol operating at the OSI model’s transport layer. 
+    * Allows secure communication between a client and a server over an insecure network. TLS ensures no one can read or modify the exchanged data.
+    * HTTPS, DoT (DNS over TLS), MQTTS, and SIPS, the secure versions of HTTP, DNS, MQTT, and SIP, utilize SSL/TLS to become secure.
+    * Steps to become a trusted authority:
+        * get a signed TLS certificate (the server admin creates a CSR (Certificate Signing Request) and submits it to a CA (Certificate Authority) )
+            * CA: a trusted organisation that verifies the digital identity of entities like websites, individuals, or companies by issuing digital certificates.
+        * CA verifies the CSR and issues a digital cert.
+        * The digital cert is used to identify the server to others, which they can confirm the validity of the signature if needed.
+        * (Certs can also be self-signed, which should not be trusted.)
+* **HTTPS**
+    * In HTTP traffic is sent in cleartext, which allows anyone to intercept and monitor it.
+    * Due to TLS, you must establish a TCP three-way handshake with the server, establish a TLS session, and communicate using the HTTP protocol to use HTTPS.
+    * Adding TLS leads packets to be encrypted
+* **SMTPS, POP3S, IMAPS**
+    * HTTP: PORT 80 / HTTPS: PORT 443
+    * SMTP: PORT 25 / SMTPS: PORT 465 and 587
+    * POP3: PORT 110 / POP3S: PORT 995
+    * IMAP: PORT 143 / IMAPS: PORT 993
+* **SSH**
+    * SSH, in comparison to telnet, offers secure authentication, confidentiality, integrity, tunneling, X11 Forwarding.
+    * ssh username@hostname
+    * Telnet = port 23, SSH is 22
+* **SFTP&FTPS**
+    * SFTP is the equivalent of SSH File Transfer.
+    * Utilizing commands such as: sftp username@hostname, get filename and put filename
+    * SFTP shares the port number 22 with SSH.
+    * FTPS stands for File Transfer Protocol Secure. 
+    * FTP uses port 21, FTPS uses port 990.
+    * SFTP server setup is easy, FTPS requires a proper TLS cert to run securely.
+* **VPN**
+    * VPN allows companies to connect all offices and sites a main branch, so that all offices can access shared resources, as if they were at the main branch.
+    * VPN allows private information exchange, so it's secure as well.
 
 
 
