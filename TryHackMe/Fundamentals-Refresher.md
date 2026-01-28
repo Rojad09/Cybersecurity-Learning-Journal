@@ -365,6 +365,50 @@ and Blue Team (Defensive).
     * VPN allows companies to connect all offices and sites a main branch, so that all offices can access shared resources, as if they were at the main branch.
     * VPN allows private information exchange, so it's secure as well.
 
+---
+
+## Room: [Wireshark]
+
+**Key Notes**
+* **Packet Capture** - PCAP is a networking practice involving the interception of data packets travelling over a network. Once the packets are captured, they can be stored by IT teams for further analysis. The inspection of these packets allows IT teams to identify issues and solve network problems affecting daily operations.
+* Wireshark utilizes PCAP, and is capable of investigating live traffic and capturing packets.
+    * **Wireshark Uses**
+        * Detecting and troubleshooting network problems, such as network load failure points and congestion.
+        * Detecting security anomalies, such as rogue hosts, abnormal port usage, and suspicious traffic
+        * Investigating and learning protocol details, such as response codes and payload data.
+* Wireshark only allows discovery and investigation of packets in depth, it does not have the ability to modify any of the info.
+    * **Wireshark GUI** 
+        * Toolbar - contains menus and shortcuts for packet sniffing, processing. includs filtering, sorting, summarising, exporting and merging. Located on the top in the GUI (File, Edit, Etc)
+        * Display Filter Bar - main query and filtering section
+        * Recent Files - Self-Explanatory
+        * Capture Filter and Interfaces - Capture filters and available sniffing points (network interfaces).  The network interface is the connection point between a computer and a network. The software connection (e.g., lo, eth0 and ens33) enables networking hardware.  
+        * Status Bar - located at the bottom, shows numeric packet info, profile and tool status.
+    * **Packet GUI**
+        * Packet List Pane - Summary of each packet (source and destination addresses, protocol, and packet info). 
+        * Packet Details Panel - Detailed breakdown of the packet
+        * Packet Bytes Pane - Hex and decoded ASCII representation of the selected packet.
+* Within wireshark, you can color packets as I way to showcase uniqueness within each packet.
+* Blue shark fin button starts network sniffing.
+* File, Merge allows you to merge two pcap files.
+* **Packet Dissection**
+    * Protocol dissection (Packet Dis.) investigates packet details by decoding available protocols and fields.
+    * Packets consist of 5 to 7 layers based on the OSI model
+    * frame/packet,source [MAC],source [IP],protocol,protocol errors, application protocol, and application data
+* **Packet Navigation**
+    * Utilize the "GO" section to specifically go to any number packet of your choosing.
+    * You can use the "Edit --> Find Packet" menu to make a search inside the packets for a particular event of interest.
+    * Two points in finding packets, knowing input type, and choosing the search field.
+    * Mark packets by right clicking, or using edit menu.
+    * You can make packet comments.
+    * Exporting packets is also possible, by highlighting all the packets you want to export.
+    * Wireshark also detects specific states of protocols to help analysts easily spot possible anomalies and problems (false positives/negatives are possible).
+    * You can use the "lower left bottom section" in the status bar or "Analyse --> Expert Information" menu to view all available information entries via a dialogue box. It will show the packet number, summary, group protocol and total occurrence.
+* **Filtering**
+    * two types of filtering approaches: capture and display filters. Capture filters are used for "capturing" only the packets valid for the used filter. Display filters are used for "viewing" the packets valid for the used filter.
+
+---
+
+## Room: [Next Room]
 
 
 
