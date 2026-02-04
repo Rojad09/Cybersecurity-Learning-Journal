@@ -408,6 +408,72 @@ and Blue Team (Defensive).
 
 ---
 
+## Room: [Tcpdump: The Basics]
+
+**Key Notes** 
+* **Tcpdump:** a powerful, command-line packet analyzer used to capture, filter, and analyze network traffic (TCP, UDP, ICMP) on Linux, macOS, and Unix-like systems. Essential for GUI-less environments.
+* **Basic Packet Capture**
+    * all has "tcpdump" in front.
+    * **(-i INTERFACE):** Decide which network int to listen to. choose to listen to all using -i any, specify with -i (eth0)
+    * ip address show (or ip a s) lists the available network interfaces.
+    * **(-w FILE):** saves the captured packets. can be inspected using Wireshark, etc, later.
+    * **(-r FILE):** read packets from a file. useful for learning about protocol behaviour.
+    * **(-c COUNT):** specifies the number of packets to capture.
+    * Tcpdump will resolve IP addresses and print friendly domain names where possible. To avoid making such DNS lookups, you can use the **-n** argument (Don’t resolve IP addresses).
+    * if you don’t want port numbers to be resolved, such as 80 being resolved to http, you can use the **-nn** to stop both DNS and port number lookups (Don’t resolve IP addresses and don’t resolve protocol numbers). 
+    * **-v:** prints more details about the packet, produces more verbose output. (man tcpdump for manual)
+    * **-vv** will produce more verbose output, **-vvv** will provide more verbosity.
+    * Examples
+        * **tcpdump -i eth0 -c 50 -v:** captures and displays 50 packets by listening on the eth0 interface, which is a wired Ethernet, and displays them verbosely.
+        * **tcpdump -i wlo1 -w data.pcap:** captures packets by listening on the wlo1 interface (the WiFi interface) and writes the packets to data.pcap. It will continue till the user interrupts the capture by pressing CTRL-C.
+        * **tcpdump -i any -nn:** captures packets on all interfaces and displays them on screen without domain name or protocol resolution.
+* **Filtering Expressions** 
+    * **tcpdump host IP or tcpdump host HOSTNAME:** Filters packets by IP address or hostname
+    * **tcpdump src host IP:** Filters packets by a specific source host
+    * **tcpdump dst host IP:** Filters packets by a specific destination host
+    * **tcpdump port PORT_NUMBER:** Filters packets by port number
+    * **tcpdump src port PORT_NUMBER:** Filters packets by the specified source port number
+    * **tcpdump dst port PORT_NUMBER:** Filters packets by the specified destination port number
+    * **tcpdump PROTOCOL:** Filters packets by protocol; examples include ip, ip6, and icmp
+    * Logical operators and, or, not.
+        * **and:** Captures packets where both conditions are true. For example, tcpdump host 1.1.1.1 and tcp captures tcp traffic with host 1.1.1.1.
+        * **or:** Captures packets when either one of the conditions is true. For instance, tcpdump udp or icmp captures UDP or ICMP traffic.
+        * **not:** Captures packets when the condition is not true. For example, tcpdump not tcp captures all packets except TCP segments; we expect to find UDP, ICMP, and ARP packets among the results.
+    * Examples:
+        * **tcpdump -i any tcp port 22:** listens on all interfaces and captures tcp packets to or from port 22, i.e., SSH traffic.
+        * **tcpdump -i wlo1 udp port 123:** listens on the WiFi network card and filters udp traffic to port 123, the Network Time Protocol (NTP).
+        * **tcpdump -i eth0 host example.com and tcp port 443 -w https.pcap:** listen on eth0, the wired Ethernet interface and filter traffic exchanged with example.com that uses tcp and port 443. In other words, this command is filtering HTTPS traffic related to example.com.
+* **Advanced Filtering**
+    * greater LENGTH: Filters packets that have a length greater than or equal to the specified length
+    * less LENGTH: Filters packets that have a length less than or equal to the specified length
+    * A binary operation works on bits, i.e., zeroes and ones. An operation takes one or two bits and returns one bit.
+        * & (And) takes two bits and returns 0 unless both inputs are 1.
+        * | (Or) takes two bits and returns 1 unless both inputs are 0. 
+        * ! (Not) takes one bit and inverts it; an input of 1 gives 0, and an input of 0 gives 1.
+    * Tcpdump  allows you to refer to the contents of any byte in the header using the following syntax **proto[expr:size]**
+        * proto: refers to protocol (arp, ether, icmp, ip, ip6, tcp, and udp)
+        * expr: refers to byte offset, where 0 refers to first byte.
+        * size: number of bytes that interest us, which can be one, two, or four. It is optional and is one by default.
+    * filtering TCP packets based on the set TCP flag.
+    * tcp[tcpflags] refer to the TCP flags field.
+        * tcp-syn: TCP SYN (Synchronize)
+        * tcp-ack: TCP ACK (Acknowledge)
+        * tcp-fin: TCP FIN (Finish)
+        * tcp-rst: TCP RST (Reset)
+        * tcp-push: TCP Push
+    * Examples
+        * **tcpdump "tcp[tcpflags] == tcp-syn":** capture TCP packets with only the SYN flag set, while other flags are unset. 
+        * **tcpdump "tcp[tcpflags] & tcp-syn != 0":**  capture TCP packets with at least the SYN (Synchronize) flag set.
+        * **tcpdump "tcp[tcpflags] & (tcp-syn|tcp-ack) != 0":** capture TCP packets with at least the SYN (Synchronize) or ACK (Acknowledge) flags set.
+* **Displaying Packets**
+    * **tcpdump -q:** Quick and quite: brief packet information
+    * **tcpdump -e:** Include MAC addresses
+    * **tcpdump -A:** Print packets as ASCII encoding
+    * **tcpdump -xx:** Display packets in hexadecimal format
+    * **tcpdump -X:** Show packets in both hexadecimal and ASCII formats
+
+---
+
 ## Room: [Next Room]
 
 
