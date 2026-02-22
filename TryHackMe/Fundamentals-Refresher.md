@@ -560,8 +560,57 @@ and Blue Team (Defensive).
 
 ---
 
+## Room: [Public Key Crytography Basics]
+**Key Concepts:**
+* **RSA** is a method for encrypting data using two keys: one to lock (encrypt) and another to unlock (decrypt) it, relying on the difficulty of factoring large number.
+* **The Core Premise:** RSA's security relies on the immense computational difficulty of factoring the product of two extremely large prime numbers. Multiplying them together is trivial; factoring the original primes back out of the product is incredibly hard.
+* **Asymmetric Encryption:** Uses a **Public Key** (shared with everyone) to encrypt data, and a mathematically linked **Private Key** (kept tightly secured) to decrypt it.
+* **The Variables (Crucial for CTFs):**
+    * $p$ and $q$: Two distinct, large prime numbers.
+    * $n$: The modulus, calculated as $n=p \times q$.
+    * $\phi(n)$: Euler's totient function, calculated in this context as $\phi(n)=n-p-q+1$.
+    * $e$: The public exponent (chosen to be relatively prime to $\phi(n)$).
+    * $d$: The private exponent, calculated so that $e \times d \equiv 1 \pmod{\phi(n)}$.
+    * $m$ (or $x$): The original plaintext message.
+    * $c$ (or $y$): The encrypted ciphertext.
+
+**Tools & Commands:**
+* `RsaCtfTool`: A highly recommended automated tool for breaking weak RSA encryptions in CTFs. It attempts multiple known attacks against a given public key or ciphertext.
+* `rsatool`: Another excellent command-line utility for calculating RSA variables and manipulating keys.
+
+**Takeaways / Notes:**
+* In cryptography CTF challenges, you are typically provided with a partial set of these variables (for example, $n$, $e$, and $c$). Your goal is to figure out the missing variables (often requiring you to find a way to factor $n$ into $p$ and $q$) so you can calculate $d$ and decrypt the ciphertext to grab the flag.
+
+**Diffie-Hellman**
+
+**Key Concepts:**
+* **The Problem:** Symmetric encryption is fast and efficient, but sharing the secret key over the internet is dangerous. If an attacker intercepts the key, the encryption is broken.
+* **The Solution (Diffie-Hellman):** Allows two parties to independently generate the *exact same* secret key by combining public materials with their own private secrets. The actual secret key is never transmitted across the network.
+* **The Math / Variables:**
+    * **Public Variables (Agreed upon & shared):** * $p$: A large prime number.
+        * $g$: A generator, where $0<g<p$.
+    * **Private Keys (Kept secret):** * $a$: Alice's chosen private integer.
+        * $b$: Bob's chosen private integer.
+    * **Public Keys (Calculated & exchanged over the network):**
+        * Alice's Public Key: $$A=g^a \pmod{p}$$
+        * Bob's Public Key: $$B=g^b \pmod{p}$$
+    * **Shared Secret (Calculated independently):**
+        * Alice computes: $$B^a \pmod{p}$$
+        * Bob computes: $$A^b \pmod{p}$$
+        * Both calculations mathematically result in the exact same shared secret: $$g^{ab} \pmod{p}$$
+
+**Tools & Protocols:**
+* **Diffie-Hellman (DH):** Used specifically for *key agreement* (creating the shared secret).
+* **RSA:** Often used alongside DH for *authentication* and *digital signatures*. 
+
+**Takeaways / Notes:**
+* On its own, Diffie-Hellman does not verify *who* is on the other end of the connection. This makes it highly vulnerable to Man-in-the-Middle (MitM) attacks (e.g., an attacker intercepts the public keys and swaps them with their own). 
+* To fix this, DH is almost always implemented alongside RSA. RSA digital signatures verify the identities of the communicating parties, ensuring Alice is actually doing the DH exchange with Bob, not an attacker.
+
+---
+
 ## Room: [Next Room]
-    
+
 
 
 
