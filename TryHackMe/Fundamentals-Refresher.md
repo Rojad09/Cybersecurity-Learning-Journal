@@ -609,8 +609,122 @@ and Blue Team (Defensive).
 
 ---
 
-## Room: [Next Room]
+## Room: [Hashing Basics]
 
+**Key Concepts:**
+* **Hashing vs. Encryption:** Hashing is a *one-way* process. Unlike encryption, there is no key, and it is designed to be computationally impossible to reverse a hash back into its original plaintext input.
+* **The Process:** A hash function takes data of *any* size and condenses it into a fixed-size summary, known as a **digest**.
+* **Extreme Sensitivity:** A hallmark of a good hash function is that changing even a single bit of the input data (like changing "T" to "U") completely changes the resulting hash. 
+* **Real-World Application:** Servers rarely store your actual password. Instead, they store the *hash* of your password. When you log in, the server hashes what you typed and compares it to the stored hash. 
+* **Hash Collisions & The Pigeonhole Principle:**
+    * A **hash collision** occurs when two entirely different inputs produce the exact same hash output.
+    * Because there are infinite possible inputs but a fixed, finite number of outputs, collisions are a mathematical inevitability. This is known as the **pigeonhole principle** (e.g., if you have 21 pigeons and 16 holes, some pigeons must share a hole).
+    * If a hash function uses a 4-bit output, the total number of possible hash values is calculated as:
+      $$2^{\text{number\_of\_bits}} = 2^4 = 16$$
+
+
+
+**Tools & Commands:**
+* `hexdump -C <file>`: Displays the raw byte contents of a file in hexadecimal format alongside its ASCII representation. Useful for seeing bit-level differences.
+* `md5sum <file>`: Calculates the MD5 hash of a file. Outputs in hexadecimal format.
+* `sha1sum <file>`: Calculates the SHA1 hash of a file.
+* `sha256sum <file>`: Calculates the SHA-256 hash of a file.
+
+**Takeaways / Notes:**
+* **MD5 and SHA1 are broken.** Attackers have figured out how to intentionally engineer hash collisions for these algorithms. Because of this, you should never trust MD5 or SHA1 for hashing passwords or securing sensitive data in modern applications.
+
+**Insecure Password Storage**
+* **Insecure Password Storage:** Methods include: Storing passwords in plaintext, Storing passwords using a deprecated encryption, Storing passwords using an insecure hashing algorithm.
+
+**Secure Password Storage:**
+* **The Problem with Basic Hashing:** If two users have the exact same password, they will generate the exact same hash. If an attacker cracks one, they compromise both accounts. 
+* **Rainbow Tables:** Massive, precomputed lookup tables that map plain-text passwords directly to their corresponding hashes. 
+    * *How it works:* Instead of spending computing power to crack a hash on the fly, attackers simply look up the hash in their database to see the original password. It trades cracking time for massive hard drive storage space.
+
+* **The Solution: Salting:** A "salt" is a randomly generated string of characters appended (or prepended) to a password *before* it gets hashed. 
+    * *Why it works:* Because each user gets a unique salt, two users with the exact same password will end up with entirely different final hashes. This completely neutralizes Rainbow Tables because an attacker would need to compute a separate massive table for every single possible salt.
+    * *Note:* Salts do not need to be kept secret. They are stored in plain text right next to the hash in the database.
+
+* **Hashing vs. Encryption:** Why not just encrypt passwords? Because encryption is a two-way street. If you encrypt passwords, you must store the decryption key somewhere. If a hacker breaches your server and steals the database *and* the key, every single password is instantly exposed. Hashing is a one-way street, preventing this entirely.
+
+**Secure Password Storage Workflow:**
+1. Select a modern, secure hashing algorithm (e.g., Argon2, Scrypt, Bcrypt, or PBKDF2).
+2. Generate a unique, random salt for the new user (e.g., `Y4UV*^(=go_!`).
+3. Concatenate the user's password with the salt (e.g., `AL4RMc10kY4UV*^(=go_!`).
+4. Calculate the hash of that combined string.
+5. Store the final hash *and* the unique salt in the user's database record.
+
+**Tools & Resources:**
+* **CrackStation & Hashes.com:** Websites that utilize massive internal Rainbow Tables to instantly crack basic, unsalted hashes. 
+* **Argon2, Scrypt, Bcrypt:** Industry-standard hashing algorithms. Unlike MD5 or SHA, these are specifically designed for passwords—they automatically handle salting and are intentionally slow to compute, making brute-force attacks painfully inefficient.
+
+**Takeaways / Notes:**
+* Never use raw MD5 or SHA algorithms for storing user passwords, and definitely never try to write your own custom cryptographic functions. Always default to established standards like Bcrypt or Argon2.
+
+**Password Hashes:**
+* **Context is King:** Automated hash identification tools are helpful but often unreliable because many hashes look visually identical (e.g., NTLM and MD5 are both 32-character hex strings). Knowing *where* you found the hash (e.g., a Windows box vs. a web application) is your best clue.
+* **Linux Password Storage (`/etc/shadow`):** * Passwords are no longer stored in `/etc/passwd`. They are kept in `/etc/shadow`, which requires `root` privileges to read.
+    * The file contains nine colon-separated (`:`) fields. The second field contains the actual hashed password data.
+* **Linux Hash Format:** The password field itself is broken down into four parts separated by dollar signs: `$prefix$options$salt$hash`.
+    * **Prefixes (from strongest/newest to weakest):**
+        * `$y$`: yescrypt (Modern Linux default)
+        * `$gy$`: gost-yescrypt
+        * `$7$`: scrypt
+        * `$2b$`, `$2y$`, `$2a$`, `$2x$`: bcrypt
+        * `$6$`: sha512crypt
+        * `$md5$`: SunMD5
+        * `$1$`: md5crypt
+* **Windows Password Storage (SAM & NTLM):**
+    * Windows stores passwords in the SAM (Security Accounts Manager) database.
+    * They are hashed using **NTLM** (a variant of MD4). 
+    * Windows hashes are often split into NT hashes and legacy LM hashes.
+
+**Tools & Commands:**
+* `hashID`: An automated command-line tool for recognizing hash types. *Use with a grain of salt and cross-reference with context.*
+* `mimikatz`: A powerful post-exploitation tool used on Windows to bypass security and dump password hashes directly from the SAM database or memory.
+* `sudo cat /etc/shadow`: The command used to view stored Linux hashes (requires privilege escalation).
+
+**Takeaways / Notes:**
+* If you ever encounter a hash format you don't recognize, the **Hashcat Example Hashes** page is the ultimate cheat sheet. It lists almost every hash format imaginable along with its corresponding mode number for cracking.
+* Never underestimate the power of simply researching the underlying application that generated the hash!
+
+**Integrity Checking:**
+* **File Integrity Checking (Checksums):** Because a hash changes drastically if even one bit is altered, hashing is the perfect way to verify that a file hasn't been corrupted or maliciously modified. When you download software (like a Linux ISO), developers often provide a signed checksum file to verify your download matches their original file exactly.
+* **De-duplication:** If two files generate the exact same hash, they are identical. This is widely used in storage systems to find and eliminate duplicate files.
+* **HMAC (Keyed-Hash Message Authentication Code):** While standard hashes prove *integrity*, they don't prove *who* made the hash. An HMAC solves this by combining a cryptographic hash function with a secret key.
+    * **Integrity:** The hash ensures the message hasn't been altered.
+    * **Authenticity:** The secret key ensures the message actually came from the person who holds that key.
+
+
+
+* **How HMAC Works (The Math):**
+    1. The secret key is padded to fit the hash function's block size.
+    2. The padded key is XORed ($\oplus$) with an inner constant (`ipad`).
+    3. The message is appended to the result, and that entire string is hashed.
+    4. The padded key is XORed with an outer constant (`opad`).
+    5. The hash from step 3 is appended to the result of step 4, and hashed one final time.
+
+**Tools & Commands:**
+* `sha256sum <file>`: The command used to generate a file's hash so you can manually compare it against the official checksum provided by a software vendor.
+
+**Takeaways / Notes:**
+* Always check the hashes of binaries, executables, or ISOs you download from the internet, especially if you are grabbing them from third-party mirrors. It takes five seconds but prevents you from installing backdoored software!
+
+**Hashing, Encoding & Encryption**
+* **Hashing (One-Way):** Takes data of any size and creates a fixed-size unique summary (digest). It is meant to be computationally impossible to reverse. *Purpose: Integrity and verification.*
+* **Encoding (Two-Way, No Key):** Converts data from one format to another simply to make it compatible with a specific system (e.g., converting binary data to text so it can be sent in an email). Anyone can reverse it if they know the encoding method (like ASCII, UTF-8, or Base64). It provides zero confidentiality. *Purpose: Usability and compatibility.*
+* **Encryption (Two-Way, Requires Key):** Scrambles data using a cryptographic cipher to protect its confidentiality. It is fully reversible, but *only* if you possess the correct secret key. *Purpose: Confidentiality.*
+
+**Tools & Commands:**
+* `base64`: Encodes standard input into Base64 format. (In Linux, type the command, type your text, press Enter, and then press `Ctrl+D` to signify the end of the file/input).
+* `base64 -d`: Decodes a Base64 string back into plain text.
+
+**Takeaways / Notes:**
+* **Encoding is not security!** This is a massive trap in CTFs and real-world web apps. Just because a string looks like gibberish (e.g., `VHJ5SGFja01lCg==`) does not mean it is encrypted. If it's just Base64 encoded, you can decode it in seconds without needing a password or key.
+
+---
+
+## Room: [Next Room]
 
 
 
