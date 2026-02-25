@@ -622,8 +622,6 @@ and Blue Team (Defensive).
     * If a hash function uses a 4-bit output, the total number of possible hash values is calculated as:
       $$2^{\text{number\_of\_bits}} = 2^4 = 16$$
 
-
-
 **Tools & Commands:**
 * `hexdump -C <file>`: Displays the raw byte contents of a file in hexadecimal format alongside its ASCII representation. Useful for seeing bit-level differences.
 * `md5sum <file>`: Calculates the MD5 hash of a file. Outputs in hexadecimal format.
@@ -695,8 +693,6 @@ and Blue Team (Defensive).
     * **Integrity:** The hash ensures the message hasn't been altered.
     * **Authenticity:** The secret key ensures the message actually came from the person who holds that key.
 
-
-
 * **How HMAC Works (The Math):**
     1. The secret key is padded to fit the hash function's block size.
     2. The padded key is XORed ($\oplus$) with an inner constant (`ipad`).
@@ -724,8 +720,141 @@ and Blue Team (Defensive).
 
 ---
 
+## Room: [John the Ripper: Basics]
+**John the Ripper:** a free and open-source password-cracking tool. It can crack passwords stored in various formats, including hashes, passwords, and encrypted private keys. It can be used to test passwords' security and recover lost passwords.
+
+**Key Concepts:**
+* **Hashes (Review):** Algorithms (like MD5 or SHA1) that take input of any length and produce a fixed-length string. For example, both "polo" and "polomints" result in exactly 32-character MD5 hashes.
+* **Why Hashes are Secure (P vs. NP):**
+    * **P (Polynomial Time):** Problems that a computer can solve efficiently (e.g., sorting a list or *calculating a hash*).
+    * **NP (Non-deterministic Polynomial Time):** Problems where a solution is easy to *check*, but computationally infeasible to *find* from scratch (e.g., *reversing a hash*).
+    * *Conclusion:* You cannot mathematically "un-hash" a value.
+* **The Dictionary Attack:** Since we cannot reverse a hash, we have to guess the input. We take a massive list of common passwords (a dictionary), hash every single word in that list using the same algorithm, and compare our generated hashes against the target hash. If they match, we found the password!
+
+**Tools & Commands:**
+* **John the Ripper (Jumbo John):** An extremely popular, fast, and versatile open-source tool used specifically for conducting brute-force and dictionary attacks against various hash types. 
+
+**Takeaways / Notes:**
+* Whenever a CTF requires you to crack a hash, your go-to method will almost always be a dictionary attack using a tool like John the Ripper, rather than trying to cryptographically break the algorithm itself.
+
+**Basic Hash Cracking**
+* **Automatic vs. Manual Cracking:** John has a built-in feature to auto-detect hash types. While convenient, it can be unreliable or inefficient. It is often better to manually identify the hash and explicitly tell John what format to use.
+* **Standard Hash Prefixes:** When specifying formats for standard hashes (like MD5 or SHA1) in John, you frequently need to use the `raw-` prefix (e.g., `raw-md5` instead of just `md5`).
+
+**Tools & Commands:**
+* **John the Ripper - Basic Syntax:**
+  `john [options] [file path]`
+* **Automatic Cracking (Auto-detect format):**
+  `john --wordlist=[path to wordlist] [path to file]`
+  *Example:* `john --wordlist=/usr/share/wordlists/rockyou.txt hash_to_crack.txt`
+  
+* **Format-Specific Cracking (Manual format):**
+  `john --format=[format] --wordlist=[path to wordlist] [path to file]`
+  *Example:* `john --format=raw-md5 --wordlist=/usr/share/wordlists/rockyou.txt hash_to_crack.txt`
+* **Format Discovery:**
+  `john --list=formats | grep -iF "md5"`: Lists all supported formats in JtR and filters for "md5" to help you find the exact format string John expects.
+* **Hash-Identifier:** A Python tool to help figure out what type of hash you are looking at.
+  `wget https://gitlab.com/kalilinux/packages/hash-identifier/-/raw/kali/master/hash-id.py`
+  `python3 hash-id.py` (Then paste the hash when prompted).
+  
+
+**Takeaways / Notes:**
+* `rockyou.txt` is the gold standard wordlist for CTFs and basic cracking. It's usually located at `/usr/share/wordlists/rockyou.txt` on Kali and Parrot OS.
+* If John refuses to crack a standard hash, double-check that you included the `raw-` prefix in the `--format` flag!
+
+**etc/shadow hashes exercise**
+
+**The Split Files:** Modern Linux systems separate user account information from the actual password hashes for security. 
+    * `/etc/passwd`: Contains user info (readable by anyone).
+    * `/etc/shadow`: Contains the actual password hashes (readable only by `root`).
+* **Unshadowing:** John the Ripper needs context from *both* files to correctly correlate usernames with their respective hashes. You cannot just feed it the shadow file directly. You must combine them using a tool called `unshadow`.
+* **Targeted Cracking:** You don't need the entire `/etc/passwd` and `/etc/shadow` files. If you only want to crack a specific user (like `root`), you can just copy their individual line from both files into your own local text files and unshadow those.
+
+**Tools & Commands:**
+* **`unshadow`:** A utility built into the John the Ripper suite.
+  `unshadow [path to passwd] [path to shadow] > [output_file.txt]`
+  *Example:* `unshadow local_passwd local_shadow > unshadowed.txt`
+* **Cracking the Unshadowed File:**
+  `john --wordlist=[path to wordlist] [unshadowed file]`
+  *Example:* `john --wordlist=/usr/share/wordlists/rockyou.txt unshadowed.txt`
+* **Format Override (If Needed):** Usually, John auto-detects the format of an unshadowed file. If it struggles, you can explicitly define the format (e.g., if the shadow file uses `$6$`, it's SHA-512).
+  *Example:* `john --wordlist=/usr/share/wordlists/rockyou.txt --format=sha512crypt unshadowed.txt`
+
+**Takeaways / Notes:**
+* Getting access to `/etc/shadow` is a huge win during an engagement. Once you pull those files back to your attack machine, you can use your own CPU/GPU power to crack the passwords offline without alerting the target system!
+
+**Single Crack Mode**
+
+* **Single Crack Mode:** A mode in John the Ripper that uses the username (and other account info) to guess the password. It assumes users often create weak passwords based on their own names or details.
+* **Word Mangling:** The process where John creates a custom, targeted wordlist on the fly by mutating the known information. It applies built-in "mangling rules" to alter the case, append numbers, or add special characters. 
+    * *Example:* If the username is "Markus", John will automatically try `Markus1`, `MArkus`, `Markus!`, etc.
+* **GECOS Field:** In UNIX/Linux systems, the `/etc/passwd` file separates user data into fields using colons (`:`). The 5th field is the GECOS (General Electric Comprehensive Operating System) field, which stores extra account details like the user's full name, phone number, and office number. John can pull this data and use it for word mangling.
+
+**Tools & Commands:**
+* **Running Single Crack Mode:**
+  `john --single --format=[format] [path to file]`
+  *Example:* `john --single --format=raw-sha256 hashes.txt`
+* **Crucial File Formatting:**
+  For Single mode to work, John *must* know the username associated with the target hash so it can mangle it. If you just have a raw hash file, you must edit it to prepend the username and a colon.
+  * *Incorrect:* `1efee03cdcb96d90ad48ccc7b8666033`
+  * *Correct:* `mike:1efee03cdcb96d90ad48ccc7b8666033`
+
+**Takeaways / Notes:**
+* Single Crack mode is incredibly fast because it's generating a very small, highly targeted list of guesses. It should often be your first step before launching a massive, time-consuming dictionary attack with `rockyou.txt`.
+
+**Custom Rules**
+
+* **Exploiting Predictability:** Password complexity requirements (capital letter, number, symbol) are good in theory, but humans are predictable. A massive percentage of users simply capitalize the first letter of their base password and append a number and a symbol at the end (e.g., `Polopassword1!`). Custom rules let us automate this exact mutation against our wordlists.
+* **The Configuration File:** Custom rules are defined inside the `john.conf` file. 
+    * Standard Linux Installs: `/etc/john/john.conf`
+
+**Custom Rule Syntax (`john.conf`):**
+Rules use a RegEx-style syntax. You must define a header name for the rule, followed by the modifiers and character sets.
+
+* **The Header:** `[List.Rules:RuleName]` (This defines what you will call in the command line).
+* **Common Modifiers:**
+    * `c`: Capitalizes the character positionally (usually the first letter).
+    * `Az`: Appends characters to the end of the word.
+    * `A0`: Prepends characters to the beginning of the word.
+* **Character Sets (Enclosed in `[ ]` and `""`):**
+    * `[0-9]`: Includes numbers 0-9.
+    * `[A-Z]`: Includes only uppercase letters.
+    * `[a-z]`: Includes only lowercase letters.
+    * `[!£$%@]`: Includes specific symbols.
+
+**Example Implementation:**
+To target the `Polopassword1!` pattern using a base wordlist containing `polopassword`, you would add this to your `john.conf`:
+
+> `[List.Rules:PoloPassword]`
+> `cAz"[0-9] [!£$%@]"`
+
+*Breakdown of the rule:* Capitalize the first letter (`c`), append to the end (`Az`), add one number (`[0-9]`), and add one symbol (`[!£$%@]`).
+
+**Tools & Commands:**
+* **Running a Custom Rule:**
+  `john --wordlist=[path to wordlist] --rule=[RuleName] [path to target file]`
+  *Example:* `john --wordlist=/usr/share/wordlists/rockyou.txt --rule=PoloPassword hashes.txt`
+
+**Takeaways / Notes:**
+* Writing rules is like writing RegEx—it helps to talk out the pattern out loud!
+* Jumbo John already includes a massive list of pre-built custom rules around line 678 of `john.conf`. Always check there first to see how complex rules are constructed if your syntax isn't working.
+
+**Password Protected Zip Files**
+
+* With John, it is possible to crack the password on password-protected Zip files, utilizing Zip2John.
+* zip2john [options] [zip file] > [output file] to get the hash of the zip file
+
+**Password Protected RAR Archive**
+* Similar process is used to obtain the password for RAR archives (compressed files created by the WinRAR archive manager).
+* Use rar2john instead of zip2john.
+* Basic Syntax: rar2john [rar file] > [output file]
+
+**SSH Key with John**
+* using John to crack the SSH private key password of id_rsa files
+* ssh2john converts the id_rsa private key, which is used to log in to the SSH session, into a hash format that John can work with. 
+* ssh2john [id_rsa private key file] > [output file]
+
+---
 ## Room: [Next Room]
-
-
 
 
