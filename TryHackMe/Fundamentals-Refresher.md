@@ -855,6 +855,126 @@ To target the `Polopassword1!` pattern using a base wordlist containing `polopas
 * ssh2john [id_rsa private key file] > [output file]
 
 ---
+
+## Room: [Metasploit: Introduction]
+
+**Key Concepts:**
+* **The Framework:** Metasploit is the most widely used exploitation framework in the industry. It is designed to support a penetration tester through every single phase of an engagement (Information Gathering $\rightarrow$ Scanning $\rightarrow$ Exploitation $\rightarrow$ Post-Exploitation).
+* **The Two Versions:**
+    * **Metasploit Pro:** The commercial, paid version. It features a full Graphical User Interface (GUI) and heavily automates task management and exploitation.
+    * **Metasploit Framework:** The open-source, free version. It is entirely command-line based and is the standard version pre-installed on Kali Linux and the TryHackMe AttackBox. 
+* **Core Components:**
+    * **msfconsole:** The primary command-line interface where you will spend 99% of your time interacting with the framework.
+    * **Modules:** The actual building blocks of Metasploit. These include the specific exploits, scanners, and payloads you will launch at a target.
+    * **Tools:** Stand-alone utility programs bundled with Metasploit to assist in specific tasks (like payload generation or vulnerability research).
+
+**Tools & Commands:**
+* `msfconsole`: The command used in your Linux terminal to launch the Metasploit Framework interface.
+* `msfvenom`: A crucial stand-alone tool within the framework used specifically for generating custom malicious payloads (which will be covered later in this room). 
+* `pattern_create` & `pattern_offset`: Stand-alone tools used for exploit development and buffer overflows (outside the scope of basic usage, but good to know they exist!).
+
+**Takeaways / Notes:**
+* This room focuses entirely on the open-source **Metasploit Framework** via the command line. Mastering `msfconsole` is an absolute must for any aspiring penetration tester, as it is a staple in both CTFs and real-world engagements.
+
+**Main Components**
+* **The Core Terminology:**
+    * **Vulnerability:** A design, coding, or logic flaw in a target system.
+    * **Exploit:** The specific piece of code that takes advantage of the vulnerability.
+    * **Payload:** The code that actually runs on the target system *after* the exploit succeeds (e.g., the code that gives you a reverse shell or creates a backdoor).
+
+
+* **Metasploit Modules (The Building Blocks):**
+    * **Auxiliary:** Supporting modules used for information gathering. Includes scanners, crawlers, and fuzzers. (No payloads are sent here).
+    * **Exploits:** Organized by target operating system (Windows, Linux, Apple, etc.). These are the scripts that break into the system.
+    * **Payloads:** The code executed upon successful exploitation.
+    * **Post:** Post-exploitation modules used *after* you have a shell. Used to pivot, gather hashes, or escalate privileges.
+    * **Encoders:** Used to encode exploits/payloads to avoid detection by signature-based Antivirus (AV). *Note: Modern AV often catches these anyway.*
+    * **Evasion:** Modules specifically designed to actively evade AV and security software.
+    * **NOPs (No OPeration):** Machine code instructions (like `0x90` in x86) that tell the CPU to do absolutely nothing. Used heavily in buffer overflows to pad payloads to the correct memory size.
+
+* **Understanding Payloads (Crucial Concept):**
+    * **Adapters:** Wraps a single payload into a different format (like a PowerShell command).
+    * **Singles (Inline):** Self-contained payloads. The entire code is sent at once. Good for simple tasks (e.g., adding a user, popping `calc.exe`).
+    * **Stagers & Stages (Staged):** For complex payloads, sending it all at once might crash the exploit or get caught. Instead, you send a tiny **Stager** to establish a connection back to you, and then the stager downloads the rest of the bulky payload (the **Stage**).
+
+**Tools & Commands:**
+* `msfconsole`: The command to launch the primary Metasploit interface.
+
+**Takeaways / Notes:**
+* **How to spot the difference between Staged and Single payloads in Metasploit:**
+    * Look at the naming convention! 
+    * Underscore (`_`) = **Single/Inline** (e.g., `windows/x64/shell_reverse_tcp`). The whole payload is sent at once.
+    * Forward Slash (`/`) = **Staged** (e.g., `windows/x64/shell/reverse_tcp`). It sends a stager to catch the final stage.
+
+**Msfconsole**
+
+* **Terminal Integration:** `msfconsole` acts like a standard Linux shell. You can run normal commands like `ls`, `ping`, and `clear` directly from the prompt. However, shell features like output redirection (`>`) are not supported.
+* **Context Management:** When you select a module, you "enter" its context (your prompt will change to reflect this). Variables you set here (like target IPs) are local to this specific module unless you intentionally set them as global variables.
+* **Module Rankings:** Metasploit ranks exploits based on their reliability and the likelihood of them crashing the target. Rankings range from `Excellent` down to `Manual`. 
+
+* *Note:* Even highly ranked exploits can cause unexpected behavior or crash a service, so always exercise caution.
+
+
+**Tools & Commands:**
+* **General Navigation:**
+  * `msfconsole`: Launches the Metasploit interface.
+  * `Tab` key: Heavily supported! Use tab-completion to auto-fill module paths and commands.
+  * `history`: Shows your previously typed commands.
+  * `help <command>`: Shows the usage and syntax for a specific command (e.g., `help set`).
+* **Searching & Selecting:**
+  * `search <keyword>`: Searches the database. You can use complex filters like `search type:auxiliary telnet` or `search cve:2017`.
+  * `use <module_path>` or `use <number>`: Selects a module and enters its context. (e.g., `use 0` selects the first result from your previous search).
+* **Module Interaction (Inside a Context):**
+  * `show options`: Displays all variables (like `RHOSTS`, `RPORT`) required to run the current module.
+  * `show payloads`: Lists all payloads that are compatible with the currently selected exploit.
+  * `info`: Displays detailed documentation for the module, including its description, authors, and CVE references.
+  * `back`: Exits the current module's context and returns to the global `msf6 >` prompt.
+
+**Takeaways / Notes:**
+* Being able to type `use 0` instead of copying and pasting a massive module path like `exploit/windows/smb/ms17_010_eternalblue` will save you time.
+
+**Modules**
+
+**Key Concepts:**
+* **Context is Everything (The 5 Prompts):** Metasploit has different layers of prompts. Always check your prompt to know what commands are available:
+    1. `root@attackbox:~#`: Standard Linux terminal (MSF is not running).
+    2. `msf6 >`: Global Metasploit prompt.
+    3. `msf6 exploit(...) >`: Module context prompt (you are inside an exploit).
+    4. `meterpreter >`: The Metasploit payload prompt (you have a connection to the target).
+    5. `C:\Windows\system32>` or `$`: Target system shell (you are typing directly into the victim's OS).
+
+
+
+* **Global vs. Local Variables:** Variables set with `set` only apply to the current module. If you switch to a different module, you lose them. Variables set with `setg` (set global) persist across all modules until you close Metasploit.
+
+**Common Variables:**
+| Variable | Description |
+| :--- | :--- |
+| **RHOSTS** | Target IP(s). Accepts single IPs, CIDR networks (`/24`), ranges, or a text file (`file:/path/to/targets.txt`). |
+| **RPORT** | Target port the vulnerable service is running on. |
+| **PAYLOAD** | The specific payload to deliver upon successful exploitation. |
+| **LHOST** | Your attacking machine's IP address (where the reverse shell connects back). |
+| **LPORT** | Your attacking machine's listening port. |
+| **SESSION** | The ID of an already established connection (used heavily in Post-Exploitation modules). |
+
+**Tools & Commands:**
+* **Setting Parameters:**
+  * `show options`: Displays all variables (and if they are required) for the current module.
+  * `set <PARAMETER> <VALUE>`: Sets a variable for the current module (e.g., `set RHOSTS 10.10.10.1`).
+  * `setg <PARAMETER> <VALUE>`: Sets a global variable across all modules.
+  * `unset <PARAMETER>` / `unset all` / `unsetg <PARAMETER>`: Clears parameters.
+* **Execution:**
+  * `check`: Tests if the target is vulnerable without actually exploiting it (if supported by the module).
+  * `exploit` (or `run`): Executes the selected module.
+  * `exploit -z`: Executes the exploit and immediately sends the resulting session to the background.
+* **Session Management:**
+  * `background` (or `Ctrl+Z`): Moves your current active session to the background, returning you to the `msf6 >` prompt.
+  * `sessions`: Lists all currently active, backgrounded sessions.
+  * `sessions -i <ID>`: Interacts with a specific backgrounded session (e.g., `sessions -i 2`).
+
+**Takeaways / Notes:**
+* Always run `show options` before hitting `exploit`. Sometimes default parameters (like `RPORT`) are pre-populated with standard ports, but your specific target might be running the service on a non-standard port!
+
+---
+
 ## Room: [Next Room]
-
-
