@@ -977,4 +977,27 @@ To target the `Polopassword1!` pattern using a base wordlist containing `polopas
 
 ---
 
-## Room: [Next Room]
+## Room: [Metasploit: Exploitation]
+
+**Key Concepts:**
+* **Metasploit vs. Nmap:** While Metasploit has built-in port scanners, they are generally slower than standalone Nmap. 
+    * *Crucial Difference:* By default, Nmap scans the top 1,000 most common ports. Metasploit's default TCP scanner scans ports 1 through 10,000. 
+* **Targeted Service Enumeration:** Where Metasploit's auxiliary scanners truly shine is in targeted service enumeration. Once you know a port is open, MSF modules can quickly fingerprint the exact software version or pull configuration details (like SMB shares or NetBIOS names).
+* **NetBIOS and System Roles:** Scanning NetBIOS (often on UDP 137 or TCP 139) can reveal the system's hostname. In a corporate network, a name like `CORP-DC` immediately tells you it's a high-value Domain Controller.
+
+**Tools & Commands:**
+* **Finding Scanners:**
+  * `search portscan`: Lists the built-in MSF port scanners (e.g., `auxiliary/scanner/portscan/tcp`).
+* **Scanner Options:**
+  * `CONCURRENCY`: Number of targets to scan simultaneously.
+  * `THREADS`: Number of concurrent threads per host. (Increase this to speed up MSF scans).
+  * `PORTS`: The port range to scan.
+* **Running Nmap natively:**
+  * `nmap -sS <IP>`: You can run Nmap commands directly from the `msf6 >` prompt! This is often the fastest way to get initial port data without leaving the framework.
+* **Helpful Auxiliary Scanners:**
+  * `use auxiliary/scanner/discovery/udp_sweep`: Quickly identifies common UDP services like DNS or NetBIOS without doing a painfully slow full UDP port scan.
+  * `use auxiliary/scanner/smb/smb_version`: Identifies the exact Windows OS build and SMB version running on the target.
+  * `use auxiliary/scanner/smb/smb_enumshares`: Enumerates available SMB file shares.
+
+**Takeaways / Notes:**
+* If your engagement requires pure speed for an initial sweep, just use `nmap` directly in the console. Then, use Metasploit's specific `auxiliary/scanner/` modules to deep-dive into the specific services you found (like SMB, HTTP, or FTP).
