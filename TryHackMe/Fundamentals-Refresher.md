@@ -1001,3 +1001,35 @@ To target the `Polopassword1!` pattern using a base wordlist containing `polopas
 
 **Takeaways / Notes:**
 * If your engagement requires pure speed for an initial sweep, just use `nmap` directly in the console. Then, use Metasploit's specific `auxiliary/scanner/` modules to deep-dive into the specific services you found (like SMB, HTTP, or FTP).
+
+**Database and Workshop**
+
+* **Why use the database?** When dealing with multiple targets, manually typing `set RHOSTS <IP>` over and over is tedious and prone to errors. The database stores all your scan results and allows you to load targets directly into modules.
+* **Workspaces:** Workspaces act like separate project folders within the database. You can isolate data between different clients or different CTF boxes (e.g., creating a workspace named "tryhackme" so it doesn't mix with your "hackthebox" data).
+
+**Initial Setup (Kali Linux / Local Installs):**
+*(Note: This is already done on the TryHackMe AttackBox)*
+1. Start the database service: `systemctl start postgresql`
+2. Initialize the MSF database (must be run as the postgres user): `sudo -u postgres msfdb init`
+3. Verify connection in `msfconsole`: `db_status`
+
+**Tools & Commands:**
+* **Workspace Management:**
+  * `workspace`: Lists all workspaces (the current one is marked with `*`).
+  * `workspace -a <name>`: Adds a new workspace.
+  * `workspace <name>`: Switches to the specified workspace.
+  * `workspace -d <name>`: Deletes a workspace.
+
+* **Database-Driven Scanning & Enumeration:**
+  * `db_nmap <nmap_flags> <IP>`: Runs Nmap, but **automatically saves all results into the Metasploit database** for the current workspace.
+  * `hosts`: Lists all IP addresses and OS information currently saved in the database.
+  * `services`: Lists all discovered open ports and services across all saved hosts.
+  * `services -S <keyword>`: Searches the database for a specific service (e.g., `services -S netbios`).
+
+* **Automating Exploitation (The Golden Workflow):**
+  Instead of manually typing target IPs, you can pull them straight from the database into your exploit:
+  1. `use <module>`
+  2. `hosts -R`: Automatically populates the `RHOSTS` parameter of the current module with every IP address saved in the database!
+
+**Takeaways / Notes:**
+* The `db_nmap` command is arguably one of the most powerful integrations in Metasploit. Running `db_nmap -sV -p- <Target_Subnet>` at the start of an engagement populates your database with every open port on the network, allowing you to instantly search for "low-hanging fruit" like open SMB or FTP ports using the `services` command.
