@@ -1040,8 +1040,6 @@ To target the `Polopassword1!` pattern using a base wordlist containing `polopas
 * **The Recon Reliance:** Metasploit is only as good as the information you feed it. The more thoroughly you scan and fingerprint a target (finding exact version numbers and running services), the more accurately you can search for a matching exploit module.
 * **Targeted Scanning (VNC Example):** If your initial Nmap scan reveals port 5900 (VNC) is open, you don't immediately jump to an exploit. Instead, you use Metasploit's specific `auxiliary/scanner` modules to probe it further. For instance, testing for blank passwords or brute-forcing weak credentials.
 
-
-
 **Tools & Commands:**
 * **Searching by Service:**
   * Type `use auxiliary/scanner/vnc/` and hit `Tab` twice. This will list all available scanning modules specifically designed for VNC (e.g., `vnc_login`, `vnc_none_auth`).
@@ -1055,8 +1053,6 @@ To target the `Polopassword1!` pattern using a base wordlist containing `polopas
 * **MSFvenom:** A standalone tool within the Metasploit Framework that combines payload generation and encoding. It allows you to create custom malicious executables, scripts, or web files for almost any operating system.
 * **Encoders (The AV Myth):** Encoders (like `x86/shikata_ga_nai` or `php/base64`) change the signature of the payload. While this used to bypass older Antivirus (AV), modern AV easily catches standard MSFvenom payloads. True evasion requires custom obfuscation or shellcode injection.
 * **Handlers ("Catching a Shell"):** When you execute a standalone reverse shell payload on a target, it reaches back out to your attacking machine. You must have a listener running to "catch" that connection. Metasploit's `exploit/multi/handler` is the universal tool for this job.
-
-
 
 **Tools & Commands (MSFvenom):**
 * `msfvenom -l payloads`: Lists all available payloads you can generate.
@@ -1077,3 +1073,111 @@ Inside `msfconsole`:
 
 **Takeaways / Notes:**
 * **The PHP Web Shell Trap:** When generating a raw PHP payload with MSFvenom, it usually outputs commented-out PHP tags at the top `/*<?php /**/` and misses the closing tag `?>`. You *must* edit the generated `shell.php` file in a text editor to clean up the `<?php` tag and add `?>` at the end, or the web server will just display the raw code instead of executing it!
+
+---
+
+## Room: [Metasploit: Meterpreter]
+
+**Key Concepts:**
+* **What is Meterpreter?** It is an advanced, dynamically extensible payload that provides a complex command-and-control shell. Once an exploit runs successfully, Meterpreter acts as the agent living on the target machine, allowing you to run specialized commands, pivot, and dump hashes.
+* **In-Memory Execution (Diskless Stealth):** * *The Problem:* Most Antivirus (AV) works by scanning files the moment they are written to the hard drive. If you drop a file named `malware.exe`, the AV catches it instantly.
+    * *The Solution:* Meterpreter runs entirely in the target's RAM (Random Access Memory). It never writes a file to the physical disk. Therefore, traditional file-scanning AV has nothing to detect.
+* **Process Migration/Injection:** Instead of showing up in the Task Manager as `meterpreter.exe`, it injects itself into existing, legitimate system processes (like `spoolsv.exe` or `explorer.exe`). Even if a defender checks the running processes or the loaded DLLs, they won't immediately see anything malicious.
+* **Encrypted Communications:** Meterpreter encrypts its connection back to your AttackBox (using TLS). This prevents Network Intrusion Detection Systems (IDS/IPS) from reading the traffic and flagging it as malicious, assuming the network doesn't decrypt outbound HTTPS traffic.
+
+
+
+**Tools & Commands (Inside a Meterpreter Session):**
+* `getpid`: Returns the Process ID (PID) that your current Meterpreter session is actively hiding inside.
+* `ps`: Lists all running processes on the target system (similar to Windows Task Manager or Linux `top`). You can use this to find a more stable process to migrate into.
+* *(Windows Command)* `tasklist /m /fi "pid eq <PID>"`: A Windows command prompt command that lists all DLLs loaded by a specific process ID. (Used here to prove that Meterpreter doesn't load obvious malicious DLLs).
+
+**Takeaways / Notes:**
+* While Meterpreter's in-memory execution is stealthy against basic, legacy AV, modern Endpoint Detection and Response (EDR) solutions (like CrowdStrike or SentinelOne) monitor memory and behavior. They *will* detect a raw Meterpreter payload, so it is not a silver bullet!
+
+**Flavors**
+
+* **Staged vs. Inline (Single) Refresher:** * *Staged:* Sent in two parts. A tiny "stager" is sent first, which then reaches back to your attacking machine to download the rest of the bulky Meterpreter payload.
+    * *Inline (Single):* The entire payload is sent and executed in one single step.
+* **Platform Versatility:** Meterpreter isn't just for Windows! There are specific versions built for Android, Apple iOS, Java, Linux, OSX, PHP, and Python.
+* **The 3 Rules of Payload Selection:** When deciding which Meterpreter payload to use, evaluate:
+    1. **Target OS:** What is the architecture and operating system? (e.g., Windows x64 vs. Linux ARM).
+    2. **Target Components:** What interpreters are already installed? (e.g., If it's a web server running PHP, a PHP Meterpreter might be the easiest route).
+    3. **Network Restrictions:** How is the firewall configured? If raw TCP connections are blocked outbound, you might need to use a `reverse_https` payload so the traffic looks like normal web browsing.
+
+**Tools & Commands:**
+* **Listing Payloads via MSFvenom:**
+  `msfvenom --list payloads | grep meterpreter`
+  *Explanation:* Lists all hundreds of payloads in the framework, but pipes the output to `grep` to filter only the ones containing the word "meterpreter".
+* **Checking Compatible Payloads in MSFconsole:**
+  `show payloads`
+  *Explanation:* When inside an exploit context (like `exploit/windows/smb/ms17_010_eternalblue`), this command lists only the payloads that are mathematically and architecturally compatible with that specific exploit.
+
+**Takeaways / Notes:**
+* Exploits usually have a default payload configured (e.g., EternalBlue defaults to `windows/x64/meterpreter/reverse_tcp`). Always double-check this default! If your target blocks outbound TCP over port 4444, the default payload will fail silently, even if the exploit itself was successful.
+
+**Essential Commands (Long)**
+
+* **Context-Sensitive Help:** The commands available in Meterpreter change depending on the payload version (e.g., Windows vs. Linux vs. Android). Typing `help` or `?` will dynamically generate a list of commands supported by your specific session.
+* **Built-in Tools:** These commands run directly within the Meterpreter memory space on the target system. They do not require you to upload additional scripts or executables, which helps maintain your stealth.
+
+
+
+**Tools & Commands (By Category):**
+
+**Core Commands (Session Management):**
+* `background` / `bg`: Sends the current Meterpreter session to the background and returns to the `msf6 >` prompt.
+* `sessions`: Switch to another active session.
+* `migrate`: Moves the active Meterpreter payload into a different running process on the target (crucial for stability and stealth).
+* `load`: Loads additional Meterpreter extension modules.
+* `exit`: Terminates the session entirely.
+
+**File System Commands:**
+* `pwd` / `cd` / `ls`: Print working directory, change directory, and list files.
+* `cat` / `edit`: View or directly edit a file on the target.
+* `rm`: Delete a file.
+* `search`: Search for specific files (e.g., `search -f *.txt`).
+* `upload` / `download`: Move files between your attacking machine and the target system.
+
+**Networking Commands:**
+* `ifconfig` / `arp` / `netstat` / `route`: Standard network enumeration tools to view interfaces, MAC addresses, active connections, and routing tables.
+* `portfwd`: Forwards a local port on your AttackBox to a remote service on the target network (essential for pivoting).
+
+**System Commands:**
+* `getuid`: Shows the user account your Meterpreter session is currently running under.
+* `getpid`: Shows your current Process ID.
+* `ps`: Lists all running processes on the target.
+* `kill` / `pkill`: Terminates processes by ID or by name.
+* `sysinfo`: Retrieves OS details, architecture, and domain information.
+* `shell`: Drops you out of Meterpreter and into a standard system command shell (like `cmd.exe` or `/bin/bash`).
+* `clearev`: Clears the application, system, and security event logs on a Windows target!
+
+**Surveillance & Privilege Escalation (Others):**
+* `getsystem`: A powerful automated script that attempts multiple known techniques to instantly elevate your privileges to `NT AUTHORITY\SYSTEM` (Root equivalent on Windows).
+* `hashdump`: Dumps the contents of the SAM database, giving you the NTLM password hashes for all users on the machine.
+* `keyscan_start` / `keyscan_dump` / `keyscan_stop`: Logs keystrokes from the remote user.
+* `screenshot` / `screenshare`: Captures the remote user's interactive desktop.
+* `record_mic` / `webcam_snap` / `webcam_stream`: Interacts with attached hardware to record audio or video.
+
+**Takeaways / Notes:**
+* **Manage your expectations:** Just because a command is listed in the `help` menu doesn't mean it will work. For example, if you exploit a headless Windows Server in a data center, running `webcam_snap` will fail because the hardware doesn't exist.
+* The `getsystem` and `hashdump` commands are the "holy grail" of Windows post-exploitation. If you can run those successfully, you own the box.
+
+**Post-Exploitation**
+
+**Tools & Commands:**
+* **`getuid`:** Displays the user account your Meterpreter session is running as. Use this immediately to check if you have administrative/SYSTEM privileges.
+* **`ps`:** Lists running processes. Use this to find a stable process (and its PID) to migrate into.
+* **`migrate <PID>`:** Moves your Meterpreter session into the specified Process ID.
+* **`hashdump`:** Dumps the contents of the SAM database. The output will show the username, user ID, and the NTLM hash. You can crack these offline or use them directly in "Pass-the-Hash" attacks.
+* **`search -f <filename>`:** Searches the target's file system for specific files. Extremely useful for finding `flag.txt` in CTFs or `config.php` files in real-world engagements.
+* **`shell`:** Drops you out of the Meterpreter interface and into a standard system command line (like `cmd.exe` on Windows). 
+    * *Tip:* Press `Ctrl+Z` to background the standard shell and return to your Meterpreter prompt.
+
+
+**Takeaways / Notes:**
+* Always check your privileges (`getuid`) *before* you `migrate`. If you have `NT AUTHORITY\SYSTEM`, make sure the process you are migrating into is also owned by `SYSTEM` (like `spoolsv.exe` or `lsass.exe`).
+
+---
+
+## Room: [Next Room]
