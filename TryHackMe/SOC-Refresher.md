@@ -524,4 +524,5 @@ If Logstash lacks a built-in pattern for a custom application log, you can defin
 Regex is the ultimate cheat code for log analysis. Whether you are quickly carving out specific data blocks in the terminal with `grep -E`, or writing custom SIEM parsers via Logstash Grok, mastering regex will save you countless hours of manual review.
 
 ---
+
 ## Room: [Next Room]

@@ -1181,3 +1181,288 @@ Inside `msfconsole`:
 ---
 
 ## Room: [Web Application Basics]
+
+**Web App Overview**
+
+* **Objective:** Understand the core components that make up a web application by separating the Front End (what the user sees) from the Back End (the engine under the surface).
+
+### The Planet Analogy
+Think of a web application as a planet. The **Front End** is the visible surface that astronauts (users) explore and interact with. The **Back End** consists of the invisible, underlying structures (gravity, atmosphere, core) that keep the planet functioning.
+
+### Front End (The Surface)
+These technologies dictate the experience inside the user's web browser.
+
+* **HTML (Hypertext Markup Language):** The foundational structure. It provides the core instructions to the browser on what to display. *(Analogy: The DNA that puts a simple organism together).*
+* **CSS (Cascading Style Sheets):** Controls the standard appearance, layouts, colors, and typography. *(Analogy: The traits that dictate the color, shape, and texture of the organism).*
+* **JavaScript (JS):** Enables complex, dynamic activity and decision-making within the browser. *(Analogy: The brain of the organism that allows it to interact with its environment).*
+
+### Back End (Under the Surface)
+These are the non-visual infrastructure components that enable the web application to actually function, store data, and process logic.
+* **Database:** The system where information is stored, modified, and retrieved (like saving a user's preferences). *(Analogy: A library or filing cabinet).*
+* **Infrastructure:** The underlying servers, storage, and networking devices that support the application. *(Analogy: The roads, cars, and fuel of the planet).*
+* **WAF (Web Application Firewall):** An optional but critical security component that filters out malicious requests before they reach the web server. *(Analogy: The planet's atmosphere protecting inhabitants from harmful UV rays).*
+
+### Key Takeaways
+A web application is a split ecosystem. Front End components (HTML, CSS, JS) focus entirely on the user's browser experience, while Back End components (Web Servers, Databases, WAFs) act as the hidden engine processing the data securely.
+
+**Uniform Resource Locator, URL**
+
+* **Objective:** Understand the complete anatomy of a web address and the unique security implications of each individual component.
+
+### Key Concepts: The Anatomy of a URL
+A URL is not just an address; it is a structured set of instructions that guides your browser to a specific online resource. Understanding its parts is critical for web development and finding security vulnerabilities.
+
+* **Scheme:** The protocol used to access the website. **HTTPS** (Secure) is heavily recommended over **HTTP** because it encrypts the connection.
+* **User:** Rarely used today due to extreme security risks. It allows including login credentials (like a username) directly in the URL to access authenticated resources, exposing sensitive info in plain text.
+* **Host / Domain:** The most critical part of the URL indicating the exact website you are accessing. 
+  * *Security Note:* Attackers register domains with minor, easily missed spelling differences (a technique called **typosquatting**) to execute devastating phishing attacks.
+* **Port:** Directs the browser to the correct service/doorway on the web server. Port **80** is standard for HTTP, and Port **443** is standard for HTTPS.
+* **Path:** The roadmap pointing directly to a specific file, page, or directory on the server. Proper access controls must secure these paths.
+* **Query String:** Starts with a question mark (`?`) and passes data (like search terms or form inputs) to the server.
+  * *Security Note:* Because users can manually modify the query string, it is a primary vector for **injection attacks** if the server doesn't sanitize the input.
+* **Fragment:** Starts with a hash symbol (`#`) and points the browser to a specific section or heading on the loaded webpage. Like query strings, these must be handled securely to prevent client-side injection attacks.
+
+### Key Takeaways
+To an attacker, a URL is an attack surface. Manipulating the **Query String** or **Fragment** can lead to code injection, and registering a fake **Host/Domain** can instantly trick users into handing over their passwords. Always validate and sanitize user-controllable parts of a URL!
+
+**HTTP Messages**
+
+* **Objective:** Understand the structure and function of HTTP messages (Requests and Responses) that are exchanged between a user's browser and a web server.
+
+### Key Concepts: Message Types
+* **HTTP Messages:** The packets of data that make client-server interaction possible.
+* **HTTP Requests:** Sent by the user (client) to trigger specific actions on the web application.
+* **HTTP Responses:** Sent by the web server back to the user in response to their request.
+
+### Key Concepts: Message Structure
+Every HTTP message follows a strict format to ensure both the client and server can communicate without errors.
+* **Start Line:** The introduction of the message. It defines whether it is a request or a response and provides the core details on how the message should be handled (e.g., the HTTP method or the status code).
+* **Headers:** Key-value pairs that provide essential metadata and instructions about the message. This includes security policies, content types, and browser information.
+* **Empty Line:** A mandatory, invisible structural divider. It explicitly tells the server or client where the headers end and the actual content begins. Without this empty line, the message will be misinterpreted and throw an error.
+* **Body:** The actual data payload. In a *request*, this might be user login credentials or form data. In a *response*, this is the actual webpage HTML or API data requested by the user.
+
+### Why It Matters
+* **Troubleshooting:** Knowing the exact structure allows you to quickly diagnose communication issues, improving web application reliability.
+* **Security:** Understanding where data lives within an HTTP message (Headers vs. Body) is vital for implementing strong security measures and protecting sensitive data during transmission.
+
+### Key Takeaways
+The **Empty Line** might seem trivial, but it is structurally vital. When you start manually crafting or manipulating HTTP requests to find vulnerabilities, forgetting that single empty blank line between your headers and your malicious payload will cause the entire attack to fail!
+
+**HTTP Request: Request Line and Methods**
+
+* **Objective:** Understand the exact structure of an HTTP Request Line, the different HTTP methods used to interact with a server, and the security risks associated with each.
+
+### The Request Line
+The request line (or start line) is the very first part of an HTTP request. It tells the web server exactly what the user is trying to do. It consists of three main parts formatted like this: `METHOD /path HTTP/version`.
+
+
+### HTTP Methods & Security Implications
+The method dictates the specific action the user wants to perform on the server's resource.
+
+* **GET:** Used to *fetch* data. **Security Warning:** Never send sensitive data (like passwords or session tokens) via GET requests, as the data is placed directly in the URL and will be visible in plaintext logs and browser histories.
+* **POST:** Used to *send* data to the server (like submitting a form). **Security Warning:** Always validate and sanitize user input in the body to prevent injection attacks (SQLi, XSS).
+* **PUT:** Used to *replace or update* a resource. **Security Warning:** Strictly enforce authorization to ensure only allowed users can overwrite server data.
+* **DELETE:** Used to *remove* a resource. **Security Warning:** Strictly enforce authorization to prevent attackers from wiping out critical data.
+* **PATCH:** Updates a specific *part* of a resource, rather than replacing the whole thing.
+* **HEAD:** Functions exactly like GET, but only retrieves the *headers* (no body content). Great for checking metadata quickly.
+* **OPTIONS:** Asks the server what HTTP methods are allowed for a specific resource. **Security Warning:** Disable if unnecessary to limit the information given to attackers.
+* **TRACE:** Echoes the received request back to the client, used for debugging. **Security Warning:** Usually disabled by administrators to prevent Cross-Site Tracing (XST) attacks.
+* **CONNECT:** Used to establish a secure, encrypted tunnel (critical for HTTPS).
+
+### The URL Path
+The path tells the server exactly where to find the requested resource (e.g., `/api/users/123`).
+* **Security Warning:** Attackers heavily target the URL path (such as using `../` for Directory Traversal). Always validate and sanitize the path to prevent unauthorized access to restricted server files.
+
+### HTTP Versions
+The version indicates the specific protocol rules the client and server are using to communicate.
+
+* **HTTP/0.9 (1991):** The absolute basics. Only supported the GET method.
+* **HTTP/1.0 (1996):** Introduced HTTP headers and better content support.
+* **HTTP/1.1 (1997):** Brought persistent connections and chunked encoding. It is still heavily used across the web today.
+* **HTTP/2 (2015):** Introduced multiplexing and header compression to drastically improve website loading speeds.
+* **HTTP/3 (2022):** Built on a completely new underlying protocol (QUIC) to make connections even faster and more secure.
+
+### Key Takeaways
+The Request Line is the tip of the spear for web communication. As a security analyst, paying close attention to the HTTP Method used is critical. If a web server accidentally allows unauthenticated `PUT` or `DELETE` methods, an attacker can easily overwrite or destroy the entire website.
+
+**HTTP Request: Headers and Body**
+
+* **Objective:** Understand how HTTP headers pass vital metadata to the server and how the HTTP body is used to transmit actual data (like form submissions or file uploads) in various formats.
+
+
+
+### Request Headers
+Headers are key-value pairs that provide extra instructions to the web server about the request, the browser, or the data being sent.
+
+| Header | Example | Description |
+| :--- | :--- | :--- |
+| **Host** | `Host: tryhackme.com` | Specifies the exact domain name of the web server the request is targeting. |
+| **User-Agent** | `User-Agent: Mozilla/5.0` | Shares metadata about the user's web browser and operating system. |
+| **Referer** | `Referer: https://www.google.com/` | Indicates the URL from which the current request originated. |
+| **Cookie** | `Cookie: user_type=student;` | Sends back session data or preferences that the server previously asked the browser to store. |
+| **Content-Type** | `Content-Type: application/json` | Tells the server exactly what format the data in the *Body* is using so it can parse it correctly. |
+
+### Request Body
+While `GET` requests pull data, `POST` and `PUT` requests send data to the server. This data lives inside the Request Body and can be structured in several different ways depending on the application's needs.
+
+**1. URL Encoded (`application/x-www-form-urlencoded`)**
+Data is structured in `key=value` pairs. Multiple pairs are separated by an ampersand (`&`), and special characters are percent-encoded.
+```http
+POST /profile HTTP/1.1
+Host: tryhackme.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 33
+
+name=Aleksandra&age=27&country=US
+```
+**2. Form Data (multipart/form-data)**
+Used for sending large or binary data (like image uploads). Data is separated into distinct blocks using a unique "boundary string" defined in the header.
+```POST /upload HTTP/1.1
+Host: tryhackme.com
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="username"
+
+aleksandra
+----WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="profile_pic"; filename="aleksandra.jpg"
+Content-Type: image/jpeg
+
+[Binary Data Here representing the image]
+----WebKitFormBoundary7MA4YWxkTrZu0gW--
+```
+**3. JSON (application/json)**
+JavaScript Object Notation. Data is formatted in "name": "value" pairs separated by commas and enclosed within curly braces {}. It is heavily used in modern web APIs.
+```POST /api/user HTTP/1.1
+Host: tryhackme.com
+Content-Type: application/json
+Content-Length: 62
+
+{
+    "name": "Aleksandra",
+    "age": 27,
+    "country": "US"
+}
+```
+
+**4. XML (application/xml)**
+Extensible Markup Language. Data is structured inside nested tags (similar to HTML), requiring both an opening <tag> and closing </tag>.
+```POST /api/user HTTP/1.1
+Host: tryhackme.com
+Content-Type: application/xml
+Content-Length: 124
+
+<user>
+    <name>Aleksandra</name>
+    <age>27</age>
+    <country>US</country>
+</user>
+```
+### Key Takeaways
+If you modify data in the HTTP Body during a penetration test (like changing a JSON parameter from "age": 27 to "age": -1), you must ensure the Content-Type header matches the data structure you are using, or the server will instantly reject your payload!
+
+**HTTP Response: Status Line and Status Codes**
+
+* **Objective:** Understand how a web server communicates the result of a request back to the client using the Status Line and standardized 3-digit Status Codes.
+
+### The Status Line
+The very first line in every HTTP response. It provides three critical pieces of information to the client's browser:
+* **HTTP Version:** The protocol version being used (e.g., HTTP/1.1).
+* **Status Code:** A three-digit number indicating the exact outcome of the request.
+* **Reason Phrase:** A short, human-readable message explaining the status code (e.g., "Not Found").
+
+### Status Code Categories
+Status codes are grouped into five distinct blocks. Knowing the first digit instantly tells you the general outcome of the request.
+
+
+
+* **1xx (Informational Responses 100-199):** The server has received part of the request and is waiting for the rest. It’s a "keep going" signal.
+* **2xx (Successful Responses 200-299):** Everything worked perfectly. The server processed the request and sent back the requested data.
+* **3xx (Redirection Messages 300-399):** The requested resource has moved. The response usually provides the new URL to redirect the browser.
+* **4xx (Client Error Responses 400-499):** There is a problem with the *request*. The client messed up (e.g., bad URL syntax, missing authentication, or requesting a file that doesn't exist).
+* **5xx (Server Error Responses 500-599):** The server encountered a fatal error while trying to process a perfectly valid request. It is a server-side issue, not the client's fault.
+
+### Common Status Codes Cheat Sheet
+
+
+
+| Code | Reason Phrase | Explanation |
+| :--- | :--- | :--- |
+| **100** | Continue | The server got the first part of the request and is ready for the rest. |
+| **200** | OK | The request was successful, and the server is returning the resource. |
+| **301** | Moved Permanently | The resource has moved. Update your links to use the new URL. |
+| **404** | Not Found | The server couldn’t find the requested resource. Check the URL path! |
+| **500** | Internal Server Error | The server broke or encountered an unexpected condition while processing. |
+
+### Key Takeaways
+When troubleshooting or hunting for vulnerabilities, the first digit of the status code tells the story. A **4xx** means your payload or request was malformed or blocked, while a **5xx** often means you successfully broke something on the server side (which can sometimes lead to discovering interesting vulnerabilities!).
+
+**HTTP Response: Headers and Body**
+
+* **Objective:** Understand the role of HTTP response headers in guiding client behavior, the security implications of specific headers, and the contents of the response body.
+
+### Key Concepts: Response Headers
+Response headers are key-value pairs sent by the web server that provide the client's browser with crucial metadata and instructions on how to handle the incoming data.
+
+**Required / Crucial Headers:**
+* **`Date:`** The exact timestamp when the server generated the response (e.g., `Fri, 23 Aug 2024 10:43:21 GMT`).
+* **`Content-Type:`** Tells the browser exactly what kind of content it is receiving and the character set used so it can render it properly (e.g., `text/html; charset=utf-8`).
+* **`Server:`** Identifies the specific web server software handling the request (e.g., `nginx`). 
+  * *Security Warning:* This header often leaks exact software versions to attackers, making it easy to look up known exploits. Best practice is to obscure or completely remove this header.
+
+**Other Common Headers:**
+* **`Set-Cookie:`** Sends a session cookie from the server for the client to store and send back with future requests. 
+  * *Security Warning:* Cookies must be secured using the `HttpOnly` flag (prevents JavaScript from stealing the cookie) and the `Secure` flag (ensures the cookie is only ever transmitted over encrypted HTTPS).
+* **`Cache-Control:`** Instructs the browser on how long it is allowed to cache the response (e.g., `max-age=600`). Use the `no-cache` directive to prevent sensitive information from being saved locally.
+* **`Location:`** Used alongside 3xx Redirection status codes to tell the client the new URL to navigate to. 
+  * *Security Warning:* If an attacker can manipulate the input that generates this header, it leads to an **Open Redirect** vulnerability, allowing them to blindly route users to malicious phishing sites.
+
+### Key Concepts: The Response Body
+The Response Body is the actual payload or data that the server is sending back to the user (the raw HTML, JSON, images, or files).
+* *Security Warning:* To prevent **Cross-Site Scripting (XSS)** attacks, the server must strictly sanitize and escape any user-generated content before it is reflected back into the response body.
+
+### Key Takeaways
+Headers control the rules of engagement between the browser and the server. Missing security flags on a `Set-Cookie` header or a highly verbose `Server` header are incredibly common, low-hanging fruit findings during a web application penetration test.
+
+**Security Headers**
+
+* **Objective:** Understand how specific HTTP response headers are configured by administrators to actively defend web applications against common client-side attacks like Cross-Site Scripting (XSS), MIME sniffing, and downgrade attacks.
+
+### Key Concepts: HTTP Security Headers
+Security headers are instructions sent by the server that tell the client's web browser to enforce strict security rules while rendering the webpage.
+
+
+#### 1. Content-Security-Policy (CSP)
+Provides a massive layer of defense against Cross-Site Scripting (XSS) by explicitly defining an "allowlist" of safe domains that the browser is permitted to load content from.
+* **`default-src`:** The fallback policy for all content types. Using `'self'` restricts loading to only the current website.
+* **`script-src`:** Defines exactly where JavaScript can be loaded from (e.g., `script-src 'self' https://cdn.tryhackme.com`).
+* **`style-src`:** Defines where CSS stylesheets can be loaded from.
+
+
+#### 2. Strict-Transport-Security (HSTS)
+Strictly enforces that web browsers must *only* connect to the site over encrypted HTTPS, preventing attackers from forcing a connection downgrade to plain-text HTTP.
+* **`max-age`:** The time (in seconds) the browser is instructed to remember and enforce this strict HTTPS rule.
+* **`includeSubDomains`:** An optional flag that applies the HTTPS-only rule to all of the site's subdomains.
+* **`preload`:** Allows the domain to be hardcoded into modern browsers' global HSTS preload lists, ensuring even the *very first* visit to the site is forced to HTTPS.
+
+#### 3. X-Content-Type-Options
+Prevents the browser from attempting to guess ("sniff") the MIME type of a file. It forces the browser to strictly trust the `Content-Type` header provided by the server, preventing attackers from disguising malicious HTML/JavaScript as an innocent image file.
+* **`nosniff`:** The explicit directive that completely disables MIME sniffing.
+
+
+#### 4. Referrer-Policy
+Controls exactly how much metadata is shared with a destination web server when a user clicks a hyperlink to leave the current page.
+* **`no-referrer`:** The most secure option; completely disables sending any referrer information.
+* **`same-origin`:** Only sends referrer info if the hyperlink goes to another page on the *same* website.
+* **`strict-origin`:** Only sends referrer info if the security protocol stays exactly the same (e.g., clicking a link from an HTTPS site to another HTTPS site).
+* **`strict-origin-when-cross-origin`:** Sends the full URL path for internal same-origin requests, but downgrades to only sending the domain name for external secure requests.
+
+### Tools & Commands
+* **`securityheaders.io` :** An excellent, free online tool used by security analysts to scan a website and instantly grade the implementation of its HTTP security headers.
+
+### Key Takeaways
+A strong **Content-Security-Policy (CSP)** can single-handedly stop an attacker from exploiting an XSS vulnerability, even if the underlying web application code is deeply flawed. Always check for these headers during a web assessment!
+
+---
+## Room: [Next Room]
