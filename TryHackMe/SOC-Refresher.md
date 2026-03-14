@@ -352,4 +352,176 @@ Most log management challenges can be mitigated during the initial planning phas
 
 ---
 
+## Room: [Intro to Log Analysis]
+
+**Investigation Theory**
+
+* **Objective:** Learn the core methodologies for conducting log analysis investigations, including timeline creation, data visualization, alerting, and incorporating threat intelligence.
+* **Key Concepts:**
+  * **Timelines:** A chronological sequence of logged events. Crucial for reconstructing security incidents, identifying the initial point of compromise, and tracking an attacker's Tactics, Techniques, and Procedures (TTPs).
+    
+  * **Timestamps & Timezones:** Logs from distributed systems often have completely different time zones and formats.
+    * Modern SIEMs (like Splunk) automatically convert timestamps to a universal standard (UNIX time) during indexing, storing it in a unified `_time` field, and then displaying it in your local timezone for analysis.
+  * **Super Timelines:** A consolidated, holistic view combining logs from multiple disparate sources (system, network, application, firewall) into a single chronological timeline to reveal hidden correlations.
+  * **Data Visualization:** Using tools like **Kibana** (Elastic Stack) or **Splunk** to convert raw log data into interactive charts and graphs.
+    * *Goal:* Create a tailored dashboard acting as a "single pane of glass" to easily spot anomalies (e.g., a line chart tracking failed logins over 7 days).
+    
+  * **Log Monitoring & Alerting:** Proactively configuring SIEM solutions to trigger automated alerts based on specific metrics (e.g., privilege escalation, access to sensitive files). This requires predefined escalation procedures so the right personnel are notified.
+  * **Threat Intelligence:** Identifying known malicious artifacts to actively search for within your logs.
+    * *Examples of Threat Intel:* IP Addresses, File Hashes, Domains.
+    * *Resources:* Threat intel feeds like **ThreatFox**.
+
+* **Tools & Commands:**
+  * **Plaso (Python Log2Timeline):** An open-source digital forensics tool designed to automate the parsing and creation of super timelines from a wide range of log sources.
+  * `cat access.log` : Outputs the contents of the web server access log to the terminal to begin manual review.
+  * `grep "54.36.149.64" logfile.txt` : Searches a log file for a specific Threat Intelligence indicator (like a known malicious IP address) to see if that specific attacker accessed your systems.
+
+* **Key Takeaways:** You can't analyze a log if you don't know what you are looking for. By combining normalized timestamps, super timelines, and external Threat Intelligence feeds, you can reconstruct an attacker's exact path through your network from start to finish.
+
+**Detection Engineering**
+
+* **Objective:** Learn where critical logs are stored by default on Linux systems and how to identify common attack signatures and abnormal user behaviors within those files.
+
+### Common Log File Locations
+While actual paths can vary based on custom configurations, these are the standard default locations for major services:
+
+* **Web Servers:**
+  * **Nginx:** `/var/log/nginx/access.log` and `/var/log/nginx/error.log`
+  * **Apache:** `/var/log/apache2/access.log` and `/var/log/apache2/error.log`
+* **Databases:**
+  * **MySQL:** `/var/log/mysql/error.log`
+  * **PostgreSQL:** `/var/log/postgresql/postgresql-{version}-main.log`
+* **Operating Systems & Web Apps:**
+  * **Linux General:** `/var/log/syslog`
+  * **Linux Authentication:** `/var/log/auth.log`
+  * **PHP:** `/var/log/php/error.log`
+* **Firewalls and IDS/IPS:**
+  * **iptables:** `/var/log/iptables.log`
+  * **Snort:** `/var/log/snort/`
+
+### Detecting Abnormal User Behavior
+To spot an attacker, you must first baseline what "normal" user behavior looks like. Look for these common deviations:
+* **Brute-Force Indicators:** Multiple failed login attempts in a short timeframe.
+* **Unauthorized Access:** Logins occurring outside typical access hours or from anomalous geographic locations (impossible travel).
+* **Account Takeover Evasion:** Frequent password changes in a short period.
+* **Malicious User-Agents:** Requests containing uncommon User-Agent strings. For example, automated scanners like **Nmap** log "Nmap Scripting Engine", and brute-forcers like **Hydra** log "(Hydra)".
+
+### Common Attack Signatures
+Identifying web-based attacks requires looking for specific, often malformed, characters in application or database logs.
+* **SQL Injection (SQLi):** Attempts to exploit database interactions. Look for unexpected characters like single quotes (`'`), comments (`--`, `#`), or commands like `UNION` and `SLEEP()`.
+  * *Example Payload:* `GET /products.php?q=books' UNION SELECT null, null, username, password, null FROM users--`
+* **Cross-Site Scripting (XSS):** Attempts to inject malicious scripts into web pages. Look for unexpected input containing script tags (`<script>`) or event handlers (`onmouseover`, `onclick`, `onerror`).
+  * *Example Payload:* `GET /products.php?search=<script>alert(1);</script>`
+* **Path / Directory Traversal:** Attempts to access files outside the intended web directory. Look for sequence characters (`../`) and sensitive OS files (`/etc/passwd`). 
+  
+  * *Example Payload:* `GET /../../../../../etc/passwd`
+  * *Important Note:* Attackers often use URL encoding to bypass firewalls. Remember that `%2E` is a dot (`.`) and `%2F` is a forward slash (`/`). 
+
+### Tools & Platforms
+* **User Behavior Analytics (UBA):** Solutions like Splunk UBA, IBM QRadar UBA, and Azure AD Identity Protection use machine learning to automatically establish baselines and alert on anomalous behavior.
+
+### Key Takeaways
+Attackers know that defensive tools look for plain-text attack signatures. Always check your logs for URL-encoded payloads (like `%2E%2E%2F` instead of `../`) when hunting for directory traversals or SQL injections!
+
+**Command Line**
+
+* **Objective:** Learn how to chain built-in Linux command-line tools together to rapidly view, parse, filter, and manipulate log data without needing a dedicated SIEM.
+
+### 1. Viewing Log Files
+These tools are your starting point for getting log data onto your screen.
+
+| Command | Purpose | Common Flags & Usage |
+| :--- | :--- | :--- |
+| `cat` | Prints the entire log file to the terminal. | `cat apache.log` (Not recommended for massive files). |
+| `less` | Opens large files page-by-page. | `less apache.log` (Use arrows to scroll, press `q` to quit). |
+| `head` | Displays the *first* 10 lines by default. | `head -n 5 apache.log` (Shows only the first 5 lines). |
+| `tail` | Displays the *last* 10 lines by default. | `tail -f -n 5 apache.log` (Shows last 5 lines and *follows* new entries in real-time). |
+
+
+
+### 2. Extracting and Sorting Data
+These commands are essential for pulling specific columns (like IP addresses) and organizing them to spot trends.
+
+| Command | Purpose | Common Flags & Usage |
+| :--- | :--- | :--- |
+| `wc` | Word count. Outputs line, word, and character counts. | `wc apache.log` (Helps gauge the size of the dataset). |
+| `cut` | Extracts specific columns (fields) based on a delimiter. | `cut -d ' ' -f 1 apache.log` (Uses a space delimiter to grab the 1st field—usually the IP address). |
+| `sort` | Arranges data chronologically, alphabetically, or numerically. | `sort -n` (Sort numerically) <br> `sort -n -r` (Sort numerically in reverse). |
+| `uniq` | Removes adjacent duplicate lines. *Must be used on sorted data!* | `uniq` (Removes duplicates) <br> `uniq -c` (Prepends the count of occurrences to spot high-volume IPs). |
+
+* **Pro-Tip (The Analyst Pipeline):** You will almost always chain these commands together using the pipe (`|`) operator. 
+  * *Example (Get a count of unique IP addresses from highest to lowest):* `cut -d ' ' -f 1 apache.log | sort -n | uniq -c | sort -n -r`
+
+
+
+### 3. Modifying and Advanced Filtering
+For advanced manipulation or numerical conditions.
+
+| Command | Purpose | Common Flags & Usage |
+| :--- | :--- | :--- |
+| `sed` | Stream editor used to find and replace text. | `sed 's/31\/Jul\/2023/July 31, 2023/g' apache.log` (Replaces date formatting. *Warning: using the `-i` flag overwrites the file!*). |
+| `awk` | Text processing tool excellent for conditional actions. | `awk '$9 >= 400' apache.log` (Prints only lines where the 9th field—the HTTP status code—is 400 or greater). |
+
+### 4. Searching for Signatures
+The most important command for finding specific threat intelligence indicators.
+
+| Command | Purpose | Common Flags & Usage |
+| :--- | :--- | :--- |
+| `grep` | Searches files for specific strings or regular expressions. | `grep "admin" apache.log` (Finds any mention of "admin"). |
+| `grep -c` | Counts the number of matching lines. | `grep -c "admin" apache.log` (Returns the total hits). |
+| `grep -n` | Prepends the line number to the output. | `grep -n "admin" apache.log` (Helps locate the event in the raw file). |
+| `grep -v` | Invert match. Filters *out* the specified keyword. | `grep -v "/index.php" apache.log` (Removes standard homepage traffic from your view to reduce noise). |
+
+### Key Takeaways
+While SIEMs like Splunk are great for dashboards, the Linux command line is often the fastest way to slice through raw logs during an active incident. Mastering the pipe (`|`) to pass data from `cut` to `sort` to `uniq` is a fundamental skill for any security analyst.
+
+**Regex in Log Analysis**
+
+* **Objective:** Learn how to leverage Regular Expressions (Regex) to search for complex patterns using `grep`, extract specific fields from raw logs, and build custom parsing pipelines in Logstash.
+
+### Key Concepts
+* **Regular Expressions (Regex):** A sequence of special characters that define a specific search pattern, used for finding, matching, and manipulating text data.
+* **Log Parsing:** The process of breaking down raw, unstructured log entries into structured, actionable components (like extracting just the IP, timestamp, or HTTP method) so they can be ingested and queried easily by a SIEM.
+* **Grok:** A powerful Logstash plugin that parses unstructured log data into structured formats. It combines text patterns with a specific syntax (`%{SYNTAX:SEMANTIC}`) and allows for custom Regex using the Oniguruma syntax.
+
+### Regex IPv4 Extraction Breakdown
+To extract a standard IPv4 address from a raw log, you need a pattern that accounts for four sets of numbers separated by periods.
+
+
+
+| Pattern Segment | Explanation |
+| :--- | :--- |
+| `\b` | Word boundary anchor. Ensures we match the complete IP address and not a subset of a longer string. |
+| `[0-9]{1,3}` | Matches one to three digits (numbers from 0 to 999). |
+| `\.` | Escapes the dot character, treating it as a literal period rather than a wildcard. |
+| `{3}` | Specifies that the preceding group `([0-9]{1,3}\.)` must repeat exactly three times. |
+| `[0-9]{1,3}` | Matches the final one to three digits (the fourth octet of the IP). |
+| `\b` | Closing word boundary anchor. |
+
+*Full Pattern:* `\b([0-9]{1,3}\.){3}[0-9]{1,3}\b`
+
+### Tools & Commands
+* `grep -E '[pattern]' [filename]` : The `-E` flag enables Extended Regular Expressions in `grep`.
+  * *Example:* `grep -E 'post=1[0-9]' apache-ex2.log` (Finds any blog post ID from 10 to 19).
+* **RegExr:** An excellent online tool for building, testing, and troubleshooting your regex patterns against sample log data.
+
+### Logstash Grok Example
+If Logstash lacks a built-in pattern for a custom application log, you can define your own using Regex within the `logstash.conf` file.
+
+
+
+> **Example filter configuration:**
+> ```conf
+> filter {
+>   grok {
+>     match => { "message" => "(?<ipv4_address>\b([0-9]{1,3}\.){3}[0-9]{1,3}\b)" }
+>   }
+> }
+> ```
+> *Note:* The syntax `(?<field_name>pattern)` captures the matched regex and assigns it to a custom field named `ipv4_address` before sending it to the SIEM.
+
+### Key Takeaways
+Regex is the ultimate cheat code for log analysis. Whether you are quickly carving out specific data blocks in the terminal with `grep -E`, or writing custom SIEM parsers via Logstash Grok, mastering regex will save you countless hours of manual review.
+
+---
 ## Room: [Next Room]
