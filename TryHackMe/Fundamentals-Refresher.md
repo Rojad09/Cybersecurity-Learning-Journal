@@ -1465,4 +1465,241 @@ Controls exactly how much metadata is shared with a destination web server when 
 A strong **Content-Security-Policy (CSP)** can single-handedly stop an attacker from exploiting an XSS vulnerability, even if the underlying web application code is deeply flawed. Always check for these headers during a web assessment!
 
 ---
+## Room: [SQL Fundamentals]
+
+* **Objective:** Understand the fundamental differences between relational (SQL) and non-relational (NoSQL) databases, and learn how data is structured using tables, columns, rows, and keys.
+
+### Key Concepts: Types of Databases
+Databases are organized collections of data that make it easy to access, manipulate, and analyze information (like storing usernames/passwords for authentication).
+
+
+
+* **Relational Databases (SQL):** Stores highly structured data in a tabular format (tables). 
+  * *Best used for:* Data that is reliably received in a consistent, predictable format where accuracy is critical (e.g., processing e-commerce financial transactions).
+* **Non-Relational Databases (NoSQL):** Stores data in a non-tabular format (like JSON-style document objects).
+  * *Best used for:* Data that varies greatly in its format or size but needs to be organized in one place (e.g., varying user-generated content on social media).
+
+### Relational Database Anatomy
+In a relational database, data is strictly organized into structures.
+
+* **Tables:** A broad collection of related data (e.g., a "Books" table).
+* **Columns:** Define the specific pieces of information needed for a record (e.g., `id`, `Name`, `Published_date`). 
+  * *Note on Data Types:* Columns strictly enforce data types. If a column is defined as an *Integer*, you cannot insert a *String* (text) into it. Common types include Strings, Integers, Floats/Decimals, and Times/Dates.
+* **Rows:** A single, complete record inserted into the table (e.g., Book ID: 1, Name: Android Security Internals).
+
+### Primary and Foreign Keys
+Keys are the fundamental mechanism that creates the "relationships" in a relational database.
+
+
+
+* **Primary Keys:** A column used to *uniquely* identify a single record in a table. 
+  * *Rules:* There can only be **one** primary key column per table. No two records can share the same primary key value. (e.g., A student ID or a unique Book ID).
+* **Foreign Keys:** A column in one table that perfectly matches the Primary Key of *another* table.
+  * *Rules:* This creates the actual link between the two tables. A table can have **multiple** foreign keys. (e.g., placing an `author_id` in the Books table so it can link to the specific `id` in the Authors table).
+
+### Key Takeaways
+Understanding how Primary and Foreign keys link tables together is the absolute foundation of learning SQL. When you eventually learn SQL Injection, you will be using these structural rules to trick the database into handing over data from tables you aren't supposed to see!
+
+**What is SQL?**
+
+* **Objective:** Understand the role of a Database Management System (DBMS) and the core benefits of using Structured Query Language (SQL) to interact with relational data.
+
+
+
+### Key Concepts: DBMS vs. SQL
+It is important to understand the difference between the software that holds the data and the language used to speak to that software.
+
+* **DBMS (Database Management System):** The software program that acts as the interface (the middleman) between the end user and the raw database. It is what actually executes the retrieval, updating, and management of the stored data.
+* **DBMS Examples:** MySQL, Oracle Database, and MariaDB (which are relational), as well as MongoDB (which is a NoSQL, non-relational DBMS).
+* **SQL (Structured Query Language):** The actual programming language you type into the DBMS. It is used exclusively to query, define, and manipulate data stored inside a *relational* database.
+
+### Key Concepts: Benefits of SQL & Relational Databases
+SQL is ubiquitous across the internet for several highly practical reasons:
+
+* **Fast:** Relational databases use very little storage space and boast high processing speeds, allowing them to return massive batches of data almost instantaneously.
+* **Easy to Learn:** Unlike highly complex programming languages, SQL syntax is highly readable and written in plain English (e.g., `SELECT * FROM Users`).
+* **Reliable:** Because relational databases force data into a strict structure (like enforcing specific data types in a column), they guarantee a high level of accuracy and data integrity.
+* **Flexible:** SQL provides incredibly robust capabilities for filtering and combining data, allowing analysts to perform vast data analysis tasks efficiently.
+
+### Key Takeaways
+If the database is a filing cabinet, the DBMS is the librarian, and SQL is the language you must speak to ask the librarian to fetch your files. Mastering SQL is non-negotiable for web application penetration testing, as manipulating it leads to one of the most devastating web vulnerabilities: SQL Injection.
+
+**Database and Table Statements**
+
+* **Objective:** Learn the fundamental SQL commands required to create, view, modify, and delete both databases and the tables within them.
+
+### Database Statements
+Before you can store data, you need to create and select a database to hold it. 
+
+| Command | Syntax Example | Description |
+| :--- | :--- | :--- |
+| **CREATE DATABASE** | `CREATE DATABASE thm_bookmarket_db;` | Creates a brand new, empty database. |
+| **SHOW DATABASES** | `SHOW DATABASES;` | Lists all databases currently present on the MySQL server. |
+| **USE** | `USE thm_bookmarket_db;` | Tells the system which database you want to actively interact with. *Must be run before creating tables!* |
+| **DROP DATABASE** | `DROP DATABASE thm_bookmarket_db;` | Permanently deletes a database and all of its contents. |
+
+
+
+### Table Statements
+Once your database is active (via the `USE` command), you can start building the structures (tables) that will hold your actual data.
+
+| Command | Syntax Example | Description |
+| :--- | :--- | :--- |
+| **CREATE TABLE** | `CREATE TABLE book_inventory (book_id INT PRIMARY KEY, book_name VARCHAR(255));` | Creates a new table and defines its specific columns and data types. |
+| **SHOW TABLES** | `SHOW TABLES;` | Lists all tables contained within the currently active database. |
+| **DESCRIBE** | `DESCRIBE book_inventory;` | Outputs the detailed schema of a table (columns, data types, and keys). Can also be abbreviated as `DESC`. |
+| **ALTER** | `ALTER TABLE book_inventory ADD page_count INT;` | Modifies an existing table (e.g., adding a new column, renaming a column, or changing a data type). |
+| **DROP TABLE** | `DROP TABLE book_inventory;` | Permanently deletes a table and all of the rows inside it. |
+
+
+
+### Key Concepts: Data Types and Constraints
+When using `CREATE TABLE`, you must explicitly define what kind of data each column can hold, and enforce rules (constraints) on that data.
+
+* **INT:** Integer. The column will only accept whole numbers.
+* **VARCHAR(255):** Variable Character. Accepts text, numbers, and punctuation up to a specified limit (255 characters in this case).
+* **DATE:** Forces the data to be formatted as a date (YYYY-MM-DD).
+* **PRIMARY KEY:** A constraint that forces the column to be the unique identifier for that specific row.
+* **AUTO_INCREMENT:** Automatically assigns the next sequential number to a new record (e.g., 1, 2, 3), ensuring IDs are always unique without manual input.
+* **NOT NULL:** A constraint that rejects any record attempting to leave this specific column blank.
+
+### Tools & Commands
+* **MySQL Command Line:** The interface where you type these SQL queries to interact with the Database Management System (DBMS).
+
+### Key Takeaways
+Always remember to run the `USE [database_name];` command before trying to create a table. If you don't tell the DBMS which database you are pointing at, it will throw an error when you try to run your `CREATE TABLE` statement!
+
+**SQL CRUD**
+* **Objective:** Master the four foundational operations—Create, Read, Update, and Delete (CRUD)—used to manage and manipulate records inside a relational database.
+
+
+
+### Key Concepts: The CRUD Acronym
+Every system that manages data relies on these four basic functions. In SQL, each CRUD operation maps to a specific command.
+
+| CRUD Operation | SQL Statement | Example Syntax | Description |
+| :--- | :--- | :--- | :--- |
+| **Create** | `INSERT INTO` | `INSERT INTO books (id, name) VALUES (1, "Android");` | Adds a brand new record (row) to a specific table. |
+| **Read** | `SELECT` | `SELECT * FROM books;` | Retrieves and reads information from the table. |
+| **Update** | `UPDATE` | `UPDATE books SET description = "Updated" WHERE id = 1;` | Modifies an existing record that is already in the table. |
+| **Delete** | `DELETE` | `DELETE FROM books WHERE id = 1;` | Permanently removes a record from the table. |
+
+### Crucial SQL Clauses and Syntax
+To make the CRUD statements work effectively (and safely), you have to combine them with specific clauses.
+
+* **`VALUES` (Used with INSERT):** Dictates the exact data being dropped into the columns you specified. The order of your values *must* match the order of the columns you listed.
+* **`*` (The Wildcard):** When used with `SELECT` (e.g., `SELECT * FROM books;`), it tells the database to return *all* columns for the requested records. If you only want specific data, replace the `*` with the column names (e.g., `SELECT name, description FROM books;`).
+* **`FROM` (Used with SELECT and DELETE):** Tells the database exactly which table to pull from or delete from.
+* **`SET` (Used with UPDATE):** Specifies the exact column you are changing and the new value you are assigning to it.
+* **`WHERE` (Used with UPDATE and DELETE):** The targeting system. It tells the database exactly which row(s) to apply the changes to (e.g., `WHERE id = 1`).
+
+### Tools & Commands
+* **MySQL Command Line:** The interface where you type these CRUD queries to manipulate the active database.
+
+### Key Takeaways
+**Security & Admin Warning:** Always double-check your `WHERE` clause when using `UPDATE` or `DELETE`! If you run `UPDATE books SET name = "Hacked";` without a `WHERE` clause to target a specific ID, the DBMS will overwrite the name of *every single book* in your entire database!
+
+**Clauses**
+
+* **Objective:** Learn how to refine your SQL queries to filter out duplicates, aggregate information, and sort your results using `DISTINCT`, `GROUP BY`, `ORDER BY`, and `HAVING`.
+
+### Key Concepts: Advanced SQL Clauses
+While the `WHERE` clause filters data *before* it gets retrieved, these advanced clauses help you define exactly how that data should be grouped, sorted, and presented.
+
+
+
+| Clause | Purpose | Example Syntax |
+| :--- | :--- | :--- |
+| **DISTINCT** | Removes duplicate records from the query output, returning only unique values. | `SELECT DISTINCT name FROM books;` |
+| **GROUP BY** | Aggregates identical data into single rows. Usually paired with functions like `COUNT()`. | `SELECT name, COUNT(*) FROM books GROUP BY name;` |
+| **ORDER BY** | Sorts the returned records based on a specific column. Can be ascending (`ASC`) or descending (`DESC`). | `SELECT * FROM books ORDER BY published_date DESC;` |
+| **HAVING** | Filters grouped records *after* an aggregation (like `COUNT`) has taken place. | `... GROUP BY name HAVING name LIKE '%Hack%';` |
+
+
+
+
+### Syntax Breakdown & Examples
+
+* **Using DISTINCT:** If you have multiple books with the exact same name, this ensures the name only prints once.
+  * `SELECT DISTINCT name FROM books;`
+* **Using GROUP BY:** If you want to know exactly how many copies of each book you have, you group them by name and count the occurrences.
+  * `SELECT name, COUNT(*) FROM books GROUP BY name;`
+* **Using ORDER BY:** If you want to see your newest books first, sort them by the publication date in descending order.
+  * `SELECT * FROM books ORDER BY published_date DESC;`
+* **Using HAVING:** If you only want to see grouped books that have the word "Hack" in the title, use `HAVING` combined with the `LIKE` operator.
+  * `SELECT name, COUNT(*) FROM books GROUP BY name HAVING name LIKE '%Hack%';`
+
+
+
+### Tools & Commands
+* **MySQL Command Line:** The interface used to execute these queries against the active database.
+
+### Key Takeaways
+**The difference between `WHERE` and `HAVING`:** This is a classic interview question! `WHERE` filters individual rows *before* they are grouped together. `HAVING` filters the results *after* they have been aggregated by `GROUP BY`.
+
+**Operators**
+* **Objective:** Learn how to use Logical and Comparison operators to create precise, powerful filters for manipulating and retrieving data.
+
+### Logical Operators
+These operators test specific conditions and return a boolean value (`TRUE` or `FALSE`). They are usually combined with the `WHERE` clause.
+
+| Operator | Purpose | Example Syntax |
+| :--- | :--- | :--- |
+| **LIKE** | Filters for a specific pattern within a string. The `%` symbol acts as a wildcard. | `WHERE description LIKE "%guide%";` (Finds any description containing the word "guide"). |
+| **AND** | Combines multiple conditions; returns `TRUE` only if *all* conditions are met. | `WHERE category = "Offensive" AND name = "Bug Bounty";` |
+| **OR** | Combines multiple conditions; returns `TRUE` if *at least one* condition is met. | `WHERE name LIKE "%Android%" OR name LIKE "%iOS%";` |
+| **NOT** | Reverses a boolean value to exclude a specific condition. | `WHERE NOT description LIKE "%guide%";` |
+| **BETWEEN** | Tests if a numerical or date value exists within a defined range. | `WHERE id BETWEEN 2 AND 4;` |
+
+### Comparison Operators
+These operators compare values to check if they meet strict mathematical criteria. They are essential for filtering dates, IDs, or exact string matches.
+
+| Operator | Purpose | Example Syntax |
+| :--- | :--- | :--- |
+| **`=`** | **Equal To:** Checks for an exact match. | `WHERE name = "Designing Secure Software";` |
+| **`!=`** | **Not Equal To:** Returns all records that do *not* match the given value. | `WHERE category != "Offensive Security";` |
+| **`<`** | **Less Than:** Returns values strictly lower than the provided threshold. | `WHERE published_date < "2020-01-01";` |
+| **`>`** | **Greater Than:** Returns values strictly higher than the provided threshold. | `WHERE published_date > "2020-01-01";` |
+| **`<=`** | **Less Than or Equal To:** Includes the provided threshold in the lower range. | `WHERE published_date <= "2021-11-15";` |
+| **`>=`** | **Greater Than or Equal To:** Includes the provided threshold in the upper range. | `WHERE published_date >= "2021-11-02";` |
+
+### Tools & Commands
+* **MySQL Command Line:** Used to execute these queries and test operator logic.
+
+### Key Takeaways
+Mastering operators is crucial for security analysts! When hunting through massive databases (or trying to craft complex SQL Injection payloads), combining `LIKE` with wildcards (`%`) or chaining `AND`/`OR` logic allows you to pinpoint exact records instantly.
+
+**Functions**
+
+### String Functions
+String functions perform operations on text-based data, allowing you to slice, combine, and measure strings directly within your query output.
+
+| Function | Purpose | Example Syntax |
+| :--- | :--- | :--- |
+| **CONCAT()** | Merges two or more strings together into a single continuous string. | `SELECT CONCAT(name, " is a ", category) AS book_info FROM books;` |
+| **GROUP_CONCAT()** | Concatenates data from multiple *rows* into one single field, usually combined with a `GROUP BY` clause. | `SELECT category, GROUP_CONCAT(name SEPARATOR ", ") FROM books GROUP BY category;` |
+| **SUBSTRING()** | Extracts a specific chunk of text from a string by defining a starting position and a length limit. | `SELECT SUBSTRING(published_date, 1, 4) AS published_year FROM books;` |
+| **LENGTH()** | Returns the total number of characters in a string, including all spaces and punctuation. | `SELECT LENGTH(name) AS name_length FROM books;` |
+
+### Aggregate Functions
+Aggregate functions take values from multiple rows and combine them into a single, calculated result. 
+
+| Function | Purpose | Example Syntax |
+| :--- | :--- | :--- |
+| **COUNT()** | Returns the total number of records (rows) that exist within a specified criteria. | `SELECT COUNT(*) AS total_books FROM books;` |
+| **SUM()** | Calculates the total mathematical sum of all non-NULL values in a specific column. | `SELECT SUM(price) AS total_price FROM books;` |
+| **MAX()** | Retrieves the absolute highest (maximum) value found within a provided column. | `SELECT MAX(published_date) AS latest_book FROM books;` |
+| **MIN()** | Retrieves the absolute lowest (minimum) value found within a provided column. | `SELECT MIN(published_date) AS earliest_book FROM books;` |
+
+### Key Concepts: Aliasing with `AS`
+You will notice the `AS` keyword used in almost all of these examples (e.g., `AS total_books`). This is called **Aliasing**. When you perform a function on a column, SQL will normally make the column header look messy (like `COUNT(*)`). Using `AS` allows you to temporarily rename the output column to something clean and readable!
+
+### Tools & Commands
+* **MySQL Command Line:** Used to execute these queries and test function logic.
+
+### Key Takeaways
+Functions like `SUBSTRING()` and `CONCAT()` are incredibly useful during security assessments. If an attacker finds a SQL Injection vulnerability, they will often use `CONCAT()` to merge a username and a password into a single string so they can easily extract both pieces of data at the same time!
+
+---
+
 ## Room: [Next Room]
