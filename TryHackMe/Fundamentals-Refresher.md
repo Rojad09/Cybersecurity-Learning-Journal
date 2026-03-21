@@ -2003,4 +2003,78 @@ A mature SOC operates on a tiered escalation path. When an alert fires, it moves
 ### Key Takeaways
 If you are aiming for a career as a SOC Analyst, you will almost certainly start at **Level 1**. Your primary job will be "Alert Triage"—quickly looking at an automated warning and deciding: "Is this just a user forgetting their password 5 times, or is this an attacker trying to brute-force an account?"
 
-[CONTINUED LATER]
+**Process**
+
+## Task: The "Process" Pillar - Alert Triage and Incident Response
+
+* **Objective:** Understand the standard operating procedures a SOC team uses to investigate, report, and respond to security alerts.
+
+### Key Concepts: Alert Triage and The 5 Ws
+Alert triage is the foundational process of a SOC. When an automated security tool generates a red flag, a Level 1 Analyst must immediately investigate it to determine its severity and priority. 
+
+To successfully triage an alert, the analyst must answer the **"5 Ws"**. 
+
+
+*Example Alert: Malware detected on Host: GEORGE PC*
+
+| The "W" | What it asks | Example Answer |
+| :--- | :--- | :--- |
+| **What?** | What exactly happened? | A malicious file was detected inside the organization’s network. |
+| **When?** | What is the exact timestamp? | The file was detected at 13:20 on June 5, 2024. |
+| **Where?** | Where did it happen? | The file was located in the directory of the host: "GEORGE PC". |
+| **Who?** | Which user account is involved? | The file was downloaded by the user account "George". |
+| **Why?** | What is the root cause/motive? | The user attempted to bypass licensing by downloading a pirated software crack from a malicious website. |
+
+### Key Concepts: Reporting and Escalation
+Once an alert is triaged and confirmed as a true threat, it cannot just be ignored. 
+* **Escalation:** The alert is packaged into a ticket and escalated to higher-level analysts (Level 2 or 3) for resolution.
+* **Evidence:** A proper report *must* include the answers to the 5 Ws, a thorough summary of the analyst's investigation, and concrete evidence (like screenshots of logs or packet captures).
+
+### Key Concepts: Incident Response & Forensics
+For highly critical or complex malicious activities, standard triage is not enough.
+* **Incident Response (IR):** High-level teams are brought in to contain the threat, eradicate the attacker from the network, and recover normal business operations.
+
+* **Digital Forensics:** A deep-dive investigation analyzing system artifacts (memory dumps, hard drives, network traffic) to determine the exact root cause and timeline of the breach.
+
+### Key Takeaways
+If you escalate a ticket to a Level 2 Analyst without answering the 5 Ws or attaching evidence, they will likely send it right back to you! Building a habit of writing clear, comprehensive reports is just as important as knowing how to find the malware in the first place.
+
+**Technology**
+
+* **Objective:** Understand how security solutions centralize information and automate detection and response capabilities to minimize manual effort for the SOC team.
+
+### Key Concepts: The Role of Technology
+Even with the best **People** and **Processes**, it is impossible to manually monitor every single device and application on a corporate network. **Technology** acts as the force multiplier, centralizing data and automating the heavy lifting so analysts can focus on actual threats.
+
+### Core Security Solutions
+
+#### 1. SIEM (Security Information and Event Management)
+The absolute core of most SOC environments. It acts as the central brain for log aggregation and analysis.
+
+* **How it works:** It collects logs from various network devices (log sources) and correlates them. It then applies pre-configured detection rules (and increasingly, Machine Learning and User Behavior Analytics) to identify suspicious activity.
+* **Important Limitation:** A traditional SIEM provides **Detection** capabilities only. It alerts the team, but it does not actively stop the threat on its own.
+
+#### 2. EDR (Endpoint Detection and Response)
+Focused entirely on individual devices (endpoints like laptops, servers, and mobile phones).
+
+* **How it works:** Provides deep, real-time, and historical visibility into what is happening on a specific machine. 
+* **Key Advantage:** Unlike a SIEM, EDR includes built-in **Response** capabilities. Analysts can use it to automatically isolate an infected machine from the network with just a few clicks.
+
+#### 3. Firewall
+The traditional perimeter defense. It acts as the bouncer between your safe internal network and the dangerous external internet.
+
+* **How it works:** It continuously monitors incoming and outgoing network traffic. By applying a strict set of rules, it filters out and blocks unauthorized or malicious traffic before it can ever reach the internal network.
+
+### Other Notable Technologies
+Depending on the organization's budget and threat surface, a SOC may also deploy:
+* **Antivirus / EPP** (Endpoint Protection Platform)
+* **IDS / IPS** (Intrusion Detection/Prevention Systems)
+* **XDR** (Extended Detection and Response)
+* **SOAR** (Security Orchestration, Automation, and Response)
+
+### Key Takeaways
+If a threat actor tries to download malware from the internet, the **Firewall** might block it. If it gets through, the **EDR** on the employee's laptop might catch the file executing. Meanwhile, the **SIEM** is collecting logs from both the firewall and the laptop to give the SOC Analyst the full picture of the attack!
+
+---
+
+## Room: [Next Room]
