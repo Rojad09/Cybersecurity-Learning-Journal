@@ -2077,4 +2077,104 @@ If a threat actor tries to download malware from the internet, the **Firewall** 
 
 ---
 
+## Room: [Digital Forensics Fund.]
+
+**Digital Forensics Methodology**
+
+* **Objective:** Understand the official NIST 4-phase framework for conducting digital forensics and identify the various sub-disciplines within the field.
+
+### Key Concepts: The NIST Digital Forensics Process
+The National Institute of Standards and Technology (NIST) defines a strict, four-step methodology that investigators must follow to ensure evidence remains legally admissible and analytically sound.
+
+
+
+| Phase | Description | Key Goal |
+| :--- | :--- | :--- |
+| **1. Collection** | Identifying and gathering all potential sources of data at the crime scene (PCs, USBs, cameras). | Ensure the **original data is never tampered with** and maintain strict documentation (Chain of Custody). |
+| **2. Examination** | Filtering the massive amounts of collected raw data to extract only the information relevant to the case. | Reduce the "noise." (e.g., filtering a hard drive to only show files created on the specific day of the crime). |
+| **3. Analysis** | Correlating the filtered evidence to draw factual conclusions and build a chronological timeline of events. | Determine exactly *how* the event happened and map out the relevant activities. |
+| **4. Reporting** | Creating a comprehensive document detailing the methodology, findings, and recommendations. | Present complex technical findings in a way that both Law Enforcement and Executive Management can understand. |
+
+### Key Concepts: Types of Digital Forensics
+Because evidence can exist anywhere on a modern network, investigators often specialize in specific domains of digital forensics.
+
+
+
+* **Computer Forensics:** The most common branch; focuses on traditional endpoints like desktops and laptops.
+* **Mobile Forensics:** Extracting GPS data, call logs, SMS, and app data from smartphones and tablets.
+* **Network Forensics:** Analyzing captured network traffic logs (PCAPs) to track data moving across the wire (useful when device logs are deleted).
+* **Database Forensics:** Investigating unauthorized intrusions, data modifications, or exfiltration within dedicated database servers.
+* **Cloud Forensics:** Investigating data hosted on infrastructure like AWS or Azure. *(Note: This is notoriously difficult because investigators lack physical access to the hardware).*
+* **Email Forensics:** Tracing the origins, headers, and attachments of emails to investigate phishing, fraud, or harassment campaigns.
+
+### Key Takeaways
+**The Golden Rule of Forensics:** Never analyze the original evidence! During the **Collection** phase, investigators must take perfect, bit-by-bit cryptographic clones of the drives. All **Examination** and **Analysis** must be done on the copies to prevent accidentally altering the original crime scene data.
+
+**Evidence Acquisition**
+
+### Key Concepts: The Rules of Evidence
+The primary goal of the collection phase is to ensure the evidence remains **legally admissible**. If the defense in a court case can prove the evidence *might* have been altered, the entire investigation is compromised.
+
+#### 1. Proper Authorization
+Before a single cable is unplugged, the forensics team must obtain explicit legal authorization (like a search warrant or written corporate consent). 
+* **Why it matters:** Digital evidence contains highly sensitive, private data. Collecting it without prior approval violates privacy laws and instantly makes the evidence inadmissible in court.
+
+
+
+#### 2. Chain of Custody
+A formal, continuous document that tracks the exact lifecycle of a piece of evidence from the moment it is found until it is presented in court.
+* **The Problem:** If a suspect's laptop sits in an unlocked room for three days, anyone could have walked in and planted fake evidence on it.
+* **The Solution:** The Chain of Custody form proves exactly who had the evidence at all times, ensuring accountability and proving the data's integrity.
+
+**Essential Chain of Custody Details:**
+| Key Detail | Description |
+| :--- | :--- |
+| **Evidence Info** | Exact description of the item (e.g., "Black iPhone 13, 128GB, cracked screen"). |
+| **Collector** | The full name and signature of the investigator who seized it. |
+| **Timestamp** | The exact date and time the evidence was initially collected. |
+| **Storage Location** | The secure physical location where the evidence is being held (e.g., "Locker 4, Evidence Room B"). |
+| **Access Log** | A running, signed record of *every single person* who checks the evidence out, accesses it, and puts it back. |
+
+
+#### 3. Use of Write Blockers
+A Write Blocker is a specialized hardware device (or software utility) that sits between the suspect's hard drive and the investigator's forensic workstation.
+* **The Problem:** Simply plugging a hard drive into a Windows or Linux machine will cause the operating system to automatically run background tasks that alter file timestamps or write hidden files (like `.DS_Store` or `Thumbs.db`). This alters the crime scene.
+* **The Solution:** The write blocker physically intercepts and blocks any "write" commands sent to the drive, allowing the investigator to "read" and copy the data while guaranteeing the original suspect drive remains 100% untouched and unchanged.
+
+### Key Takeaways
+**The Golden Rule:** Always image the drive through a Write Blocker! You never perform analysis on the original hard drive. You use the write blocker to create a bit-by-bit cryptographic clone of the drive, and then you perform all your filtering and analysis on the *copy*.
+
+**Windows Forensics**
+
+### Key Concepts: Disk vs. Memory Images
+When an investigator secures a suspect's Windows computer, they must create bit-by-bit forensic copies of the data. This data is split into two strict categories based on how it reacts to losing power.
+
+
+
+* **1. Memory Image (Volatile Data):** * **What it is:** A snapshot of the system's active RAM.
+  * **What it contains:** Running processes, open files, active network connections, clipboard contents, and sometimes even plaintext passwords or encryption keys.
+  * **The Catch:** It is *volatile*. If the computer is powered off or restarted, **all of this data is permanently lost.**
+  * *Golden Rule:* You must ALWAYS capture the Memory Image *first* while the machine is still running, before you pull the plug to seize the hardware.
+
+* **2. Disk Image (Non-Volatile Data):**
+  * **What it is:** A complete clone of the storage drives (HDD, SSD, USBs).
+  * **What it contains:** Operating system files, media, documents, installed software, and internet browsing history.
+  * **The Catch:** It is *non-volatile*. This data will survive a reboot or power loss, meaning it can be safely imaged later in a lab using a write blocker.
+
+### Key Concepts: Standard Windows Forensic Tools
+There are specific tools designed to capture and analyze these different types of images. 
+
+
+| Tool Name | Purpose | Data Type | Description |
+| :--- | :--- | :--- | :--- |
+| **FTK Imager** | Acquisition & Analysis | Disk & Memory | A widely used, user-friendly GUI tool used primarily to create forensically sound disk images. |
+| **DumpIt** | Acquisition | Memory | A fast, lightweight command-line utility used to dump the contents of Windows RAM into a raw image file. |
+| **Autopsy** | Analysis | Disk | A massive open-source digital forensics platform. Used to analyze disk images, recover deleted files, check metadata, and search for keywords. |
+| **Volatility** | Analysis | Memory | The industry standard for RAM analysis. It uses a command-line interface and specific plugins to extract running processes and network connections from a memory dump. |
+
+### Key Takeaways
+If you walk into a room and a suspect's computer is turned *on*, **do not turn it off!** If you pull the power cable before dumping the RAM with a tool like `DumpIt`, you will destroy the volatile evidence forever.
+
+---
+
 ## Room: [Next Room]
