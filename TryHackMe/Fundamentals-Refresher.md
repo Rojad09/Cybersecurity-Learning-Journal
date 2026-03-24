@@ -2177,4 +2177,135 @@ If you walk into a room and a suspect's computer is turned *on*, **do not turn i
 
 ---
 
-## Room: [Next Room]
+## Room: [Incident Response Fundamentals]
+
+### Key Concepts: The Event Pipeline
+Every computing device runs hundreds of background and interactive processes. Every action these processes take generates an **Event**.
+
+1. **Events to Logs:** Because the sheer volume of daily events is impossible for a human to read, they are ingested into centralized security solutions (like a SIEM) as **Logs**.
+2. **Logs to Alerts:** The security solution constantly scans these logs. When it detects a pattern that matches known harmful activity, it triggers an **Alert** for the SOC team to investigate.
+
+
+
+### Key Concepts: Alert Classification
+Once an alert is triggered, a SOC Analyst must investigate it to determine if the threat is real or just a misunderstanding by the automated software.
+
+| Classification | Definition | Example Scenario | Result |
+| :--- | :--- | :--- | :--- |
+| **False Positive** | The security tool flagged an activity as dangerous, but human analysis proves it is actually harmless business activity. | An alert fires for "Massive Data Exfiltration." The analyst discovers it was just a scheduled, authorized server backup to the cloud. | The alert is closed and the detection rule may be tuned to ignore this in the future. |
+| **True Positive** | The security tool flagged an activity as dangerous, and human analysis confirms it *is* an actual cyber attack. | An alert fires for a "Phishing Attempt." The analyst confirms the email contains a malicious credential-stealing link. | The alert is officially upgraded to an **Incident**. |
+
+### Key Concepts: Incident Severity
+When a True Positive is confirmed, it becomes an **Incident**. If a SOC receives dozens of incidents at the same time, they cannot handle them all at once. They must prioritize based on severity and potential business impact.
+
+* **Critical Severity:** Stop everything. Active breach, massive data loss occurring, or core business operations are down. (Highest Priority).
+* **High Severity:** Significant threat, but contained to a specific area or less critical system.
+* **Medium Severity:** Targeted attack that was blocked, or a localized malware infection that hasn't spread.
+* **Low Severity:** Routine, automated attacks (like basic port scanning) that pose very little immediate risk.
+
+### Key Takeaways
+**The False Positive Problem:** A major part of a Level 1 SOC Analyst's job is hunting down False Positives. If a security tool generates too many False Positives, the team suffers from "alert fatigue" and might accidentally ignore a True Positive when a real attack happens!
+
+**Types of Incidents**
+
+* **Objective:** Understand the specific categories of cyber security incidents and recognize why the severity of an attack heavily depends on the target organization's business model.
+
+### Key Concepts: Incident Classifications
+In the cybersecurity industry, we don't just call everything "a hack." When a True Positive alert is upgraded to an incident, it is categorized into one (or more) of the following types so the Incident Response team knows exactly what they are dealing with.
+
+| Incident Type | Description | Key Characteristics |
+| :--- | :--- | :--- |
+| **Malware Infections** | Malicious software designed to damage or disrupt a system, network, or application. | Often the result of a user executing a malicious file or document (like an email attachment). |
+| **Security Breaches** | When an unauthorized external person successfully bypasses defenses to gain access to confidential data or systems. | Highly critical for businesses that rely on keeping proprietary data or customer information secret. |
+| **Data Leaks** | Confidential information is exposed to unauthorized entities. | Unlike a breach, a leak isn't always a malicious attack. It is frequently caused unintentionally by human error or cloud misconfigurations (like an unsecured AWS S3 bucket). |
+| **Insider Attacks** | A malicious attack originating from *within* the organization (e.g., a disgruntled employee). |  Extremely dangerous because the attacker already has legitimate access and knowledge of the network defenses. |
+| **Denial of Service (DoS)** | An attacker floods a system, network, or application with overwhelming amounts of fake traffic. |  Designed to exhaust the server's resources so legitimate users cannot access it, directly violating the "Availability" pillar of cybersecurity. |
+
+### Key Concepts: Contextual Severity
+It is vital to understand that incidents cannot be universally ranked by severity. **The impact of an incident is entirely dependent on the victim organization's core business.**
+
+* **Scenario A (E-Commerce):** A DoS attack takes down an online retailer's primary website on Black Friday. *Impact: Disastrous (Millions of dollars in lost revenue).* A small data leak of public catalog items. *Impact: Minor.*
+* **Scenario B (Healthcare):** A hospital suffers a massive data leak of highly confidential patient medical records. *Impact: Disastrous (HIPAA fines, lawsuits, destroyed reputation).* A DoS attack on their public informational blog. *Impact: Minor.*
+
+
+### Key Takeaways
+When you are triaging alerts, always keep your specific organization's "crown jewels" in mind. An attack that targets your company's most critical assets should always be escalated to a **Critical Severity** incident faster than a generic attack!
+
+**Incident Response Frameworks (SANS vs. NIST)**
+
+### Key Concepts: Why Use a Framework?
+Because every cyber incident is chaotic and unique, organizations need a strict, repeatable process to follow so they don't panic or make mistakes during a live breach. Two major organizations define the industry standards for this: **SANS** and **NIST**.
+
+
+
+### 1. The SANS Framework (PICERL)
+SANS defines a 6-phase incident response lifecycle. A great way to memorize this for exams is the acronym **PICERL**.
+
+| Phase | Description | Example Activity |
+| :--- | :--- | :--- |
+| **P** - Preparation | Building resources and defenses *before* an incident happens. | Writing an Incident Response Plan; conducting employee anti-phishing training. |
+| **I** - Identification | Detecting abnormal behavior and confirming an incident is actually occurring. | A SOC analyst noticing massive data exfiltration and confirming a host is compromised. |
+| **C** - Containment | Stopping the "bleeding" and preventing the attack from spreading further. | Disconnecting the infected machine from the network; disabling a compromised user account. |
+| **E** - Eradication | Removing the root cause of the threat from the environment entirely. | Running deep malware scans to delete the malicious files from the host. |
+| **R** - Recovery | Restoring systems to normal, secure business operations. | Rebuilding the machine from a clean image and restoring lost data from secure backups. |
+| **L** - Lessons Learned | Documenting what went wrong and how to improve defenses for next time. | Holding a post-incident review meeting to update firewall rules so the attack cannot happen again. |
+
+### 2. The NIST Framework Comparison
+The National Institute of Standards and Technology (NIST) offers a very similar framework, but it condenses the lifecycle into **4 phases**. 
+
+
+
+* **Preparation:** (Matches SANS)
+* **Detection & Analysis:** (Matches SANS *Identification*)
+* **Containment, Eradication, & Recovery:** (Combines three SANS phases into one continuous, overlapping response effort)
+* **Post-Incident Activity:** (Matches SANS *Lessons Learned*)
+
+### Key Concepts: The Incident Response Plan (IRP)
+Frameworks act as the generic blueprint, but an organization must create its own specific **Incident Response Plan (IRP)** based on those frameworks. This is a formal, management-approved document that details exactly what the company will do during a breach.
+
+**Key Components of an IRP:**
+* **Roles & Responsibilities:** Who is the incident commander? Who talks to the press?
+* **Response Methodology:** The step-by-step technical procedures.
+* **Communication Plan:** How to securely communicate when internal systems (like Slack or Email) are compromised, and when to loop in Law Enforcement.
+* **Escalation Path:** Who gets called at 3:00 AM on a Sunday if a critical server goes down.
+
+### Key Takeaways
+**Containment comes BEFORE Eradication!** A common mistake is trying to delete malware while the machine is still connected to the internet. The attacker will just keep re-infecting the machine. Always isolate (Contain) the system first!
+
+**Incident Response Techniques**
+
+### Key Concepts: Detection & Analysis Solutions
+Manually hunting for abnormal behavior across a massive corporate network is impossible. SOC teams rely on these core technologies to execute the Identification/Detection phases of their incident response frameworks.
+
+
+
+| Solution | Definition | Primary Role |
+| :--- | :--- | :--- |
+| **SIEM** | Security Information and Event Management | The "Central Brain." Collects, aggregates, and correlates logs from across the entire network to identify broader incidents. |
+| **AV** | Antivirus | The "Traditional Guard." Scans individual systems to detect and block *known* malicious programs using signature-based detection. |
+| **EDR** | Endpoint Detection and Response | The "Advanced Guard." Deployed on individual endpoints to monitor for advanced, behavior-based threats. *Crucially, EDR can actively respond (contain/eradicate) threats, not just detect them.* |
+
+### Key Concepts: Playbooks vs. Runbooks
+When an incident is confirmed, analysts don't just guess what to do next. They follow strict, pre-approved documentation to save time and ensure no critical steps are missed.
+
+
+
+* **Playbook:** The high-level **Guidelines**. It dictates *what* steps need to be taken to handle a specific type of incident comprehensively from start to finish. 
+* **Runbook:** The low-level **Execution**. It dictates exactly *how* to perform a specific step within a playbook, providing detailed, technical, step-by-step instructions (e.g., the exact CLI commands to run to isolate a host).
+
+#### Example Playbook: Phishing Email
+If a user reports a suspicious email, the SOC Analyst will pull up the "Phishing Playbook" and follow these high-level steps:
+
+1. **Notify** all relevant stakeholders that a phishing incident is being investigated.
+2. **Analyze** the email headers and body to determine if it is genuinely malicious.
+3. **Inspect** any attached files or embedded links in a safe sandbox environment.
+4. **Determine Impact** by checking logs to see if anyone actually clicked the link, downloaded the attachment, or submitted their credentials.
+5. **Isolate (Contain)** any infected systems from the corporate network immediately.
+6. **Block (Eradicate)** the malicious sender's email address and domain at the email gateway.
+
+### Key Takeaways
+**Think of it like cooking:** The **Playbook** is the overall menu for the dinner party (Soup, Steak, Cake). The **Runbook** is the exact recipe detailing how many teaspoons of salt to put into the soup!
+
+---
+
+## Room: [Introduction to SIEM]
