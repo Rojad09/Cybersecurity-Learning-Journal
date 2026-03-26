@@ -2544,4 +2544,153 @@ Firewall rules are strictly categorized based on which way the traffic is flowin
 
 ---
 
-## Room:[IDS Fundamentals]
+## Room: [IDS Fundamentals]
+
+### 1. Deployment Modes (Where the IDS sits)
+An IDS can monitor activity at the individual device level or across the entire network infrastructure.
+
+* **HIDS (Host Intrusion Detection System):** * **How it works:** Installed directly on individual endpoints (hosts).
+    * **Pros:** Provides incredibly detailed visibility into that specific machine's activities (file changes, process executions).
+    * **Cons:** Highly resource-intensive and difficult to manage at scale across thousands of machines.
+* **NIDS (Network Intrusion Detection System):**
+    * **How it works:** Placed at strategic points within the network to monitor traffic flowing between all hosts.
+    * **Pros:** Provides a centralized, bird's-eye view of potentially malicious activities moving across the wire.
+
+
+### 2. Detection Modes (How the IDS thinks)
+Once an IDS sees the data, it uses different logical engines to determine if that data is malicious.
+
+* **Signature-Based IDS:**
+    * **How it works:** Compares incoming traffic against a database of known attack patterns (signatures), much like traditional antivirus software. 
+    * **Pros:** Very fast and highly efficient at catching known threats with low false positives. *(Note: We will be exploring **Snort**, a famous signature-based IDS, soon).*
+    * **Cons:** Completely blind to "Zero-Day" attacks (new attacks that do not have a signature yet).
+* **Anomaly-Based IDS:**
+    * **How it works:** First learns what "normal" network behavior looks like (establishing a baseline). It then flags any traffic that deviates from this baseline as suspicious.
+    * **Pros:** Highly capable of catching brand-new, Zero-Day attacks since it doesn't rely on known signatures.
+    * **Cons:** Prone to high False Positive rates. Legitimate but unusual activity (like a user downloading a massive file for the first time) will trigger alerts unless the system is carefully fine-tuned.
+* **Hybrid IDS:**
+    * **How it works:** Combines both engines. It uses signatures to quickly swat down known threats while using anomaly detection to catch suspicious, unseen behavior.
+
+
+### Summary Table: Detection Modes
+
+| Detection Mode | Best For | Main Weakness |
+| :--- | :--- | :--- |
+| **Signature-Based** | Quickly stopping known, documented attacks. | Cannot detect zero-day vulnerabilities. |
+| **Anomaly-Based** | Catching new, unseen zero-day attacks. | Generates many false positives; requires heavy tuning. |
+| **Hybrid** | Comprehensive coverage combining speed and zero-day detection. | Higher processing overhead and complexity. |
+
+**Introduction to Snort and Operating Modes**
+
+**Key Concepts:**
+* **What is Snort?** Developed in 1998, Snort is one of the most famous and widely used open-source Intrusion Detection Systems (IDS) in the world. It primarily relies on signature-based detection but also incorporates anomaly-based features.
+* **The Power of Rules:** * *Built-in Rules:* Snort comes pre-packaged with a massive database of rules designed to catch known attack patterns.
+    * *Custom Rules:* You are not locked into the defaults! You can turn off noisy built-in rules and write highly specific custom rules tailored strictly to your organization's environment.
+
+### Snort Operating Modes
+While Snort is famous as an IDS, it is actually a highly versatile packet-processing tool. It can be launched in one of three modes depending on what the analyst needs to accomplish:
+
+| Mode | Description | Primary Use Case |
+| :--- | :--- | :--- |
+| **Packet Sniffer Mode** | Simply reads network packets off the wire and displays them on the console. It performs *no* security analysis or detection in this mode. | **Network Troubleshooting:** Used by sysadmins to get real-time insights into traffic flow to diagnose connectivity or performance issues. |
+| **Packet Logging Mode** | Captures network traffic and saves it to a file on the disk in standard `PCAP` (Packet Capture) format. | **Forensic Investigations:** Used by security teams to save historical traffic data so they can perform deep-dive root cause analysis after a breach has occurred. |
+| **NIDS Mode** <br>*(Network Intrusion Detection System)* | **The main event.** Snort actively monitors network traffic in real-time, compares the packets against its active rule files, and generates alerts when malicious signatures are matched. | **Proactive Threat Monitoring:** Used by SOC teams to actively detect and get alerted to incoming attacks on the network. |
+
+**Takeaways / Notes:**
+* For actual security monitoring, you will almost always run Snort in **NIDS Mode**. However, knowing how to leverage it as a quick packet sniffer or logger is a great utility to have in your back pocket during an investigation!
+
+---
+
+## Room: [Vulnerability Scanner Overview]
+
+**Vulnerability Scanning**
+
+**Key Concepts:**
+* **Vulnerability Scanning:** The proactive inspection of digital systems to find weaknesses before attackers do. It is often required quarterly or annually by regulatory compliance frameworks.
+* **Automated vs. Manual:** Manual hunting is too slow for enterprise networks. Automated vulnerability scanners (like Nessus or OpenVAS) take an IP range, scan the hosts, and generate detailed, easy-to-read reports.
+* **Patching:** The act of fixing the identified vulnerabilities by updating or modifying the software/system.
+
+
+
+### 1. Authenticated vs. Unauthenticated Scans
+The level of access the scanner has to the target dictates how deep the scan can go.
+
+| Feature | Authenticated Scans | Unauthenticated Scans |
+| :--- | :--- | :--- |
+| **Requirements** | Requires the target host's login credentials. | Needs only the target's IP address (no credentials). |
+| **Perspective** | Shows what an attacker could do *if they already had access* to the system. | Shows what an external attacker can see from the *outside*. |
+| **Visibility** | Deep visibility. Can scan internal configurations, registry keys, and installed applications. | Surface-level visibility. Less resource-intensive and easier to set up. |
+| **Example** | Scanning an internal database using admin credentials to check for misconfigurations. | Scanning a public-facing web server to see if any open ports are vulnerable. |
+
+### 2. Internal vs. External Scans
+This categorization is based on *where* the scanner is located relative to the network perimeter (firewall).
+
+
+
+| Feature | Internal Scans | External Scans |
+| :--- | :--- | :--- |
+| **Location** | Conducted from *inside* the corporate network. | Conducted from *outside* the corporate network (the Internet). |
+| **Focus** | Vulnerabilities exploitable by malicious insiders or attackers who have already breached the perimeter. | Vulnerabilities exposed directly to the public internet. |
+| **Threat Model** | "What happens if an employee's laptop gets infected or goes rogue?" | "What happens if a random hacker on the internet targets our public IP?" |
+
+**Takeaways / Notes:**
+* **The Standard Pairing:** In most enterprise security programs, **Authenticated Scans** are run **Internally** (to ensure all employee workstations and internal servers are fully patched), while **Unauthenticated Scans** are run **Externally** (to mimic exactly what a blind attacker would see from the outside).
+
+**Automated Vulnerability Scanners**
+
+**Key Concepts:**
+* **The Need for Automation:** Manual vulnerability hunting across an enterprise network is computationally and humanly impossible. Automated scanners bridge this gap by rapidly checking entire network ranges against massive databases of known vulnerabilities.
+* **Risk Scoring:** Scanners don't just find vulnerabilities; they prioritize them. They assign risk scores (often using the CVSS framework) based on how easy the vulnerability is to exploit and how devastating the impact would be to that specific asset.
+* **Actionable Reporting:** A scanner is only as good as its output. Modern scanners generate detailed reports containing the discovered vulnerabilities, risk scores, detailed descriptions, and, most importantly, the **remediation methods** (how to patch or fix the flaw).
+
+
+### Industry-Standard Scanners Comparison
+
+| Scanner | Developer / Owner | Deployment Model | Key Characteristics & Features |
+| :--- | :--- | :--- | :--- |
+| **Nessus** | Tenable | On-Premises | The industry heavyweight. Started open-source in 1998, now proprietary. Offers extensive, deep scanning options. Available in limited free versions (Nessus Essentials) and enterprise paid versions. |
+| **Qualys** | Qualys | Cloud-Based | A cloud-native, subscription-based platform. Excellent for continuous monitoring, asset management, and compliance checks without the overhead of managing local scanning hardware. |
+| **Nexpose** | Rapid7 | On-Prem / Hybrid | Subscription-based scanner that excels at continuous asset discovery. It dynamically adjusts vulnerability risk scores based on the actual business value of the affected asset. |
+| **OpenVAS** | Greenbone Security | On-Premises | The premier **open-source** vulnerability assessment system. While less extensive than expensive commercial tools, it provides a complete vulnerability scanning experience. Perfect for small organizations, home labs, and CTFs. |
+
+**Takeaways / Notes:**
+* There is no single "best" scanner. The choice always comes down to the organization's budget, infrastructure type (do they want a cloud solution like Qualys or strictly on-prem like Nessus?), and the required depth of analysis.
+* Since OpenVAS is completely free and open-source, it is the absolute best place to start getting hands-on experience with automated vulnerability management!
+
+**CVE AND CVSS**
+
+**Key Concepts:**
+Just like an IT help desk assigns a unique ticket number to track a user's complaint, the cybersecurity industry needs a standardized way to track and prioritize software vulnerabilities. 
+
+### 1. CVE (Common Vulnerabilities and Exposures)
+Think of a CVE as the unique "ticket number" assigned to a specific vulnerability. Maintained by the MITRE Corporation, the CVE database acts as a global, public reference for newly discovered software flaws so organizations can quickly identify and patch them.
+
+* **Structure of a CVE Number:**
+  * **Prefix:** Always starts with `CVE`.
+  * **Year:** The year the vulnerability was discovered or reported (e.g., `2024`).
+  * **Arbitrary Digits:** A unique sequence of four or more digits assigned to that specific flaw (e.g., `9374`).
+  * *Example:* `CVE-2024-9374`
+
+---
+
+### 2. CVSS (Common Vulnerability Scoring System)
+If you have thousands of IT tickets (or vulnerabilities), you need a way to prioritize them. The CVSS provides that prioritization by assigning a severity score to each CVE.
+
+* **How it works:** The score is calculated based on multiple factors, including the vulnerability's impact and how easy it is for an attacker to exploit it. 
+* **The Scale:** Scores range from 0 to 10. The higher the score, the more critical the vulnerability.
+
+**CVSS Severity Ratings:**
+
+| CVSS Score Range | Severity Level |
+| :--- | :--- |
+| **0.0 - 3.9** | Low |
+| **4.0 - 6.9** | Medium |
+| **7.0 - 8.9** | High |
+| **9.0 - 10.0** | Critical |
+
+**Takeaways / Notes:**
+* Whenever a zero-day drops, the **CVE** tells you *what* it is, and the **CVSS** score tells you *how fast* you need to drop everything and patch it!
+
+---
+
+## Room: [Next Room]
