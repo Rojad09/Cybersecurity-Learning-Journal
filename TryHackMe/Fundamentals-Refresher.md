@@ -2309,3 +2309,239 @@ If a user reports a suspicious email, the SOC Analyst will pull up the "Phishing
 ---
 
 ## Room: [Introduction to SIEM]
+
+*  **SIEM:** Security Information and Event Management system that is used to aggregate security information in the form of logs, alerts, artifacts and events into a centralized platform that would allow security analysts to perform near real-time analysis during security monitoring. / Security Information and Event Management (SIEM) is a security solution that collects logs from various types of log sources, standardizes their format into a consistent one, correlates them, and detects malicious activities using detection rules.
+
+**Log Sources and Challenges**
+
+**Key Concepts:**
+* **The Logging Ecosystem:** Every device in a network (endpoints, servers, firewalls, routers) continuously generates logs. These act as the fundamental breadcrumbs for identifying malicious activity.
+* **Categories of Log Sources:**
+    * **Host-Centric Logs:** Events that happen *inside* a specific endpoint or server (e.g., Windows, Linux).
+        * *Examples:* A user authenticating, a process executing, PowerShell commands running, registry keys being modified, or local file access.
+    * **Network-Centric Logs:** Events generated when devices communicate with *each other* or the internet. These come from infrastructure devices (e.g., Firewalls, Routers, IDS/IPS).
+        * *Examples:* SSH connections, FTP file transfers, web traffic routing, or VPN access.
+
+
+
+* **The Problem (Why we need a SIEM):**
+    * **Numerous Sources:** A network has hundreds of devices generating thousands of logs per second.
+    * **No Centralization:** Manually SSH-ing or RDP-ing into individual machines to check their local logs is incredibly inefficient during a time-sensitive incident.
+    * **Limited Context:** A single log on a single machine might look innocent (e.g., a file being read). You need to correlate it with network logs to see that the user reading the file just came through a malicious VPN connection.
+    * **Limited Analysis:** The sheer volume of data makes manual human analysis impossible; critical alerts will be missed.
+    * **Format Issues:** Different vendors use completely different log formats (Syslog, EVTX, JSON, etc.), making it hard to parse them uniformly.
+
+**Takeaways / Notes:**
+* If you cannot correlate a network event (how the attacker got in) with a host event (what the attacker did once inside), you cannot fully map an intrusion. This decentralized chaos is exactly the problem that a Security Information and Event Management (SIEM) system is built to solve.
+
+**Features and Capabilities**
+
+**Key Concepts:**
+* **What is a SIEM?** A security solution that acts as the central brain for a Security Operations Center (SOC). It collects logs from every device on the network, standardizes them, and uses detection rules to spot malicious activity.
+* **Centralized Log Collection:** Instead of logging into individual machines, a SIEM uses lightweight agents or APIs to pull all logs (from endpoints, servers, firewalls, routers) into one single dashboard.
+
+* **Parsing vs. Normalization:**
+    * **Parsing:** The act of breaking a raw, messy log file down into distinct, readable fields (e.g., extracting just the IP address or the Username).
+    * **Normalization:** The act of taking completely different log formats (like a Windows EVTX log and a Linux Syslog) and converting them into one consistent, universal format so they can be easily searched and compared.
+
+* **Log Correlation (The Superpower):** A SIEM analyzes logs from *different* sources to find relationships and patterns that indicate an attack. 
+    * *Example Scenario:* 1. User logs in via VPN from an unfamiliar IP. *(Network Log)*
+        2. User accesses documents on a shared drive. *(Host/File Log)*
+        3. User executes a PowerShell script. *(Host/Process Log)*
+        4. System makes a massive outbound network connection. *(Network/Firewall Log)*
+    * *Conclusion:* Individually, these might look like normal IT activities. Correlated together, the SIEM alerts the analyst to a highly probable Data Exfiltration attack via compromised credentials.
+
+* **Real-time Alerting:** SIEMs come with pre-built (and custom-written) detection rules. When logs match the conditions of a rule (like the correlation example above), an alert is triggered for the SOC analysts to investigate.
+* **Dashboards & Reporting:** Visual representations of the data. Dashboards give analysts a bird's-eye view of network health, top triggered rules, failed logins, and total ingested events.
+
+
+**Takeaways / Notes:**
+* **Splunk** is one of the most widely used enterprise SIEMs in the industry, but others like **QRadar**, **Elastic Security**, and **Microsoft Sentinel** all rely on these exact same core features.
+
+**Log Sources and Ingestion**
+
+### 1. Common Log Sources (Where the data lives)
+Every device generates logs, but knowing exactly where to look on different operating systems is a fundamental skill for any security analyst.
+
+**Windows Endpoints:**
+* **Tool:** Windows Event Viewer.
+* **Mechanism:** Windows assigns a unique **Event ID** to every type of activity (e.g., Event ID 4624 is a successful logon). This makes filtering and tracking specific behaviors much easier.
+
+
+**Linux Endpoints:**
+Linux systems typically store their logs in the `/var/log/` directory. 
+* `/var/log/httpd` or `/var/log/apache2`: HTTP web server requests, responses, and errors.
+* `/var/log/cron`: Records of scheduled automated tasks (cron jobs).
+* `/var/log/auth.log` (Debian/Ubuntu) or `/var/log/secure` (RedHat/CentOS): Authentication events, SSH logins, and `sudo` usage.
+* `/var/log/kern`: Kernel-level events and hardware errors.
+
+*Example Cron Log:*
+> `May 28 13:04:20 ebr crond[2843]: /usr/sbin/crond 4.4 dillon's cron daemon, started with loglevel notice`
+
+**Web Servers (Apache/Nginx):**
+Monitoring web traffic is critical for spotting attacks like SQL Injection or Cross-Site Scripting (XSS). These logs record the exact timestamp, source IP, HTTP method, requested URI, and the user's browser (User-Agent).
+
+*Example Apache Log:*
+> `192.168.21.200 - - [21/March/2022:10:17:10 -0300] "GET /cgi-bin/try/ HTTP/1.0" 200 3395 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64)..."`
+
+---
+
+### 2. Log Ingestion (Getting the data to the SIEM)
+Once you know where the logs are, you have to transport them to the SIEM for normalization and correlation. 
+
+
+
+There are four primary ways to ingest data:
+1. **Agents / Forwarders:** A lightweight piece of software installed directly on the endpoint (e.g., a Splunk Universal Forwarder or Elastic Agent). It continuously reads local log files and securely forwards them to the SIEM server.
+2. **Syslog:** A standard network protocol used heavily by Linux machines, firewalls, and routers to send real-time event messages to a centralized logging server over the network.
+3. **Port-Forwarding:** The SIEM is configured to listen on a specific network port, and endpoints or network devices are configured to stream their raw data directly to that IP and port.
+4. **Manual Upload:** Useful for offline analysis, historical investigations, or CTF challenges. Analysts can manually upload static `.csv`, `.json`, or `.evtx` files directly into the SIEM interface.
+
+**Takeaways / Notes:**
+* In a modern enterprise, **Agents** and **Syslog** are by far the most common continuous ingestion methods. If an agent goes offline, the SIEM stops receiving data from that host, which is often an early warning sign of a compromised or failing machine!
+
+**Alerting Process and Analysis**
+
+**Key Concepts:**
+* **The Magic Behind Alerts:** SIEMs do not magically know what is malicious. They rely on **Detection Rules** written by analysts. These rules are essentially logical "If-Then" statements that continuously monitor the incoming stream of normalized logs.
+* **Why Normalization Matters:** Rules look for specific values in specific fields (e.g., `EventID = 4688`). If the SIEM hasn't normalized the logs into standard field names, the rules will fail to trigger!
+
+
+
+### Building a Detection Rule (Use Cases)
+To catch an attacker, you have to know what their digital footprints look like. 
+
+**Use Case 1: Covering Tracks (Log Clearing)**
+* **The Behavior:** Attackers frequently clear event logs to hide their activity. In Windows, clearing the log generates Event ID `104`.
+* **The Rule Logic:** `IF (LogSource == WinEventLog) AND (EventID == 104) THEN Trigger Alert: "Event Log Cleared"`
+
+**Use Case 2: Post-Exploitation Discovery**
+* **The Behavior:** After gaining access, an attacker will often run the `whoami` command to check their current privilege level. Windows logs new process creations under Event ID `4688`.
+* **The Rule Logic:** `IF (LogSource == WinEventLog) AND (EventCode == 4688) AND (NewProcessName CONTAINS "whoami") THEN Trigger Alert: "WHOAMI Command Execution Detected"`
+
+---
+
+### The Alert Investigation Workflow
+When a rule's conditions are met, an alert pops up on the SIEM dashboard. The analyst must then review the raw logs and determine the verdict.
+
+
+
+| Verdict | Definition | Next Steps |
+| :--- | :--- | :--- |
+| **False Positive (FP)** | The rule triggered, but the activity was benign/normal (e.g., an IT admin running a scheduled script). | **Tune the Rule:** Adjust the logic to exclude this specific benign behavior in the future to prevent "alert fatigue." |
+| **True Positive (TP)** | The rule accurately caught malicious, unauthorized, or highly suspicious activity. | **Incident Response:** Investigate further, contact the asset owner, isolate the infected host from the network, or block the malicious IP at the firewall. |
+
+**Takeaways / Notes:**
+* Writing good detection rules is a balancing act. If a rule is too broad, it generates too many False Positives (overwhelming the analysts). If it is too specific, it might miss a slightly modified attack (a False Negative).
+
+---
+
+# Room: [Firewall Fundamentals]
+
+* **Firewall:** A security tool, hardware or software that is used to filter network traffic by stopping unauthorized incoming and outgoing traffic. A firewall is designed to inspect a network's or digital device’s incoming and outgoing traffic.
+
+**Types of Firewalls**
+
+**Key Concepts:**
+Firewalls are essential network security devices that filter harmful traffic. As network attacks have evolved, so have firewalls, leading to several distinct types with varying levels of complexity and inspection depth.
+
+
+
+### 1. Stateless Firewall
+* **OSI Layers:** Operates on **Layer 3** (Network) and **Layer 4** (Transport).
+* **How it works:** Filters data strictly based on predetermined, static rules (like source/destination IP or port). 
+* **The Catch (No Memory):** It evaluates *every single packet* in isolation. It maintains zero context or "state" of previous connections. If it drops a bad packet from an IP, it doesn't remember that IP is bad; the next packet from that same IP will be evaluated all over again from scratch.
+* **Pros/Cons:** Because it doesn't have to check a memory table, it processes packets extremely quickly. However, it cannot apply complex security policies.
+
+### 2. Stateful Firewall
+* **OSI Layers:** Operates on **Layer 3** and **Layer 4**.
+* **How it works:** Goes beyond simple rule-matching by keeping track of active connections in a **state table** (it has memory!).
+* **The Advantage:** If a connection is established and approved, future packets belonging to that exact same connection flow through automatically without needing deep, individual inspection. Conversely, if a connection is deemed malicious, all subsequent packets from that source are automatically dropped.
+
+### 3. Proxy Firewall (Application-Level Gateway)
+* **OSI Layers:** Operates on **Layer 7** (Application).
+* **How it works:** Acts as a middleman (intermediary) between the internal private network and the public internet. 
+* **The Advantage:** Unlike stateless/stateful firewalls, a proxy can actually inspect the *content* (payload) of the packet. It also masks the internal IP addresses by forwarding requests using its own IP, providing anonymity. It is excellent for strict content filtering policies.
+
+### 4. Next-Generation Firewall (NGFW)
+* **OSI Layers:** Operates from **Layer 3 up to Layer 7**.
+* **How it works:** The most advanced iteration. It combines the features of traditional firewalls with deep packet inspection and active threat prevention.
+* **Key Features:**
+    * **Intrusion Prevention System (IPS):** Blocks malicious activity in real-time.
+    * **Heuristic Analysis:** Analyzes attack patterns to block zero-day threats before they enter the network.
+    * **SSL/TLS Decryption:** Can decrypt, inspect, and re-encrypt secure web traffic to ensure malware isn't hiding in encrypted packets.
+    * Integrates with Threat Intelligence feeds for up-to-date decision making.
+
+---
+
+### Firewall Characteristics Summary Table
+
+| Firewall Type | Key Characteristics |
+| :--- | :--- |
+| **Stateless Firewalls** | - Basic filtering <br> - Keeps no track of previous connections <br> - Highly efficient for high-speed networks |
+| **Stateful Firewalls** | - Recognizes traffic by patterns <br> - Can apply complex rules <br> - Monitors and remembers active network connections |
+| **Proxy Firewalls** | - Inspects the actual data/payload inside packets <br> - Provides content filtering options <br> - Provides application control <br> - Decrypts and inspects SSL/TLS data packets |
+| **Next-Generation Firewalls (NGFW)** | - Provides advanced threat protection <br> - Includes an integrated Intrusion Prevention System (IPS) <br> - Identifies anomalies using heuristic analysis <br> - Decrypts and inspects SSL/TLS data packets |
+
+**Rules and Configurations**
+
+**Key Concepts:**
+While firewalls come with built-in default policies, security teams must define custom rules to control exactly what traffic is allowed in or out of their specific network environment. 
+
+
+
+### 1. Basic Components of a Firewall Rule
+Every rule you create will generally consist of these six core fields:
+* **Source Address:** The IP address of the machine originating the traffic.
+* **Destination Address:** The IP address of the machine receiving the traffic.
+* **Port:** The specific network port number being used (e.g., 80 for HTTP, 22 for SSH).
+* **Protocol:** The communication protocol (e.g., TCP, UDP, ICMP).
+* **Direction:** Whether the rule applies to incoming or outgoing traffic.
+* **Action:** What the firewall should actually *do* with the packet if it matches this rule.
+
+---
+
+### 2. Types of Actions
+When a data packet matches the criteria of a rule, the firewall will execute one of three primary actions:
+
+**A. Allow**
+Permits the specified traffic to pass through the firewall. 
+* *Example:* Allowing all internal users to browse the public internet (HTTP port 80).
+
+| Action | Source | Destination | Protocol | Port | Direction |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Allow** | 192.168.1.0/24 | Any | TCP | 80 | Outbound |
+
+**B. Deny**
+Blocks the specified traffic, dropping the packets entirely. This is fundamental for reducing the network's attack surface.
+* *Example:* Blocking outside internet traffic from initiating an SSH connection (Port 22) to a critical internal server.
+
+| Action | Source | Destination | Protocol | Port | Direction |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Deny** | Any | 192.168.1.0/24 | TCP | 22 | Inbound |
+
+**C. Forward**
+Redirects traffic to a different network segment. This is used by firewalls that also act as routing gateways.
+* *Example:* Forwarding any incoming public HTTP traffic directly to the internal Web Server (`192.168.1.8`).
+
+| Action | Source | Destination | Protocol | Port | Direction |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Forward** | Any | 192.168.1.8 | TCP | 80 | Inbound |
+
+---
+
+### 3. Directionality of Rules
+Firewall rules are strictly categorized based on which way the traffic is flowing. 
+
+
+
+* **Inbound Rules:** Applied only to traffic *entering* the network (e.g., allowing external users to view your hosted website).
+* **Outbound Rules:** Applied only to traffic *leaving* the network (e.g., preventing internal employee workstations from sending outbound SMTP email traffic, forcing them to use the designated mail server instead).
+* **Forward Rules:** Applied to traffic that is being routed *through* or *inside* the network segments.
+
+**Takeaways / Notes:**
+* When building firewall rules, remember the principle of "Implicit Deny." Generally, a firewall will process rules from top to bottom. If traffic doesn't explicitly match an "Allow" rule, the default action at the very bottom of the list is always to "Deny."
+
+---
+
+## Room:[IDS Fundamentals]
