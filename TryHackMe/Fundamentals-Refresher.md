@@ -2693,4 +2693,53 @@ If you have thousands of IT tickets (or vulnerabilities), you need a way to prio
 
 ---
 
+## Room: [CyberChef]
+
+**What is CyberChef?**
+* CyberChef is a simple, intuitive web-based application designed to help with various “cyber” operation tasks within your web browser. Think of it as a Swiss Army knife for data - like having a toolbox of different tools designed to do a specific task. These tasks range from simple encodings like XOR or Base64 to complex operations like AES encryption or RSA decryption. CyberChef operates on recipes, a series of operations executed in order.
+
+**Intro**
+
+**Key Concepts:**
+The CyberChef interface is divided into four main sections that flow from left to right. You select a tool, add it to your workflow, provide the raw data, and view the transformed result.
+
+
+
+### 1. The Operations Area (The Toolkit)
+Located on the far left, this is the searchable repository of every function CyberChef can perform. You can hover over any operation to see a description, an example, and a link to its Wikipedia page.
+
+**Common Operations for Cyber Security:**
+
+| Operation | Description | Example Input -> Output |
+| :--- | :--- | :--- |
+| **From Morse Code** | Translates Morse Code into alphanumeric characters. | `- .... .-. . .- - ...` $\rightarrow$ `THREATS` |
+| **URL Encode** | Encodes problematic characters into percent-encoding (URI format). | `https://tryhackme.com` $\rightarrow$ `https%3A%2F%2Ftryhackme%2Ecom` |
+| **To Base64** | Encodes raw data into an ASCII Base64 string. | `This is fun!` $\rightarrow$ `VGhpcyBpcyBmdW4h` |
+| **To Hex** | Converts a string to hexadecimal bytes. | `Hex` $\rightarrow$ `48 65 78` |
+| **To Decimal** | Converts data to an ordinal integer array. | `Dec` $\rightarrow$ `68 101 99` |
+| **ROT13** | A simple Caesar substitution cipher that rotates alphabet characters by 13 places. | `Cyber` $\rightarrow$ `Plore` |
+
+### 2. The Recipe Area (The Heart of the Tool)
+This is where you drag and drop operations to build your data processing pipeline. 
+* **Chaining:** You can stack multiple operations on top of each other. The output of the first operation automatically becomes the input for the second, and so on.
+* **Baking:** Clicking the **BAKE!** button executes the recipe.
+* **Auto Bake:** A highly useful checkbox that automatically processes your data in real-time as you type or modify the recipe, saving you from clicking "Bake" repeatedly.
+* You can also **Save**, **Load**, or **Clear** recipes using the icons at the top of this panel.
+
+### 3. The Input Area (The Raw Data)
+This is where you place the data you want to analyze. 
+* **Flexibility:** You can type text, paste data, or drag-and-drop entire files and folders directly into this pane.
+* **Tabs:** You can open multiple input tabs if you are working on different pieces of evidence simultaneously.
+
+### 4. The Output Area (The Result)
+This panel displays the final, processed data after it has run through your entire recipe.
+* **Save output to file:** Export your findings as a `.dat` file.
+* **Copy raw output:** Instantly copy the exact result to your clipboard.
+* **Replace input with output:** A handy button that takes your result and throws it back into the Input area, which is great if you want to start a brand new recipe using the newly decoded data.
+
+**Takeaways / Notes:**
+* CyberChef runs entirely client-side in your web browser. This means that once the page is loaded, your data is processed locally on your machine and is *not* sent to an external server, making it safe for analyzing sensitive logs or malware strings!
+
+---
+
 ## Room: [Next Room]
