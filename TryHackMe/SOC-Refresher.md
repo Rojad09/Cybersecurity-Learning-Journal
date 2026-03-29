@@ -525,4 +525,249 @@ Regex is the ultimate cheat code for log analysis. Whether you are quickly carvi
 
 ---
 
+## Room: [Cyber Kill Chain]
+
+**Introduction**
+
+* 1. **Reconnaissance:** In the first stage, the attacker gathers information about the target
+* 2. **Weaponisation:** Once proper reconnaissance is conducted, the attacker creates a deliverable payload or modifies an existing one based on the target system's vulnerabilities.
+* 3. **Delivery:** Once ready, the attacker sends the weaponised payload to the target
+* 4. **Exploitation:** Once executed, the payload exploits a vulnerability in the target’s system
+* 5. **Installation:** The exploitation enables the attacker to install a backdoor or malware to maintain persistence in the target’s environment
+* 6. **Command & Control (C2):** Using the installed backdoor, the attacker can control the compromised system
+* 7. **Actions on Objectives:** Reaching this far, the attacker can now carry out further actions such as data exfiltration or other systems’ exploitation
+
+**Reconnaissance**
+
+**Key Concepts:**
+* **Reconnaissance:** Borrowed from military terminology, this is the act of gathering intelligence about a target before launching an attack. The goal is to map out the target's digital footprint and discover potential entry points or vulnerabilities.
+* **Passive vs. Active Reconnaissance:**
+  * **Passive:** Gathering information *without* directly interacting with the target's infrastructure. It is stealthy, makes no "noise," and leaves no logs on the target's servers.
+  * **Active:** Directly probing the target's systems or personnel. It is noisy, highly likely to be logged, and risks triggering security alerts.
+
+
+
+### 1. Examples of Reconnaissance
+
+**Passive Reconnaissance (OSINT - Open Source Intelligence):**
+* **WHOIS Lookups:** Checking domain registration databases to find contact names, emails, and registration dates.
+* **DNS Querying:** Discovering IP addresses of public servers without touching the servers themselves.
+* **Web Scraping & Crawling:** Archiving a target's website to analyze offline.
+* **Google Dorking:** Using advanced search engine operators to uncover misconfigured sensitive files (like passwords or database backups) indexed by Google.
+* **Social Media Recon:** Harvesting employee names, job roles, and technologies used via LinkedIn or Twitter.
+
+**Active Reconnaissance:**
+* **Network Port Scanning:** Using tools like Nmap to directly probe the target's IP addresses to see which ports are open and what services are running.
+* **Vulnerability Scanning:** Running automated scanners against the target's public-facing infrastructure.
+* **Social Engineering:** Calling or emailing employees directly to trick them into revealing information.
+* **Physical Reconnaissance:** Visiting the target's physical office to observe security cameras, badge readers, or employee behavior.
+
+### 2. Countermeasures (Defending against Recon)
+
+Defenders cannot completely stop reconnaissance, but they can make it significantly harder and more expensive for the attacker.
+
+* **Minimize Public Exposure:** Limit the technical details shared on corporate websites or employee social media. 
+* **WHOIS Privacy:** Purchase privacy add-ons from domain registrars so your administrative names and addresses aren't publicly searchable.
+* **Traffic Monitoring & Log Analysis:** Active recon is noisy. Security Operations Center (SOC) teams must actively monitor firewall logs, network traffic, and Intrusion Detection Systems (IDS) to detect the repetitive probing patterns of port and vulnerability scans.
+
+**Takeaways / Notes:**
+* As a penetration tester or attacker, the more time you spend in the Passive Reconnaissance phase, the more successful your Active phase will be. Good OSINT drastically reduces the amount of noisy scanning you have to do!
+
+**Weaponisation**
+
+**Key Concepts:**
+* **Weaponization:** The process of coupling an exploit (the tool that breaks into the system) with a payload (the malicious code that executes once inside) into a deliverable package.
+* **Evasion & Stealth:** Attackers rarely send raw malware. They use obfuscation and encryption to hide the malicious code from Antivirus (AV) and Intrusion Detection Systems (IDS). 
+* **The Trojan Horse:** The payload is often embedded inside seemingly innocent, everyday files like PDFs, Microsoft Word documents, or Excel spreadsheets.
+
+
+
+### 1. Examples of Weaponization
+Attackers have a variety of methods to build their cyber weapons, ranging from scratch-built scripts to fully automated platforms.
+
+* **Exploit Kits:** Automated, ready-made platforms containing a library of exploits for various software vulnerabilities. They make it incredibly easy for an attacker to package an exploit into an executable or document.
+* **Malicious Macros:** One of the most common weaponization techniques. Attackers embed malicious VBA (Visual Basic for Applications) scripts into Microsoft Office documents. If the victim opens the document and clicks "Enable Content," the macro silently executes the payload in the background.
+* **Delivery Preparation:** During this phase, the attacker is also setting up the *delivery mechanism*. This could be crafting a convincing phishing email, setting up a spoofed login page, or loading the payload onto a physical USB drive.
+
+
+
+### 2. Countermeasures (Defending against Weaponization)
+Since weaponization happens entirely on the attacker's own infrastructure, defenders cannot stop the weapon from being *built*. However, they can implement controls to ensure the weapon *fails to detonate* when it arrives.
+
+| Defense Strategy | Actionable Steps |
+| :--- | :--- |
+| **User Awareness Training** | Train employees to scrutinize email senders, inspect URLs before clicking, and NEVER open unexpected encrypted ZIP files (especially if the email provides the password to bypass email scanners). |
+| **Feature Restriction (GPO)** | Use Windows Group Policy to strictly disable Office Macros across the organization, or limit them so only digitally signed, trusted macros can run. |
+| **Attack Surface Reduction** | Uninstall unnecessary software, remove unused browser plugins, and disable legacy features. If the vulnerable software isn't on the machine, the exploit will fail. |
+
+**Takeaways / Notes:**
+* A perfectly crafted phishing email (Delivery) means nothing if the macro inside the attached Word document is blocked by Group Policy (failed Weaponization/Execution). Defense in Depth is key!
+
+**Delivery**
+
+**Objective:** Understand the various methods attackers use to transmit their weaponized payloads into a target environment and the defensive countermeasures used to intercept them.
+
+**Key Concepts:**
+* **Delivery:** The transmission of the "cyber weapon" (created in the Weaponization phase) to the target. 
+* **The Recon Reliance:** Attackers don't guess how to deliver the payload; they use the intelligence gathered during the Reconnaissance phase. If they know a company uses a specific file-sharing platform, they will likely use that platform to deliver the malware.
+
+
+
+### 1. Delivery Methods (How the weapon arrives)
+Attackers are constantly inventing creative ways to trick users or bypass perimeter defenses.
+
+* **Phishing & Spear Phishing:** * *Phishing:* Broad, generic emails containing malicious links or attachments (e.g., masking an executable as `invoice.pdf.exe`).
+    * *Spear Phishing:* Highly targeted emails where the sender's identity is spoofed to look like a trusted colleague, manager, or vendor.
+
+* **Malicious Web Links & Malvertising:** Hosting exploit kits on compromised public websites, or buying ad space on legitimate sites (Malvertising) to redirect unsuspecting visitors to malicious pages. URL shorteners are frequently used to hide the true destination.
+* **File-Sharing Platforms:** Uploading malware to trusted cloud providers (like Google Drive or Dropbox) to bypass basic network filters that inherently trust those domains.
+* **Smishing (SMS Phishing):** Sending text messages with malicious links, often creating a false sense of urgency (e.g., "Your package delivery failed, click here").
+* **Physical Delivery:** * *USB Drops:* Leaving a malware-infected USB drive in the company parking lot or lobby, relying on human curiosity to plug it in.
+    * *Mailed Media:* Sending an innocent-looking CD or DVD to an employee with a convincing pretext (e.g., a vendor catalog).
+
+### 2. Countermeasures (Defending the Perimeter)
+Defending against delivery requires a mix of technical controls and human intuition. It is an ongoing "cyber arms race."
+
+| Defensive Control | Purpose |
+| :--- | :--- |
+| **User Awareness Training** | The ultimate line of defense. Training employees to spot phishing, verify URLs, and safely handle unexpected physical media. |
+| **Email & Web Filtering** | Automated systems that scan incoming emails for known malicious attachments or block employee access to known bad domains. |
+| **Web Application Firewalls (WAF)** | Specialized firewalls that monitor and block malicious HTTP traffic and files attempting to enter via web services. |
+| **Endpoint & Network Monitoring** | Watching internal network traffic for the exact moment a delivered payload attempts to execute or phone home. |
+
+**Takeaways / Notes:**
+* Delivery is unique because it is the phase where the attacker relies most heavily on **human error**. No matter how expensive a company's firewalls are, a single employee clicking a malicious link can bypass them entirely. Building a "Human Firewall" is just as important as configuring the technical one!
+
+**Exploitation**
+
+**Key Concepts:**
+* **Exploitation:** The moment the attacker's weapon successfully triggers a flaw in the target's operating system, application, or human psychology to gain unauthorized access.
+* **Zero-Day Exploit:** A highly dangerous scenario where an attacker discovers and exploits a software vulnerability *before* the software vendor even knows it exists (meaning there is zero days of notice and no patch available).
+
+
+### 1. Methods of Exploitation (The Breach)
+Exploitation isn't always a complex, movie-style hacking sequence. Very often, it's just walking through an unlocked digital door.
+
+* **Authentication Attacks:**
+    * *Weak/Default Passwords:* Exploiting systems that were left with factory default credentials (like `admin`/`admin`) or easily guessable passwords.
+    * *Credential Theft:* Tricking the user into handing over their password via a spoofed login page (following a successful Delivery).
+* **Software Vulnerabilities:**
+    * Triggering known flaws in unpatched operating systems or applications. 
+    * *Buffer Overflows:* Sending too much data to an application to crash it and execute arbitrary code.
+* **Web Application Attacks:**
+    * *SQL Injection (SQLi):* Tricking a database into executing malicious commands to bypass logins or dump data.
+    * *Cross-Site Scripting (XSS) & CSRF:* Exploiting vulnerabilities in how a web app handles user input to hijack sessions.
+
+
+### 2. Countermeasures (Defeating the Exploit)
+Since attackers only need to find *one* vulnerability, defenders must use a "Defense in Depth" strategy to layer their protections.
+
+| Defensive Control | Purpose & Application |
+| :--- | :--- |
+| **Multi-Factor Authentication (MFA)** | The absolute best defense against authentication attacks. Even if the attacker successfully spear-phishes a user's password, the exploit fails because they do not have the secondary token. |
+| **Patch Management & Vuln Scanning** | Continuously updating servers and clients. Vulnerability scanners (like Nessus or OpenVAS) help identify what needs patching before an attacker exploits it. |
+| **Intrusion Prevention Systems (IPS)** | Unlike an IDS that only alerts, an IPS sits inline and actively drops network packets that match the signatures of known software exploits. |
+| **Web Application Firewalls (WAF)** | Specifically designed to inspect HTTP/HTTPS traffic. A WAF will instantly block exploitation attempts like SQL Injection or XSS before they reach the web server. |
+
+**Takeaways / Notes:**
+* **Exploitation vs. Execution:** Sometimes these concepts blur together. *Exploitation* is the method of getting in (e.g., using a buffer overflow), while *Execution* (often the next step) is what the malware actually does once the exploit succeeds.
+
+**Installation**
+
+**Key Concepts:**
+* **The Goal is Persistence:** Exploitation is often noisy and risky. Once an attacker gets in, they want to make sure they *stay* in. The Installation phase is all about planting backdoors so the attacker has a quiet, reliable way back into the network.
+* **Living off the Land (LOLBins):** Advanced attackers try to avoid dropping custom malware that an Antivirus might catch. Instead, they use legitimate, built-in administrative tools (like PowerShell, WMI, or native scripting engines) to maintain their access.
+
+
+
+### 1. Methods of Installation (Digging In)
+Attackers use a variety of OS-level features to ensure their malicious code runs automatically.
+
+* **Scheduled Tasks & Cron Jobs:** Creating hidden tasks in Windows (Task Scheduler) or Linux (`cron`) that automatically execute the attacker's payload at specific times or upon system boot.
+* **Service/Daemon Creation:** Installing a rogue background service that runs silently with SYSTEM or root privileges.
+* **Startup Scripts & Registry Keys:** Modifying the Windows Registry (e.g., the `Run` or `RunOnce` keys) or Linux `.bashrc` files to trigger the backdoor whenever a user logs in.
+* **Web Shells:** If the compromised target is a web server, the attacker will upload a small script (written in PHP, ASP, etc.). This provides a hidden interface accessible via a standard web browser, allowing the attacker to run OS commands disguised as normal, encrypted HTTPS web traffic.
+
+
+### 2. Countermeasures (Rooting Them Out)
+Detecting persistence requires deep visibility into what the endpoints (workstations and servers) are actually doing day-to-day.
+
+| Defensive Control | Purpose & Application |
+| :--- | :--- |
+| **Endpoint Detection and Response (EDR)** | EDR tools (like CrowdStrike or SentinelOne) record low-level endpoint activity. They alert analysts to unusual parent-child process relationships (e.g., Microsoft Word spawning a PowerShell command) or strange file modifications. |
+| **System Auditing & Baselines** | Regularly comparing the current state of a system against a known "secure baseline." This helps identify unauthorized changes, like newly created hidden local admin accounts or weird background services. |
+| **Application Allowlisting** | A strict policy where *only* explicitly approved applications are allowed to execute. If a binary or script isn't on the list, the OS blocks it from running entirely. |
+| **Process Monitoring** | Actively watching for known LOLBins being used in strange contexts or making unexpected external network connections. |
+
+**Takeaways / Notes:**
+* Finding an attacker's persistence mechanism is critical during Incident Response. If you find the web shell but miss the scheduled task they also created, the attacker will just log right back in the next day!
+
+**Command and Control (C2)**
+
+**Key Concepts:**
+* **Command and Control (C2 / C&C):** After successfully installing a backdoor (Persistence), the malware needs a way to phone home to receive instructions and exfiltrate data. The C2 phase is the establishment of this remote control channel.
+* **Evasion (Blending In):** Attackers know that security teams watch outbound network traffic closely. Therefore, C2 traffic is intentionally designed to look like normal, everyday internet noise.
+
+
+
+### 1. Methods of C2 Communication (Hiding in Plain Sight)
+Attackers use standard protocols and trusted platforms so their traffic doesn't get automatically blocked by perimeter firewalls.
+
+* **Standard Application Protocols:** Using HTTP/HTTPS to make the malware's check-ins look like a user browsing the web. 
+* **DNS Tunneling:** A highly stealthy technique where the attacker encodes C2 commands and stolen data directly inside Domain Name System (DNS) queries and responses. Since almost all networks allow outbound DNS traffic to resolve websites, this often bypasses firewalls entirely.
+
+* **Legitimate Cloud Services:** Using APIs for services like Twitter (X), Slack, Google Drive, or Dropbox to issue commands and receive data. Because the destination IP belongs to a trusted company, standard network filters usually allow the traffic.
+
+### 2. C2 Resilience (Surviving Takedowns)
+If an attacker hardcodes a single IP address or domain into their malware, defenders can easily block it, severing the C2 channel. Attackers use automated techniques to prevent this.
+
+| Technique | How it Works | The Goal |
+| :--- | :--- | :--- |
+| **DGA (Domain Generation Algorithms)** | The malware mathematically generates thousands of random domain names daily (e.g., `xkq92jdn.com`). The attacker only registers a few of them. The malware constantly cycles through the list until it finds the active one. | If defenders block one domain, the malware simply shifts to the next one on its generated list. |
+| **Fast Flux** | Associates hundreds of compromised IP addresses (often IoT devices) with a *single* domain name, swapping the active IP addresses every few minutes via DNS records. | Acts as a constantly shifting proxy network. If defenders block one IP, another takes its place instantly to forward traffic to the hidden C2 server. |
+
+
+
+### 3. Countermeasures (Hunting the Beacon)
+Catching C2 traffic requires looking for anomalies in the baseline of normal network activity.
+
+* **Network Traffic Analysis (NTA):** Using IDS/IPS to watch for unusual traffic volumes, rhythmic "beaconing" patterns (e.g., a host making a small connection to an external IP exactly every 60 seconds), or connections to known bad IPs.
+* **DNS Analysis:** Monitoring for unusually long DNS queries (a strong indicator of DNS tunneling) or a massive volume of requests to random, nonsensical domains (an indicator of DGA).
+* **SSL/TLS Inspection:** Since attackers use HTTPS to encrypt their C2 traffic, organizations must deploy SSL Decryption (often via a Next-Generation Firewall or Proxy) to crack open the traffic and inspect the payload for malicious commands.
+* **Honeypots:** Deploying intentionally vulnerable decoy systems on the network. If a honeypot suddenly tries to establish an outbound connection, you know immediately that an attacker is trying to set up a C2 channel.
+
+**Takeaways / Notes:**
+* **Beaconing** is the telltale sign of C2. Malware will usually "sleep" and only wake up periodically to ask the C2 server, "Do you have any new commands for me?" Spotting this heartbeat in the network logs is a core skill for SOC analysts!
+
+**Actions on Objectives Phase**
+
+**Key Concepts:**
+* **Actions on Objectives:** This is the culmination of the entire cyber attack lifecycle. The attacker stops preparing and starts executing their primary mission. 
+* **The Motive Dictates the Action:** How "noisy" this phase is depends entirely on the attacker's goal. A nation-state stealing secrets will remain incredibly quiet, whereas a financially motivated cartel dropping ransomware will intentionally make themselves known.
+
+
+### 1. Attacker Goals (The Execution)
+Once Command and Control (C2) is established, the attacker can pivot to their endgame:
+
+* **Data Exfiltration (Espionage/Theft):** Silently copying and transferring sensitive corporate data, customer records, or intellectual property out of the network to an attacker-controlled server.
+* **Financial Gain (Ransomware & Fraud):** Encrypting the organization's critical files and demanding cryptocurrency for the decryption key. Alternatively, quietly executing unauthorized wire transfers.
+* **Service Disruption (Destruction):** Intentionally deleting or corrupting data to halt business operations. In highly specialized attacks, this can involve manipulating Industrial Control Systems (ICS) to cause physical damage (e.g., shutting down a power grid).
+* **Lateral Movement:** Using the initially compromised machine as a beachhead to stealthily scan and compromise *other* sensitive servers deeper inside the corporate network.
+
+### 2. Countermeasures (Limiting the Blast Radius)
+If an attacker reaches this phase, perimeter defenses have failed. The focus shifts to containment, damage control, and recovery.
+
+
+| Defensive Control | Purpose & Application |
+| :--- | :--- |
+| **Data Loss Prevention (DLP)** | Software that monitors outbound network traffic and blocks sensitive files (like credit card numbers or classified documents) from leaving the corporate boundary. |
+| **Network Segmentation & Access Controls** | Dividing the network into isolated zones. If an attacker compromises a receptionist's PC, strict access controls and segmentation prevent them from moving laterally to the Domain Controller or Database servers. |
+| **Backups & Disaster Recovery** | The ultimate defense against ransomware and destructive attacks. Maintaining offline, immutable backups ensures the organization can wipe the infected systems and restore operations without paying a ransom. |
+| **EDR & User Activity Monitoring** | Watching for highly anomalous behavior, such as a standard user account suddenly zipping up 50GB of files or making DNS queries at 3:00 AM. |
+
+**Takeaways / Notes:**
+* **The Principle of Least Privilege (PoLP)** is a defender's best friend here. If an employee's compromised account doesn't have the administrative rights to access the financial database, the attacker's job becomes significantly harder, forcing them to spend more time attempting Privilege Escalation (which increases their chances of getting caught!).
+
+---
+
 ## Room: [Next Room]
