@@ -537,7 +537,7 @@ Regex is the ultimate cheat code for log analysis. Whether you are quickly carvi
 * 6. **Command & Control (C2):** Using the installed backdoor, the attacker can control the compromised system
 * 7. **Actions on Objectives:** Reaching this far, the attacker can now carry out further actions such as data exfiltration or other systems’ exploitation
 
-**Reconnaissance**
+# **Reconnaissance**
 
 **Key Concepts:**
 * **Reconnaissance:** Borrowed from military terminology, this is the act of gathering intelligence about a target before launching an attack. The goal is to map out the target's digital footprint and discover potential entry points or vulnerabilities.
@@ -573,7 +573,7 @@ Defenders cannot completely stop reconnaissance, but they can make it significan
 **Takeaways / Notes:**
 * As a penetration tester or attacker, the more time you spend in the Passive Reconnaissance phase, the more successful your Active phase will be. Good OSINT drastically reduces the amount of noisy scanning you have to do!
 
-**Weaponisation**
+# **Weaponisation**
 
 **Key Concepts:**
 * **Weaponization:** The process of coupling an exploit (the tool that breaks into the system) with a payload (the malicious code that executes once inside) into a deliverable package.
@@ -603,7 +603,7 @@ Since weaponization happens entirely on the attacker's own infrastructure, defen
 **Takeaways / Notes:**
 * A perfectly crafted phishing email (Delivery) means nothing if the macro inside the attached Word document is blocked by Group Policy (failed Weaponization/Execution). Defense in Depth is key!
 
-**Delivery**
+# **Delivery**
 
 **Objective:** Understand the various methods attackers use to transmit their weaponized payloads into a target environment and the defensive countermeasures used to intercept them.
 
@@ -638,7 +638,7 @@ Defending against delivery requires a mix of technical controls and human intuit
 **Takeaways / Notes:**
 * Delivery is unique because it is the phase where the attacker relies most heavily on **human error**. No matter how expensive a company's firewalls are, a single employee clicking a malicious link can bypass them entirely. Building a "Human Firewall" is just as important as configuring the technical one!
 
-**Exploitation**
+# **Exploitation**
 
 **Key Concepts:**
 * **Exploitation:** The moment the attacker's weapon successfully triggers a flaw in the target's operating system, application, or human psychology to gain unauthorized access.
@@ -672,7 +672,7 @@ Since attackers only need to find *one* vulnerability, defenders must use a "Def
 **Takeaways / Notes:**
 * **Exploitation vs. Execution:** Sometimes these concepts blur together. *Exploitation* is the method of getting in (e.g., using a buffer overflow), while *Execution* (often the next step) is what the malware actually does once the exploit succeeds.
 
-**Installation**
+# **Installation**
 
 **Key Concepts:**
 * **The Goal is Persistence:** Exploitation is often noisy and risky. Once an attacker gets in, they want to make sure they *stay* in. The Installation phase is all about planting backdoors so the attacker has a quiet, reliable way back into the network.
@@ -702,7 +702,7 @@ Detecting persistence requires deep visibility into what the endpoints (workstat
 **Takeaways / Notes:**
 * Finding an attacker's persistence mechanism is critical during Incident Response. If you find the web shell but miss the scheduled task they also created, the attacker will just log right back in the next day!
 
-**Command and Control (C2)**
+# **Command and Control (C2)**
 
 **Key Concepts:**
 * **Command and Control (C2 / C&C):** After successfully installing a backdoor (Persistence), the malware needs a way to phone home to receive instructions and exfiltrate data. The C2 phase is the establishment of this remote control channel.
@@ -739,7 +739,7 @@ Catching C2 traffic requires looking for anomalies in the baseline of normal net
 **Takeaways / Notes:**
 * **Beaconing** is the telltale sign of C2. Malware will usually "sleep" and only wake up periodically to ask the C2 server, "Do you have any new commands for me?" Spotting this heartbeat in the network logs is a core skill for SOC analysts!
 
-**Actions on Objectives Phase**
+# **Actions on Objectives Phase**
 
 **Key Concepts:**
 * **Actions on Objectives:** This is the culmination of the entire cyber attack lifecycle. The attacker stops preparing and starts executing their primary mission. 
@@ -767,6 +767,131 @@ If an attacker reaches this phase, perimeter defenses have failed. The focus shi
 
 **Takeaways / Notes:**
 * **The Principle of Least Privilege (PoLP)** is a defender's best friend here. If an employee's compromised account doesn't have the administrative rights to access the financial database, the attacker's job becomes significantly harder, forcing them to spend more time attempting Privilege Escalation (which increases their chances of getting caught!).
+
+---
+
+## Room: [MITRE]
+
+**MITRE:** MITRE is a not-for-profit organization that conducts research and development across a range of domains, including cyber security, artificial intelligence, healthcare, and space systems, all to support its mission: "to solve problems for a safer world." / MITRE Adversarial Tactics, Techniques, and Common Knowledge (ATT&CK)
+
+## **Introduction to the MITRE ATT&CK Framework**
+
+**Key Concepts:**
+* **What is MITRE ATT&CK?** It stands for Adversarial Tactics, Techniques, and Common Knowledge. It is a globally accessible, continuously updated encyclopedia of real-world hacker behaviors. 
+* **The Core Language (TTPs):** Cybersecurity professionals use "TTPs" to describe how threat actors operate. 
+    * **Tactic (The "Why"):** The adversary's overarching goal (e.g., *Reconnaissance*, *Privilege Escalation*, or *Exfiltration*).
+    * **Technique (The "How"):** The method the adversary uses to achieve that goal (e.g., *Active Scanning* or *Phishing*).
+    * **Procedure (The "Implementation"):** The exact, specific way the technique is executed, often detailing the specific software or malware used (e.g., *Using Nmap to scan IP blocks*).
+
+
+
+### 1. The ATT&CK Matrix
+The framework is visualized as a massive matrix (often explored using the ATT&CK Navigator tool). 
+* **Layout:** The *Tactics* (Goals) run across the top as columns. The *Techniques* (Methods) are listed underneath their respective Tactics. Many Techniques also expand into highly specific *Sub-techniques*.
+
+**Example Breakdown (The Reconnaissance Phase):**
+Let's map out how an attacker gathering information fits into the framework:
+* **Tactic:** Reconnaissance *(The Goal: Gather info on the target)*
+* **Technique:** Active Scanning *(The Method: Directly probing the target)*
+* **Sub-techniques:** * Scanning IP Blocks
+    * Vulnerability Scanning
+    * Wordlist Scanning
+
+### 2. Evolution and Application
+* **Scope:** Originally focused just on Windows, the Enterprise Matrix now covers macOS, Linux, and Cloud environments. There are also entirely separate matrices for Mobile devices and Industrial Control Systems (ICS).
+* **Usage:** * *Blue Teams:* Use it to build defenses, map out their detection coverage, and understand how to mitigate specific behaviors.
+    * *Red Teams:* Use it to plan realistic attack simulations that mimic known Advanced Persistent Threat (APT) groups.
+
+**Takeaways / Notes:**
+* The MITRE ATT&CK website is a goldmine. If you click on any specific Technique (like *Active Scanning*), the page doesn't just describe the attack—it gives you real-world examples of hacker groups who use it, exactly how to detect it in your logs, and how to mitigate it!
+
+## **ATT&CK in Operation**
+
+**Key Concepts:**
+* **The "Rosetta Stone" of Security:** Before ATT&CK, different security vendors and analysts would call the exact same cyber attack by completely different names. MITRE provides a standardized, consistent language and unique IDs (e.g., `T1566` for Phishing) so the entire global community can communicate effectively.
+* **Actionable Threat Intelligence:** Reading a report that says "The attacker hacked the server" isn't helpful. ATT&CK bridges the gap by translating *what* the attacker did into *how* they did it (TTPs), allowing defenders to write specific SIEM detection rules to catch those exact behaviors in the future.
+
+### 1. Who Uses ATT&CK?
+The framework is universally used across the security industry, but different teams use it to achieve different goals.
+
+| Team / Role | Their Goal | How They Use ATT&CK |
+| :--- | :--- | :--- |
+| **Cyber Threat Intelligence (CTI)** | Collect & analyze threat info to improve security posture. | Map observed threat actor behavior to ATT&CK TTPs to create industry-wide profiles. |
+| **SOC Analysts** | Investigate and triage daily security alerts. | Link alerts to specific Tactics/Techniques to understand the context and prioritize critical incidents. |
+| **Detection Engineers** | Design and improve automated detection systems. | Map SIEM, EDR, and firewall rules directly to ATT&CK techniques to ensure there are no "blind spots" in their defenses. |
+| **Incident Responders (IR)** | Respond to and investigate active breaches. | Map the incident timeline to MITRE TTPs to visualize exactly how the attack unfolded. |
+| **Red & Purple Teams** | Emulate adversary behavior to test defenses. | Build attack simulation plans that perfectly mirror the TTPs of known threat groups. |
+
+
+
+### 2. Mapping in Action: Mustang Panda (G0129)
+After an incident, teams must map out the attack to prepare for the future. Let's look at the known profile of **Mustang Panda**, an APT (Advanced Persistent Threat) group known for targeting government entities and NGOs.
+
+By looking at their ATT&CK profile, we can map their standard campaign:
+1. **Initial Access:** They prefer *Phishing* techniques to gain entry.
+2. **Persistence:** They maintain access by creating *Scheduled Tasks*.
+3. **Defense Evasion:** They *Obfuscate Files* to hide their malware from Antivirus.
+4. **Command and Control (C2):** They use *Ingress Tool Transfer* to pull down additional tools from their external servers.
+
+
+**Takeaways / Notes:**
+* If your organization is frequently targeted by groups like Mustang Panda, your Detection Engineers shouldn't waste time building rules for attacks Mustang Panda *doesn't* use. Instead, they should look at the ATT&CK profile and hyper-focus on building defenses against Phishing, Scheduled Tasks, and File Obfuscation!
+
+## **Cyber Analytics Repository (CAR)**
+
+**Key Concepts:**
+* **What is MITRE CAR?** A massive, open-source knowledge base of detection analytics. While ATT&CK tells you that an attacker might use a "Scheduled Task" for persistence, CAR gives you the actual, validated logic to detect that scheduled task being created on your network.
+* **The Bridge to Defense:** Threat intelligence is useless if you can't act on it. CAR translates theoretical TTPs (Tactics, Techniques, and Procedures) into practical, ready-to-use queries for Security Information and Event Management (SIEM) platforms.
+
+
+
+### Anatomy of a CAR Analytic 
+Let's look at the structure of a typical CAR entry (e.g., *CAR-2020-09-001: Scheduled Task - File Access*):
+
+1. **Description:** A plain-English explanation of the adversary behavior being targeted and the operating theory behind *why* this specific analytic catches it.
+2. **ATT&CK Mapping:** Direct links to the specific Tactics and Techniques this analytic detects (e.g., mapping back to T1053 - Scheduled Task/Job).
+3. **Implementations (The Code):** This is the most valuable section for a SOC analyst. It provides the actual code/logic to run in your security tools.
+    * **Pseudocode:** A human-readable, generic description of the logic (e.g., `IF process == 'schtasks.exe' AND action == 'create' THEN alert`). This allows analysts to translate the rule into *any* tool.
+    * **Tool-Specific Queries:** Pre-written queries for industry-standard tools like **Splunk**, **EQL** (Elastic Query Language), or **LogPoint**.
+4. **Unit Tests:** Some analytics include specific commands an analyst can run safely on a test machine to purposefully trigger the rule. This helps verify that the SIEM is actually ingesting the logs correctly and that the rule works as intended.
+
+### CAR and the ATT&CK Navigator
+Just like APT groups have their own matrix profiles, CAR has its own **ATT&CK Navigator layer**. 
+* Defenders can load this layer to visually see exactly which ATT&CK techniques currently have a corresponding CAR detection rule written for them, instantly highlighting their network's defensive coverage (and their blind spots!).
+
+**Takeaways / Notes:**
+* **Pseudocode is King:** Even if your organization uses a niche SIEM that CAR doesn't have a pre-written query for, the provided pseudocode gives your Detection Engineers the exact logic they need to write it themselves.
+
+## **MITRE D3FEND Framework**
+
+* **D3FEND (Detection, Denial, and Disruption Framework Empowering Network Defense)** is a structured framework that maps out defensive techniques and establishes a common language for describing how security controls work. D3FEND comes with its own matrix which is broken down into seven tactics, each with its associated techniques and IDs.
+
+## **Additional MITRE Projects** 
+
+**Key Concepts:**
+Understanding the TTPs of an attacker is only half the battle; the other half is actually testing your network to see if your defenses hold up against those specific techniques. MITRE provides several tools to help automate and standardize this testing.
+
+### 1. Adversary Emulation (Testing the Defenses)
+Instead of guessing if you are protected against a group like Mustang Panda, you can actively simulate their exact attack paths on your network.
+
+* **Adversary Emulation Library:** Maintained by the Center for Threat-Informed Defense (CTID), this is a free library of step-by-step "playbooks." These plans provide Red Teams with the exact instructions needed to safely mimic the real-world campaigns of specific APT groups.
+* **Caldera:** * **What it is:** An automated adversary emulation platform. 
+    * **How it works:** You install Caldera agents on test machines, and the Caldera server automatically executes ATT&CK techniques against them. 
+    * **The Value:** It saves Red Teams massive amounts of time and allows Blue Teams to safely generate malicious traffic on demand so they can test if their SIEM alerts actually fire.
+
+
+
+### 2. Emerging Frameworks (The Future of Threat Modeling)
+As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough. MITRE is constantly developing new, specialized matrices to map out attacks against bleeding-edge systems.
+
+| Framework | Target Environment | What it Covers |
+| :--- | :--- | :--- |
+| **AADAPT** <br>*(Adversarial Actions in Digital Asset Payment Technologies)* | Web3, Cryptocurrency, & Digital Finance | Tactics and techniques specifically targeting blockchain networks, smart contracts, and digital wallets. |
+| **ATLAS** <br>*(Adversarial Threat Landscape for Artificial-Intelligence Systems)* | AI and Machine Learning Models | Real-world vulnerabilities in AI systems, such as data poisoning, model evasion, and manipulating training data. |
+
+
+**Takeaways / Notes:**
+* If you are looking to get into Red Teaming, **Caldera** is an incredibly powerful (and free!) tool to set up in a home lab. It allows you to see exactly what advanced attacks look like under the hood without having to write the malware from scratch.
 
 ---
 
