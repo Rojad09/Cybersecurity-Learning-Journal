@@ -2753,3 +2753,7 @@ This panel displays the final, processed data after it has run through your enti
 **CAPA (Common Analysis Platform for Artifacts):** A tool developed by the FireEye Mandiant team. designed to identify the capabilities present in executable files like Portable Executables (PE), ELF binaries, .NET modules, shellcode, and even sandbox reports. It does so by analyzing the file and applying a set of rules that describe common behaviours, allowing it to determine what the program is capable of doing, such as network communication, file manipulation, process injection, and many more.
 
 * useful in malware analysis and threat hunting, where understanding a binary's capabilities is crucial for incident response and defensive measures.
+
+---
+
+## Room: [Next Room]
