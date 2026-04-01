@@ -2756,4 +2756,26 @@ This panel displays the final, processed data after it has run through your enti
 
 ---
 
+## Room: [REMnux: Getting Started]
+
+**Introduction**
+
+* **REMnux VM:**  is a specialised Linux distro. It already includes tools like Volatility, YARA, Wireshark, oledump, and INetSim. It also provides a sandbox-like environment for dissecting potentially malicious software without risking your primary system. It's your lab set up and ready to go without the hassle of manual installations.
+
+**What is it useful for?** REMnux is a specialized Linux toolkit and virtual machine (VM) designed for malware analysis, reverse engineering, and forensic investigations. It provides a pre-configured, free environment equipped with hundreds of tools to safely analyze suspicious files, examine network behavior, and inspect infected systems without compromising the host machine. 
+
+* Static Analysis: Examining suspicious executable files, documents, and other artifacts without executing them to understand their purpose.
+
+* Dynamic Analysis: Running malware in a controlled, isolated environment to observe its behavior, such as file changes and network connections.
+
+* Network Analysis: Using tools like Wireshark to capture traffic and INetSim to simulate network services (DNS, HTTP).
+
+* Memory Forensics: Analyzing memory images (using tools like Volatility) from infected systems to uncover malicious activity.
+
+* Malware Unpacking: Utilizing built-in scripts to deobfuscate and unpack protected malicious code.
+
+* It saves time by eliminating the need to install and configure forensic tools individually. It is commonly used alongside a Windows-based sandbox (like FLARE-VM) for comprehensive analysis. 
+
+---
+
 ## Room: [Next Room]
