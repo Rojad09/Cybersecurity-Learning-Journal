@@ -2778,4 +2778,79 @@ This panel displays the final, processed data after it has run through your enti
 
 ---
 
-## Room: [Next Room]
+## Room: [FlareVM: Arsenal of Tools]
+
+**Introduction**
+
+* **FlareVM:** FlareVM, or "Forensics, Logic Analysis, and Reverse Engineering," stands out as a comprehensive and carefully curated collection of specialized tools uniquely designed to meet the specific needs of reverse engineers, malware analysts, incident responders, forensic investigators, and penetration testers. This toolkit, expertly crafted by the FLARE Team at FireEye, is a powerful aid in unravelling digital mysteries, gaining insight into malware behaviour, and delving into the complex details within executables.
+
+**What is it used for?** a specialized, pre-configured Windows-based virtual machine distribution designed for malware analysis, reverse engineering, and incident response. It automates the installation of hundreds of security tools—using Chocolatey and Boxstarter—to provide a ready-to-use environment, saving hours of manual tool curation.
+
+* Malware Analysis (Static & Dynamic): Analyze suspicious files using tools like PEStudio, Process Monitor, and FakeNet-NG to understand behavior without infecting host systems.
+
+* Reverse Engineering: Utilize disassemblers and debuggers like IDA Free, Ghidra, Binary Ninja, and x64dbg to analyze binary code.
+
+* Incident Response & Forensics: Investigate security breaches and examine artifacts within a safe, isolated Windows environment.
+
+* Automation & Customization: Easily build, maintain, and update a consistent, hardened analysis environment across different systems
+
+**Tools**
+
+**Key Concepts:**
+FlareVM acts as a unified "Swiss Army Knife" operating system for Blue Teamers and Reverse Engineers. While the sheer volume of tools can be overwhelming, the goal is to understand *which category* of tool to reach for when facing a specific problem.
+
+
+### 1. Reverse Engineering & Debugging
+*Taking compiled software apart to understand how it works (Reverse Engineering) and stepping through the code to identify errors or control flow (Debugging).*
+* **Ghidra:** An NSA-developed, open-source reverse engineering suite.
+* **x64dbg:** An open-source debugger for x64 and x32 binaries.
+* **OllyDbg:** A classic debugger for reverse engineering at the assembly level.
+* **Radare2:** A sophisticated command-line open-source platform for reverse engineering.
+* **Binary Ninja:** A modern tool for disassembling and decompiling binaries.
+* **PEiD:** A tool used to detect packers, cryptors, and compilers hidden in files.
+
+### 2. Disassemblers & Decompilers
+*Breaking down malicious software into a more understandable, human-readable format to analyze logic and behavior.*
+* **CFF Explorer:** A specialized editor designed to analyze and modify Portable Executable (PE) files.
+* **Hopper Disassembler:** A debugger, disassembler, and decompiler.
+* **RetDec:** An open-source decompiler for machine code.
+
+### 3. Static & Dynamic Analysis
+*Static analysis involves inspecting code without running it (safe). Dynamic analysis involves executing the malware in a controlled environment to observe its actual behavior (risky).*
+* **Process Hacker:** A sophisticated memory editor and detailed process watcher.
+* **PEview:** A quick viewer for analyzing the structure of Portable Executable files.
+* **Dependency Walker:** Displays all the dynamic-link libraries (DLLs) an executable relies on to run.
+* **DIE (Detect It Easy):** A tool to identify packers, compilers, and cryptors.
+
+### 4. Forensics & Incident Response
+*Collecting and preserving digital evidence (Forensics) and containing/recovering from active cyberattacks (Incident Response).*
+* **Volatility:** The industry-standard framework for analyzing RAM/memory dumps.
+* **Rekall:** Another powerful framework for memory forensics and analysis.
+* **FTK Imager:** Used for acquiring exact forensic disk images and conducting drive analysis.
+
+### 5. Network Analysis
+*Studying network traffic to uncover patterns, identify command-and-control (C2) communication, or map infrastructure.*
+* **Wireshark:** The premier network protocol analyzer for capturing and examining packet-level traffic.
+* **Nmap:** The gold standard for vulnerability detection and network port mapping.
+* **Netcat:** The "TCP/IP Swiss Army knife" used to read and write data across network connections.
+
+### 6. File Analysis
+*Examining raw file data at the lowest level to spot hidden threats or anomalies.*
+* **FileInsight:** A program for looking through and editing binary files.
+* **Hex Fiend:** A fast, lightweight hex editor.
+* **HxD:** A robust hex editor for viewing and editing raw binary files and disks.
+
+### 7. Scripting & Automation
+*Automating repetitive analysis tasks to save time and reduce human error.*
+* **Python:** The core scripting language for automation, featuring countless security-focused modules.
+* **PowerShell Empire:** A robust post-exploitation framework utilizing PowerShell.
+
+### 8. Sysinternals Suite
+*Advanced Microsoft utilities used by IT and security professionals to deeply diagnose Windows systems.*
+* **Autoruns:** Shows exactly what executables, scripts, and registry keys are configured to run automatically at system boot (a common place for malware to hide).
+* **Process Explorer:** A highly detailed alternative to Windows Task Manager.
+* **Process Monitor (ProcMon):** Monitors and logs real-time file system, Registry, and process/thread activity.
+
+---
+
+# Room: [Next Room]
