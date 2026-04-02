@@ -1,6 +1,6 @@
 # Cyber Security 101 - Refresher Notes
 **Start Date:** 2025-11-28
-**Status:** In Progress
+**Status:** DONE
 #### TryHackMe provides a course titled "Cyber Security 101", which seems to be an assortment of teachings related to Cyber Security as a whole. Although it seems to be showcasing the very basics of Cyber, as a way to refresh my knowledge, gauge my readiness, and most importantly, learn how to document my projects, I decided to begin with this course. The concepts that I decide to make notes on may vary depending on my whim, as it seems to be knowledge that I am familiar with, but as a refresher and practice, I hope to note most concepts, no matter how basic.      
 
 ---
@@ -3021,3 +3021,164 @@ Understanding the difference between *Layering* (stacking levels of operation) a
   * **Threat:** The potential danger or actor that could exploit the weakness (e.g., the danger of a burglar breaking the glass, or an available proof-of-concept exploit for the database).
   * **Risk:** The business calculation determining the *likelihood* of a threat exploiting a vulnerability combined with the resulting *impact* or damage to the organization.
 * **Takeaways:** Precision in terminology matters. A vulnerability is just a flaw; it requires a realistic threat to become an active concern. Evaluating the overall risk (likelihood + impact) dictates how you should prioritize patching or mitigating the issue.
+
+---
+
+## Room: [OWASP Top 10 2025: IAAA Failures]
+
+**IAAA:** stands for Identification, Authentication, Authorization, and Accountability. It is a security principle that is used to protect systems and data. IAAA ensures that only authorized users can access a system and that their actions can be tracked.
+
+* Each item plays a crucial role and it isn't possible to skip a level. That means, if a previous item isn't being performed, you cannot perform the later times. The four items are:
+
+    * Identity - the unique account (e.g., user ID/email) that represents a person or service.
+    * Authentication - proving that identity (passwords, OTP, passkeys).
+    * Authorisation - what that identity is allowed to do.
+    * Accountability - recording and alerting on who did what, when, and from where.
+
+* This room discusses failures related to how IAAA was implemented.
+
+**A01: Broken Access Control**
+
+* Broken Access Control occurs when the server doesn't properly enforce who can access what on every request.
+* Common occurence is IDOR (Insecure Direct Object Reference)
+    * IDOR - a type of access control vulnerability that arises when an application uses user-supplied input to access objects directly. The term IDOR was popularized by its appearance in the OWASP 2007 Top Ten.
+    *  if changing an ID (like ?id=7 → ?id=6) lets you see or edit someone else’s data, access control is broken.
+
+**A07: Authentication Failures**
+
+* Authentication Failures happen when an application can’t reliably verify or bind a user’s identity. Common issues include:
+    * username enumeration
+    * weak/guessable passwords (no lockout/rate limits)
+    * logic flaws in the login/registration flow
+    * insecure session or cookie handling
+
+**A09: Logging and Alerting Failures**
+
+* failures look like missing authentication events, vague error logs, no alerting on brute-force or privilege changes, short retention, or logs stored where attackers can tamper with them.
+
+**Conclusion**
+
+* **A01 Broken Access Control:** Enforce server-side checks on every request
+* **A07 Authentication Failures:** Enforce unique indexes on the canonical form, rate-limit/lock out brute force, and rotate sessions on password/privilege changes.
+* **A09 Logging & Alerting Failures:** Log the full auth lifecycle (fail/success, password/2FA/role changes, admin actions), centralise logs off-host with retention, and alert on anomalies (e.g., brute-force bursts, privilege elevation).
+
+---
+
+## Room: [OWASP Top 10 2025: Application Design Flaws]
+
+**OWASP Top 10 2025: Application Design Flaws**
+
+* 1. AS02: Security Misconfigurations
+* 2. AS03: Software Supply Chain Failures
+* 3. AS04: Cryptographic Failures
+* 4. AS06: Insecure Design
+
+**AS02: Security Misconfigurations**
+
+* **Key Findings:** 
+
+* **The Threat:** Attackers look for easy entry points created by deployment mistakes. A famous example is the 2017 Uber breach, where a simple misconfiguration (a publicly accessible AWS S3 bucket) allowed attackers to download sensitive data without needing credentials.
+  * **Common Pitfalls:** 
+    * Leaving default credentials unchanged.
+    * Exposing unnecessary network ports, APIs, or services.
+    * Verbose error messages that leak system details (like stack traces).
+    * Running outdated software or containers with known CVEs.
+  * **Prevention Strategies:** 
+    * **Harden Systems:** Change all default settings, disable unused features, and enforce the principle of least privilege.
+    * **Patch Management:** Keep all frameworks, dependencies, and OS environments up-to-date.
+    * **Safe Error Handling:** Ensure production environments show generic error messages, hiding underlying system architecture.
+    * **Continuous Auditing:** Regularly review cloud permissions (like S3 or Azure blobs) and integrate automated configuration checks into the deployment pipeline.
+* **Takeaways:** Secure code means very little if the server or cloud environment running it is left wide open. System hardening, meticulous configuration, and routine audits are just as critical as the application logic itself.
+
+**AS03: Software Supply Chain Failures**
+
+* **Key Findings:** 
+* **The Threat:** Attackers target the supply chain because compromising a single trusted dependency (like the infamous 2021 SolarWinds breach) can grant automatic access to thousands of downstream targets.
+  * **AI/ML Risks:** Integrating unverified third-party AI models or datasets can introduce hidden backdoors, biased outputs, or severe data leaks into otherwise secure systems.
+  * **Common Pitfalls:** Relying on unmaintained libraries, automatically installing updates without verification, leaving CI/CD pipelines insecure, and lacking proper tracking of software provenance.
+  * **Defense Strategies:** 
+    * Rigorously verify all third-party components and AI models.
+    * Cryptographically sign and verify software updates.
+    * Lock down CI/CD pipelines to prevent tampering during the build process.
+    * Continuously monitor and patch dependencies even after deployment.
+* **Takeaways:** You are only as secure as your weakest dependency. Modern security requires vetting every piece of third-party code you integrate and fiercely protecting the pipeline used to build and deploy your software.
+
+**AS04: Cryptographic Failures**
+
+* **Key Findings:** 
+* **Core Concept:** Vulnerabilities that occur when sensitive data is left unencrypted, or when the encryption implemented is weak, outdated, or improperly managed (e.g., exposed keys). 
+* **The Threat:** Without proper cryptography, attackers can intercept network traffic (Man-in-the-Middle), crack weak encryption (Brute-force), or simply read plain-text secrets to steal passwords, tokens, and PII.
+  * **Common Pitfalls:** 
+    * Using deprecated, easily crackable algorithms (like MD5, SHA-1, or ECB mode).
+    * Leaving cryptographic keys or passwords "hard-coded" directly in the source code or configuration files.
+    * Failing to encrypt sensitive data both *at rest* (stored) and *in transit* (moving across the network).
+    * Using self-signed or invalid TLS certificates.
+  * **Defense Strategies:** 
+    * **Modern Standards:** Only use strong, modern encryption like AES-GCM or ChaCha20, and enforce TLS 1.3 for web traffic.
+    * **Secure Vaults:** Never hard-code secrets. Use dedicated Key Management Systems (KMS) like AWS KMS, Azure Key Vault, or HashiCorp Vault.
+    * **Lifecycle Management:** Regularly rotate keys and maintain strict inventories of all certificates and their owners.
+* **Takeaways:** Cryptography is only as strong as its weakest link. Using a military-grade algorithm means nothing if you leave the decryption key hard-coded in a public GitHub repository. Always use modern algorithms and manage your keys securely!
+
+**AS06: Insecure Design**
+
+* **Core Concept:** Vulnerabilities that stem from fundamental flaws in a system's architecture or business logic. Unlike coding bugs, insecure design is built directly into the workflow (e.g., skipping threat modeling or blindly trusting AI outputs) and cannot be fixed with a simple patch.
+ 
+* **Key Findings:** 
+* **The Threat:** Because the flaw is in the design, fixing it requires completely rethinking how the system operates. For example, Clubhouse built a secure-feeling mobile app but failed to design authentication into their backend API, exposing user data.
+  * **AI Era Risks:** 
+    * **Prompt Injection:** Attackers manipulating AI behavior by blending malicious user input with system instructions.
+    * **Blind Trust:** Systems automatically acting on AI-generated decisions without validation or human oversight.
+    * **Poisoned Models:** Integrating unverified AI models that contain hidden backdoors or dangerous behaviors.
+  * **Common Pitfalls:** Weak business logic (like flawed password recovery), leaving debug bypasses in production, and lacking guardrails for LLMs.
+  * **Defense Strategies:** 
+  * **Continuous Threat Modeling:** Map out potential threats (including AI-specific risks) at *every* stage of development, not just the beginning.
+    * **Zero Trust for AI:** Treat all AI models as untrusted. Validate all inputs/outputs, separate system prompts from user data, and require human review for high-risk actions.
+    * **Solidify Foundations:** Define clear security requirements, enforce least privilege, and implement strict authentication *before* writing any code.
+* **Takeaways:** You cannot patch a broken foundation. Security, especially when integrating unpredictable components like AI must be intentionally designed into the application's architecture from day one. Never grant an AI system unchecked authority over your data or infrastructure.
+
+---
+
+## Room: [OWASP TOP 10 2025: Insecure Data Handling]
+
+* A04: Cryptographic Failures
+* A05: Injection
+* A08: Software or Data Integrity Failures
+
+**A04: Cryptographic Failures**
+
+* Cryptographic failures happen when sensitive data isn't adequately protected due to lack of encryption, faulty implementation, or insufficient security measures. 
+* This includes storing passwords without hashing, using outdated or weak algorithms (such as MD5, SHA1, or DES), exposing encryption keys, or failing to secure data during transmission. **(An incredible example of this is an application or service "rolling their own cryptography", rather than using well-established, vetted, and verifiably secure encryption algorithms.)**
+
+* Preventing cryptographic failures starts with choosing strong, modern algorithms and implementing them properly. Sensitive information such as passwords should be hashed using robust, slow hashing functions like bcrypt, scrypt, or Argon2. When encrypting data, avoid creating your own algorithms; instead, rely on trusted, industry-standard libraries. (Never embed access credentials (i.e., to a third-party service) in source code, configuration files, or repositories. Instead, use secure key management systems or environments specifically designed for storing secrets.)
+
+**A05: Injection**
+
+* **Core Concept:** Injection vulnerabilities occur when an application blindly trusts user input and passes it directly to an interpreter (like a database, OS shell, or AI model). Instead of treating the input as plain data, the system is tricked into executing it as commands or code.
+* **Key Findings:** 
+* **Common Attack Vectors:**
+    * **SQL Injection (SQLi):** Manipulating database queries.
+    * **Command Injection:** Executing arbitrary OS-level commands.
+    * **Server-Side Template Injection (SSTI):** Exploiting template engines.
+    * **AI Prompt Injection:** Tricking LLMs or AI assistants into ignoring their original instructions.
+  * **The Root Cause:** Building commands or queries using insecure methods, like directly concatenating user strings (e.g., taking a username from a form and directly pasting it into a SQL query).
+  * **Prevention Strategies:** 
+    * **Zero Trust for Input:** Treat absolutely all user-supplied data as malicious by default.
+    * **Prepared Statements:** For databases, exclusively use parameterized queries so the system knows exactly what is a command and what is just data.
+    * **Avoid Shell Invocations:** Use safe APIs instead of passing input directly to system shells.
+    * **Input Validation & Sanitization:** Strictly filter input, enforce expected data types (e.g., ensuring an age field only contains numbers), and escape dangerous characters before processing.
+* **Takeaways:** Injection is a classic, high-severity flaw that refuses to die. The absolute golden rule of web development and security applies here: **Never trust user input.** Always separate the data (what the user types) from the code (the instructions the system executes).
+
+**A08: Software or Data Integrity Failures**
+
+* **Core Concept:** Vulnerabilities that arise when a system blindly trusts the authenticity and integrity of code, updates, or data without verifying its origin or ensuring it hasn't been tampered with.
+* **Key Findings:** 
+* **The Threat:** Systems that accept unverified software updates, external scripts, binaries, or configuration files (like JSON) risk executing malicious code directly within the application's environment.
+  * **Prevention Strategies:** 
+    * **Establish Trust Boundaries:** Never assume any incoming code or data is automatically safe, regardless of where it seems to come from.
+    * **Cryptographic Verification:** Always use cryptographic checks (like checksums or digital signatures) to verify that update packages and dependencies have not been altered in transit.
+    * **Secure the Pipeline:** Extend these strict integrity checks to your CI/CD (Continuous Integration/Continuous Deployment) build processes so that malicious code cannot be injected before the software is even deployed.
+* **Takeaways:** Trust must be mathematically proven, not assumed. By strictly verifying the cryptographic integrity of every update, dependency, and script, you ensure that attackers cannot hijack your application via tampered files or compromised update servers.
+
+---
+
+* Done, may come back and add extra rooms, or make a new notes page entirely, not too sure yet.
