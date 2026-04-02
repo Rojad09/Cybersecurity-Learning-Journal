@@ -2853,4 +2853,171 @@ FlareVM acts as a unified "Swiss Army Knife" operating system for Blue Teamers a
 
 ---
 
-# Room: [Next Room]
+# Room: [Security Principles]
+
+**CIA Triad and More**
+
+**Key Concepts:**
+A system cannot simply be labeled "secure" or "insecure." Security is evaluated across several specific dimensions to ensure data is protected, accurate, and usable.
+
+
+
+### 1. The CIA Triad
+This is the foundational model of information security. Every security control maps back to at least one of these three pillars:
+
+* **Confidentiality:** Ensuring that only authorized individuals can access the data. 
+    * *Example:* Encrypting a database so that even if it is stolen, the attacker cannot read the credit card numbers or patient medical records inside.
+* **Integrity:** Ensuring that data cannot be altered maliciously or accidentally, and that any alteration can be detected.
+    * *Example:* Ensuring an attacker cannot intercept an online order and change the shipping address, or alter a patient's medical history to prescribe the wrong treatment.
+* **Availability:** Ensuring that systems, services, and data are accessible to authorized users whenever they are needed.
+    * *Example:* Defending an online store against a Denial of Service (DoS) attack so customers can continue to browse and check out, or ensuring doctors can reliably access a clinic's records.
+
+---
+
+### 2. Beyond CIA: Authenticity & Nonrepudiation
+As digital transactions evolved, the basic CIA triad needed supplementation to handle business and legal requirements.
+
+* **Authenticity:** Verifying that a document, file, user, or data packet is genuinely from the claimed source (not counterfeit or spoofed).
+* **Nonrepudiation:** A mechanism that ensures the original source cannot legally or technically deny that they performed an action or sent a file. 
+    * *Example:* If a company receives a massive order for 1,000 cars, they need **Authenticity** to ensure the order wasn't forged by a prankster, and **Nonrepudiation** (like a digital signature) so the buyer cannot later claim, "I never placed that order."
+
+
+
+### 3. The Parkerian Hexad (1998)
+Proposed by Donn Parker, this model expands the CIA triad into six elements to provide a more comprehensive framework for information security. It includes Confidentiality, Integrity, Availability, and Authenticity, plus two new elements:
+
+| Element | Definition | Real-World Example |
+| :--- | :--- | :--- |
+| **Utility** | Focuses on the *usefulness* of the information, regardless of its availability. Data can be available but lack utility. | You have a laptop with an intact hard drive, but you lost the encryption key. The data is completely *available*, but you cannot read it, so it has zero *utility*. |
+| **Possession** | Focuses on the physical or logical control over the data, independent of whether the data was actually read (Confidentiality). | An attacker steals a physical backup drive. Even if the drive is heavily encrypted and the attacker cannot read the data (Confidentiality is maintained), you have still lost *Possession* of the drive. Ransomware also causes a loss of possession. |
+
+**Takeaways / Notes:**
+* Not all systems prioritize these elements equally. A military communications network might prioritize **Confidentiality** above all else, while a public university's press release prioritizes **Integrity** and **Availability** (they want everyone to read it, but no one to alter it).
+
+**DAD Triad**
+
+**Key Concepts:**
+When attackers target a system, their goals generally fall into one of three categories: disclosing secret data, altering data, or destroying data. These three malicious actions form the **DAD Triad**, which is the exact inverse of the CIA Triad.
+
+
+
+### 1. Mapping DAD to CIA
+Every defensive principle has a corresponding offensive attack vector:
+
+* **Disclosure (Opposes Confidentiality):** The unauthorized exposure or leaking of sensitive data to an untrusted party.
+* **Alteration (Opposes Integrity):** The unauthorized modification or manipulation of data.
+* **Destruction/Denial (Opposes Availability):** The act of rendering a system, service, or dataset completely inaccessible or permanently ruined.
+
+---
+
+### 2. Real-World Impact: Healthcare Example
+Applying the DAD Triad to a paperless hospital environment highlights the catastrophic impact of these attacks:
+
+| Attack Type | Action | Consequence |
+| :--- | :--- | :--- |
+| **Disclosure** | An attacker steals medical records and dumps them publicly online. | Massive privacy violations, loss of patient trust, and severe legal/financial penalties for the hospital. |
+| **Alteration** | An attacker secretly modifies patient charts (e.g., changing blood types or allergies). | Patients receive the wrong treatments or medications, leading to life-threatening situations. |
+| **Destruction / Denial** | An attacker launches ransomware, locking the hospital out of its entire database. | The facility cannot access patient histories, stalling operations and forcing doctors to work blind. |
+
+---
+
+### 3. The Balancing Act
+You cannot maximize all three pillars of the CIA Triad simultaneously; there is always a trade-off. 
+
+* **Too much Confidentiality/Integrity:** If you lock a system down behind ten passwords, biometric scanners, and strict VPNs, you severely restrict **Availability** for legitimate users who just need to do their jobs quickly.
+* **Too much Availability:** If you make a system extremely easy and fast to access from anywhere in the world, you vastly increase the risk of losing **Confidentiality** and **Integrity**.
+
+**Takeaways / Notes:**
+* Good security is not about locking everything away in a digital vault; it is about finding the appropriate balance between Confidentiality, Integrity, and Availability based on the specific needs of the business.
+
+**Fundamental Concepts of Security Models**
+
+**Key Concepts:**
+Security models dictate the mathematical rules for how "Subjects" (users or programs) can interact with "Objects" (files or resources) based on their assigned security clearance levels (e.g., Top Secret, Secret, Unclassified).
+
+
+
+### 1. Bell-LaPadula Model (Confidentiality)
+Developed by the DoD, this model is entirely focused on keeping secrets secret. It prevents unauthorized people from reading sensitive data, and prevents authorized people from accidentally leaking it.
+
+* **Core Focus:** Confidentiality.
+* **The Rule:** **"Read Down, Write Up"**
+* **The Properties:**
+    * **Simple Security Property (No Read Up):** A subject cannot read an object at a higher security level. (A *Secret* user cannot read a *Top Secret* file).
+    * **Security Property (No Write Down):** A subject cannot write to an object at a lower security level. (A *Top Secret* user cannot copy data into an *Unclassified* file, preventing accidental leaks).
+    * **Discretionary-Security Property:** Uses a standard access control matrix (like standard file permissions) to allow or deny access, assuming the first two mandatory rules are met.
+
+### 2. The Biba Model (Integrity)
+This is the exact inverse of Bell-LaPadula. It doesn't care about secrecy; it cares about data accuracy and preventing corruption. It stops bad/untrusted data from contaminating highly trusted data.
+
+* **Core Focus:** Integrity.
+* **The Rule:** **"Read Up, Write Down"**
+* **The Properties:**
+    * **Simple Integrity Property (No Read Down):** A subject cannot read an object of lower integrity. (A *Top Secret* process shouldn't trust or read input from an *Unclassified* file, as it might be corrupted/malicious).
+    * **Integrity Property (No Write Up):** A subject cannot write to an object of higher integrity. (An *Unclassified* user cannot modify a *Top Secret* system configuration).
+
+
+
+### 3. The Clark-Wilson Model (Integrity in Business)
+Unlike Biba, which uses military-style clearance levels, Clark-Wilson is designed for commercial business environments. It enforces integrity through strict procedures and separation of duties (e.g., the person who creates a purchase order cannot be the same person who approves it).
+
+* **Core Focus:** Integrity (Commercial/Business).
+* **Key Components:**
+    * **CDI (Constrained Data Item):** Highly critical data that must be strictly protected (e.g., bank account balances).
+    * **UDI (Unconstrained Data Item):** Less critical data or raw input (e.g., a user typing a transaction amount).
+    * **TP (Transformation Procedure):** The *only* allowed way to modify a CDI. Users cannot touch CDIs directly; they must use a TP (like a certified software program) to do it.
+    * **IVP (Integrity Verification Procedure):** Audits and checks that the CDIs are still valid and haven't been corrupted.
+
+**Takeaways / Notes:**
+* **Exam Trick:** If you see "LaPadula", think "Letters" (Confidentiality). If you see "Biba", think "Business" (Integrity). 
+* Notice how Bell-LaPadula's "No Write Down" prevents data leakage, while Biba's "No Write Up" prevents data corruption!
+
+## **ISO/IEC 19249**
+
+### Architectural Principles
+These principles guide the high-level structural layout of a system.
+
+| Principle | Description | Example |
+| :--- | :--- | :--- |
+| **1. Domain Separation** | Grouping related components (apps, data) into single entities with shared security attributes. | CPU privilege levels (Ring 0 for OS Kernel, Ring 3 for User Apps) or the Goguen-Meseguer Model. |
+| **2. Layering** | Structuring a system into abstract levels to easily impose security policies and validate operations at each step. | The 7-layer OSI Networking Model, or high-level programming languages hiding low-level system calls. |
+| **3. Encapsulation** | Hiding low-level implementations to prevent the direct manipulation of data. | Object-Oriented Programming (OOP) using specific methods (like `increment()`) or using APIs to safely access a database. |
+| **4. Redundancy** | Duplicating critical components to ensure system **Availability** and **Integrity**. | Servers with dual power supplies, or a RAID 5 hard drive configuration. |
+| **5. Virtualization** | Sharing a single set of physical hardware across multiple operating systems. | Using virtual machines for secure sandboxing and malware detonation. |
+
+---
+
+### Design Principles
+These principles guide the lower-level, functional implementation of the system's components.
+
+| Principle | Description | Example |
+| :--- | :--- | :--- |
+| **1. Least Privilege** | The "Need-to-Know" basis. Giving a user or process the absolute minimum permissions required to do their job. | Giving a user "Read-Only" access to a document if they do not explicitly need to edit it. |
+| **2. Attack Surface Minimisation** | Actively reducing the number of potential vulnerabilities or entry points an attacker could exploit. | Hardening a Linux server by disabling or uninstalling unused services and ports. |
+| **3. Centralized Parameter Validation** | Funneling all user input validation through a single, centralized library to prevent bypasses. | Preventing Remote Code Execution (RCE) or DoS by strictly validating all form inputs in one secure module. |
+| **4. Centralized General Security Services** | Centralizing core security functions (like login/access control) rather than scattering them across the app. | Using a single centralized authentication server (while ensuring redundancy so it isn't a single point of failure). |
+| **5. Preparing for Error and Exception Handling** | Designing systems to "Fail Safe" and ensuring that crashes do not expose sensitive backend information. | If a firewall crashes, it defaults to blocking ALL traffic. Ensuring web errors don't print raw database memory to the user. |
+
+### Key Takeaways
+Understanding the difference between *Layering* (stacking levels of operation) and *Domain Separation* (grouping by privilege/function) is a common testing point in security certifications!
+
+**Zero Trust versus Trust but Verify**
+
+* **Core Concept:** An overview of how trust is managed in cybersecurity, contrasting the traditional logging-heavy approach with modern, strict access control models.
+* **Key Findings:** 
+* **Trust but Verify:** You allow access/trust an entity but continuously monitor its behavior.
+    * Relies heavily on extensive logging and automated security tools (like Proxies, IDS, and IPS) to review actions and ensure everything remains normal.
+* **Zero Trust ("Never trust, always verify"):** 
+    * Treats trust itself as a security vulnerability. 
+    * Assumes every entity (user, device, system) is hostile until proven otherwise, regardless of whether they are on the internal network or using a company-owned device.
+    * Requires strict authentication and authorization before granting access to *any* resource.
+* **Microsegmentation:** A key implementation of Zero Trust where the network is divided into the smallest possible segments (even down to a single host). Any communication between these tiny segments requires strict authentication and access control checks.
+* **Takeaways:** While "Trust but Verify" relies on catching bad behavior after the fact, "Zero Trust" proactively prevents unauthorized access, significantly minimizing the "blast radius" if a breach occurs. However, Zero Trust must be carefully balanced so it doesn't negatively impact legitimate business operations.
+
+**Vulnerability, Threat, and Risk**
+
+* **Key Findings:** 
+  * **Vulnerability:** A weakness, flaw, or susceptible point in a system or physical environment (e.g., standard glass windows on a storefront, or an unpatched database system).
+  * **Threat:** The potential danger or actor that could exploit the weakness (e.g., the danger of a burglar breaking the glass, or an available proof-of-concept exploit for the database).
+  * **Risk:** The business calculation determining the *likelihood* of a threat exploiting a vulnerability combined with the resulting *impact* or damage to the organization.
+* **Takeaways:** Precision in terminology matters. A vulnerability is just a flaw; it requires a realistic threat to become an active concern. Evaluating the overall risk (likelihood + impact) dictates how you should prioritize patching or mitigating the issue.
