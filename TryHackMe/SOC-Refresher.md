@@ -1006,4 +1006,46 @@ As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough
 
 ---
 
+## Room: [SOC L1 Alert Reporting]
+
+* **Core Concept:** Understanding the workflow for handling alerts after the initial analysis, specifically focusing on how L1 analysts document and pass along complex threats (True Positives).
+* **Key Findings:** 
+
+* **Alert Reporting:** Instead of just a quick comment, severe or True Positive alerts often require detailed documentation. You must include all relevant evidence and context gathered during your triage.
+    
+    * **Alert Escalation:** Passing a confirmed or highly suspicious alert (True Positive) up to a Tier 2 (L2) analyst for deeper forensic analysis and remediation. A strong L1 report is crucial here so the L2 analyst doesn't have to start their investigation from scratch.
+    
+    * **Communication:** Security is a team sport. Triage often requires verifying actions with other departments. For example, contacting IT to see if they intentionally granted a user admin rights, or checking with HR to confirm a new hire's expected network activity.
+    
+* **Takeaways:** An L1 analyst's job doesn't end at simply clicking "True Positive." Providing a thorough, well-documented report and clearly communicating with L2 and other departments is what actually stops a breach from progressing.
+
+## **Reporting Guide** 
+
+* **Core Concept:** Understanding the critical importance of writing detailed alert reports as an L1 Analyst, rather than just clicking "True/False Positive," and utilizing the "Five Ws" framework to structure those reports.
+
+* **Key Findings:** 
+
+* **Why L1 Analysts Must Write Reports:**
+  
+    | Purpose | Explanation |
+    | :--- | :--- |
+    | **Provide Context for Escalation** | A well-written report saves a massive amount of time for L2 analysts or DFIR (Digital Forensics and Incident Response) teams by immediately explaining what happened without them needing to start from scratch. |
+    | **Save Findings for the Records** | Raw SIEM logs are typically only stored for 3-12 months to save space, but *alerts* and their attached reports are kept indefinitely. The report ensures the context survives even after the raw logs are deleted. |
+    | **Improve Investigation Skills** | "If you can't explain it simply, you don't understand it well enough." Writing clear, concise reports forces you to deeply summarize the alert, naturally boosting your L1 analysis skills. |
+
+  * **The "Five Ws" Report Format:**
+  *When writing a report, imagine you are the L2 analyst or IT professional reading it. Always include these five elements:*
+  
+    | The "W" | What to Include in the Report |
+    | :--- | :--- |
+    | **Who** | Which specific user logged in, ran the command, or downloaded the file? |
+    | **What** | What exact action or sequence of events was performed? |
+    | **When** | When exactly did the suspicious activity start and end (timestamps)? |
+    | **Where** | Which specific device (Hostname), IP address, or website was involved? |
+    | **Why** | *The most important W.* What is the detailed reasoning behind your final verdict (True Positive vs. False Positive)? |
+
+* **Takeaways:** Reporting is not just administrative busywork. It is a critical form of communication that preserves historical data, accelerates the response time of higher-tier analysts, and serves as a powerful tool for your own professional development as a SOC analyst.
+
+---
+
 ## Room: [Next Room]
