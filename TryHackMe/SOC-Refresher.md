@@ -895,4 +895,115 @@ As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough
 
 ---
 
+## Room: [Humans as Attack Vectors]
+
+**Social Engineering**
+
+* **Core Concept:** Social engineering is the art of manipulating human psychology rather than exploiting technical system flaws. Attackers succeed by appearing trustworthy and triggering strong emotions (like fear, urgency, or curiosity) to trick victims into compromising their own security.
+
+* **Key Findings:** 
+  * **Phishing:** The most prevalent attack vector (billions sent daily). Uses deceptive emails and spoofed login pages to steal credentials.
+  * **Malware Downloads:** Tricking users into installing malware themselves, often using clever lures like SEO poisoning (ranking fake sites high on Google), fake CAPTCHAs, or malicious QR codes.
+  * **Deepfakes:** A rapidly growing threat where attackers use AI to generate highly convincing audio or video of trusted figures (like executives) to authorize massive fraudulent wire transfers.
+  * **Impersonation:** Classic pretexting, often over the phone (Vishing), where attackers pose as authoritative figures like Corporate IT to convince users to grant them system access.
+  * **Physical & Alternate Vectors:** Leaving malicious flash drives in parking lots (USB drops), tailgating into buildings, insider threats, and even posting fake job offers.
+
+* **Takeaways:** The human element is almost always the weakest link in any security posture. As a defender or SOC analyst, understanding the psychological manipulation behind these attacks is just as crucial as understanding the technical indicators of compromise.
+
+**Defending Humans**
+
+* **Core Concept:** Defending an organization involves two primary pillars: **Mitigation** (preventing or reducing the impact of attacks) and **Detection** (identifying and investigating the advanced threats that inevitably bypass mitigations). 
+
+* **Key Findings:** 
+* **The SOC Analyst Role:** While a SOC analyst's primary job is *Detection*, advocating for strong *Mitigation* measures is critical to reduce alert fatigue and automate the defense against common threats.
+  * **Key Mitigation Strategies:**
+    * **Anti-phishing Solutions:** Automated tools that filter and block malicious emails before they ever reach an employee's inbox.
+    * **Antivirus / EDR (Endpoint Detection & Response):** Software deployed on all corporate machines to actively prevent users from executing downloaded malware.
+    * **"Trust but Verify" Protocols:** Establishing clear company procedures so employees know how to safely verify suspicious, urgent requests (e.g., confirming a strange request from the "CEO" via a secondary communication channel to defeat deepfakes/impersonation).
+    * **Security Awareness Training:** Actively educating employees on how to spot attacks (like phishing) and reinforcing that knowledge through simulated attacks.
+* **Takeaways:** No mitigation measure is 100% perfect; eventually, an attack will slip through. However, layering strong preventative tools (like EDR and email filtering) alongside a well-trained workforce significantly reduces the sheer volume of attacks, allowing the SOC team to focus on the truly sophisticated threats.
+
+---
+
+## Room: [SOC L1 Alert Triage]
+
+**Events and Alerts**
+
+* **Core Concept:** Understanding the lifecycle of a security alert—how raw network events are logged, aggregated, and turned into actionable notifications—and the platforms SOC teams use to manage them.
+
+* **Key Findings:** 
+  * **The Alert Lifecycle:** 
+1. **Event:** An action occurs (user login, file download).
+2. **Log:** The system hosting the event records it.
+3. **Aggregation:** Millions of logs are shipped to a centralized security solution.
+4. **Alert:** The system flags a specific, suspicious sequence of events to save analysts from manual log review.
+  * **Alert Management Platforms:**
+    * **SIEM (Splunk ES, Elastic):** The primary alert management tool for most SOCs.
+    * **EDR/NDR (MS Defender, CrowdStrike):** Endpoint/Network tools. They have their own dashboards, but alerts are usually piped into a SIEM.
+    * **SOAR:** Used by larger teams to centralize and automate responses across multiple tools.
+    * **ITSM (Jira, TheHive):** Ticketing systems used to track the progress of an investigation.
+  * **SOC Roles in Triage:**
+    * **L1 Analysts:** First line of defense; triage alerts, filter false positives, and escalate real threats.
+    * **L2 Analysts:** Receive escalations for deep forensic analysis and remediation.
+    * **Engineers & Managers:** Engineers maintain the alert pipelines, while managers track the team's speed and triage quality.
+
+  * **ITSM:** IT Service Management (ITSM) tools help track and automate incidents and change management processes. SOC teams can use ITSM tools like Jira or ServiceNow to manage security incidents or engineering projects.
+
+* **Takeaways:** Alerts are the lifeblood of a SOC. By utilizing SIEMs and SOAR platforms, analysts can cut through millions of normal daily logs to focus strictly on the targeted anomalies that represent actual cyberattacks.
+
+**Alert Properties**
+
+* **Core Concept:** Understanding the anatomy of a security alert. While different SIEMs look different, they all share these core properties to help analysts quickly understand the context and urgency of a potential threat.
+
+* **Key Findings:** 
+* **Alert Anatomy:** 
+
+    1. **Alert Time:** Shows when the alert was generated (note: this is usually a few minutes *after* the actual event occurred).
+    
+    2. **Alert Name:** A quick summary based on the detection rule (e.g., "Windows RDP Bruteforce" or "Email Marked as Phishing").
+    
+    3. **Alert Severity:** The urgency level (Low, Medium, High, Critical). It is initially set by the engineers who wrote the rule, but analysts can change it during triage.
+    
+    4. **Alert Status:** Shows where the alert is in the pipeline (New, In Progress, or Closed).
+    
+    5. **Alert Verdict (Classification):** The final decision on the alert. Is it a real threat (True Positive) or just normal network noise/a mistake (False Positive)?
+    
+    6. **Alert Assignee:** The specific analyst who has taken ownership of and responsibility for the investigation.
+    
+    7. **Alert Description:** The context. It usually explains the logic behind the rule, why it might indicate an attack, and sometimes offers instructions on how to triage it.
+    
+    8. **Alert Fields:** The actual data that triggered the alert (e.g., the specific Hostname, the exact Command Line entered) alongside any comments left by analysts.
+    
+* **Takeaways:** Quickly parsing these properties is the bread and butter of a SOC L1 Analyst. Knowing immediately what an alert is, how severe it claims to be, and what specific data triggered it dictates how you will approach the investigation.
+
+**Alert Priortisation**
+
+* Every SOC team decides on its own prioritisation rules and usually automates them by setting the appropriate alert sorting logic in SIEM or EDR. Below, you may see the generic, simplest, and most commonly used approach:
+
+  1. **Filter the alerts:** Make sure you don't take the alert that other analysts have already reviewed, or that is already being investigated by one of your teammates. You should only take new, yet unseen and unresolved alerts.
+  
+  2. **Sort by severity:** Start with critical alerts, then high, medium, and finally low. This is because detection engineers design rules so that critical alerts are much more likely to be real, major threats and cause much more impact than medium or low ones.
+
+  3. **Sort by time:** Start with the oldest alerts and end with the newest ones. The idea is that if both alerts are about two breaches, the hacker from the older breach is likely already dumping your data, while the "newcomer" has just started the discovery.
+
+**Alert Triage**
+
+  * **Key Findings:** 
+  * **Phase 1: Initial Actions**
+    * Take ownership immediately: Assign the alert to yourself and change the status to *In Progress*. This prevents other analysts from doing duplicate work.
+    * Familiarize yourself with the alert's name, description, and key indicators before diving in.
+    
+  * **Phase 2: Investigation (The core analysis)**
+    * This is where you analyze SIEM/EDR logs. 
+    * Use **Workbooks** (also called playbooks or runbooks) if your team has them—these are step-by-step instructions for specific alert types.
+    * *Key Investigative Steps:* Identify the target (user, host, network), define the action (malware, phishing, login), check surrounding events (what happened right before and after?), and leverage Threat Intelligence to confirm suspicions.
+    
+  * **Phase 3: Final Actions**
+    * Determine the verdict: Is it a real threat (*True Positive*) or a false alarm (*False Positive*)?
+    * Write a detailed comment explaining the steps you took and the reasoning behind your verdict.
+    * Move the alert status to *Closed* (or escalate it to L2 if it's a confirmed, severe threat).
+* **Takeaways:** A strict triage process isn't just bureaucratic red tape; it is essential for preventing duplicated efforts, ensuring thorough analysis, and creating an audit trail so others know exactly *why* you closed an alert.
+
+---
+
 ## Room: [Next Room]
