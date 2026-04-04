@@ -19,8 +19,8 @@ and Blue Team (Defensive).
 
 
 **Objective:** Learn the fundamental structure of system logs and how contextual correlation is used to piece together the full story of a cyber security incident.
-
-**Key Concepts:**
+o
+**Key Cncepts:**
 * **Digital Footprints:** Just like tree rings reveal the history of a tree's life and environment, logs are the historical records of a digital system. Every interaction—from authentication attempts and file accesses to network connections and errors—leaves a digital footprint.
 * **The Log File:** Because digital interactions happen at lightning speed, these individual footprints are aggregated into log files, which can grow exponentially in size depending on the system's activity level.
 
@@ -1045,6 +1045,123 @@ As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough
     | **Why** | *The most important W.* What is the detailed reasoning behind your final verdict (True Positive vs. False Positive)? |
 
 * **Takeaways:** Reporting is not just administrative busywork. It is a critical form of communication that preserves historical data, accelerates the response time of higher-tier analysts, and serves as a powerful tool for your own professional development as a SOC analyst.
+
+---
+
+## Room: [SOC Workbooks and Lookups]
+
+**SOAR:** SOAR stands for Security Orchestration, Automation, and Response. It is a solution that helps organisations to streamline and automate their security operations, including incident management, threat intelligence, and vulnerability response.
+
+**Alerts and Identities**
+
+**Objective:** Learn how SOC analysts use Identity and Asset Inventories to quickly gather context about users and devices during an investigation, turning abstract usernames and hostnames into actionable intelligence.
+
+**Key Concepts:**
+* **Context is King:** When an alert fires (e.g., "G.Baker downloaded a financial report from HQ-FINFS-02"), you cannot determine if the action is malicious without knowing *who* G.Baker is and *what* HQ-FINFS-02 does. 
+* **Identity Inventory:** A catalogue of all user accounts (employees) and machine accounts (services). It provides context like job roles, locations, work hours, and access privileges.
+* **Asset Inventory (Asset Lookup):** A list of all computing resources (servers, laptops, workstations) within the organization. It provides context like OS versions, IP addresses, physical locations, and the device's primary purpose.
+
+**Frameworks/Tables:**
+
+**Identity Inventory Sources:**
+*Where does the SOC get user information?*
+
+| Solution Type | Examples | Description |
+| :--- | :--- | :--- |
+| **Active Directory (AD)** | On-Prem AD, Microsoft Entra ID | AD is the foundational identity database for most corporate networks. |
+| **SSO Providers** | Okta, Google Workspace | Cloud-based alternatives for managing access and user identities. |
+| **HR Systems** | BambooHR, SAP, HiBob | Contains deep employee data (titles, managers, contact info) but lacks machine/service accounts. |
+| **Custom Solutions** | CSV or Excel Sheets | Often maintained manually by IT or Security teams in smaller environments. |
+
+**Asset Inventory Sources:**
+*Where does the SOC get device information?*
+
+| Solution Type | Examples | Description |
+| :--- | :--- | :--- |
+| **Active Directory (AD)** | On-Prem AD, Entra ID | In addition to users, AD tracks devices joined to the domain. |
+| **SIEM or EDR** | Elastic, CrowdStrike | Endpoint agents report back detailed information (OS, IP) about the hosts they monitor. |
+| **MDM (Mobile Device Management)** | MS Intune, Jamf | Dedicated solutions specifically designed to track, manage, and secure corporate laptops and mobile devices. |
+| **Custom Solutions** | CSV or Excel Sheets | Manual tracking, usually found in less mature IT environments. |
+
+**Takeaways / Notes:**
+* Triage relies heavily on context. If you don't know the baseline of what is "normal" for a user or a server (which you get from these inventories), you cannot accurately identify what is "abnormal."
+* Understanding the difference between a standard employee laptop and a highly sensitive Domain Controller is critical for determining the severity of an alert.
+
+**Workbooks Theory** 
+
+**Key Concepts:**
+* **The SOC Workbook (Playbook/Runbook):** A structured, step-by-step document designed to guide analysts through the investigation and remediation of specific threat scenarios (e.g., atypical VPN logins or malware detections).
+* **Guiderails for L1 Analysts:** Because L1 analysts are not expected to have memorized every possible attack vector perfectly, senior analysts create workbooks to prevent mistakes, ensure consistency, and streamline the triage process.
+* **Evidence-Based Verdicts:** Following a workbook strictly ensures that an analyst does not jump to a conclusion (verdict) without gathering sufficient supporting evidence first.
+
+**The Three Phases of a Workbook Investigation:**
+*Most workbooks, such as one designed for investigating an atypical login, follow a logical three-step pipeline:*
+
+| Phase | Action Required | Example (Atypical Login Alert) |
+| :--- | :--- | :--- |
+| **1. Enrichment** | Gather context using external tools and inventories before looking at raw logs. | Check the Identity Inventory to see the user's normal location, working hours, and role. Query Threat Intelligence for the login IP. |
+| **2. Investigation** | Analyze the SIEM logs and correlate them with the enriched data to make a decision. | Compare the enriched data against the SIEM logs. Is this login expected based on their role? Did they use MFA? |
+| **3. Escalation / Final Action** | Take action based on the investigation's verdict. | If suspicious, escalate the alert to L2 or reach out to the user directly to confirm if they attempted the login. |
+
+**Takeaways / Notes:**
+* Workbooks are your best friend in a SOC. They take the guesswork out of complex alerts. 
+* By structuring an investigation into Enrichment -> Investigation -> Escalation, you guarantee a high-quality triage process every single time.
+
+![TryHackMe, Guide](image.png)
+
+---
+
+## Room: [SOC Metrics and Objectives]
+
+**Core Metrics**
+
+**Objective:** Understand the four fundamental metrics used to measure the efficiency, reliability, and workload of a Security Operations Center (SOC), specifically focusing on how L1 analysts handle alerts.
+
+**Key Concepts:**
+* **The Prime Directive:** The main goal of a SOC is to protect the confidentiality, integrity, and availability (CIA) of an organization's digital assets.
+* **Alert Fatigue vs. Blind Spots:** Too many alerts (especially noise) lead to analyst fatigue, causing them to miss real threats. Conversely, having zero alerts is a red flag indicating a lack of network visibility or broken logging pipelines.
+* **False Positive Remediation:** The process of tuning SIEM tools and detection rules to reduce the "noise level" and prevent analysts from treating all alerts as spam.
+
+**Frameworks/Tables:**
+
+**Core SOC Metrics:**
+*How a SOC measures its performance and health.*
+
+| Metric | Formula | What it Measures | Ideal Benchmark |
+| :--- | :--- | :--- | :--- |
+| **Alerts Count (AC)** | Total Count of Alerts Received | Overall workload of SOC analysts | **5 to 30** alerts per day, per L1 analyst. |
+| **False Positive Rate (FPR)** | False Positives / Total Alerts | The level of noise in the alert pipeline | 0% is impossible, but **>= 80% is a critical issue** requiring immediate tuning. |
+| **Alert Escalation Rate (AER)** | Escalated Alerts / Total Alerts | Experience and independence of L1 analysts | **Below 50%**, ideally below 20%. |
+| **Threat Detection Rate (TDR)** | Detected Threats / Total Threats | The ultimate reliability of the SOC team | **100%**. Every missed threat can lead to a devastating breach. |
+
+**Takeaways / Notes:**
+* As an L1 Analyst, your primary job is to filter the noise so L2 can handle the real threats. A high Escalation Rate means you might be leaning too heavily on senior staff, while a high False Positive Rate means the engineers need to fix the detection rules.
+* The Threat Detection Rate (TDR) is the only metric where perfection is required. Missing even a single real threat (a false negative) completely compromises the organization's security posture.
+
+**Triage Metrics**
+
+**Objective:** Understand the time-based metrics used in Service Level Agreements (SLAs) to measure a SOC's speed and efficiency in detecting, acknowledging, and responding to threats.
+
+**Key Concepts:**
+* **Speed is Critical:** Generating an alert does not stop a breach. A SOC must receive the alert, triage it, and respond *before* the attacker achieves their objective.
+* **Service Level Agreement (SLA):** A formal document signed between the SOC team and company management (or an MSSP and its clients). It strictly defines the required speed and availability for threat detection and response.
+* **The "Mean Time To..." Metrics:** The standard timeframes used to evaluate if a SOC is meeting its operational requirements.
+
+**Frameworks/Tables:**
+
+**Standard SOC Time Metrics (SLAs):**
+*How a SOC measures its speed across the incident lifecycle.*
+
+| Metric | Common SLA Target | Description |
+| :--- | :--- | :--- |
+| **SOC Team Availability** | 24/7 or 8/5 | The working schedule of the SOC team (e.g., around-the-clock vs. Monday-Friday business hours). |
+| **Mean Time to Detect (MTTD)** | 5 minutes | The average time between the actual attack occurring and its initial detection by SOC tools. |
+| **Mean Time to Acknowledge (MTTA)** | 10 minutes | The average time it takes for an L1 analyst to see a newly generated alert and actively start triaging it. |
+| **Mean Time to Respond (MTTR)** | 60 minutes | The average time taken by the SOC to actually take action and stop the breach from spreading (e.g., isolating a host, suspending an account). |
+
+**Takeaways / Notes:**
+* These metrics represent a strict timeline: **MTTD** (The tool finds it) $\rightarrow$ **MTTA** (You claim it) $\rightarrow$ **MTTR** (The team stops it).
+* As an L1 Analyst, your primary responsibility on this timeline is keeping the **MTTA** as low as possible by quickly taking ownership of new alerts as they enter the dashboard.
 
 ---
 
