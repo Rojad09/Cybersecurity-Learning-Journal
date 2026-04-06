@@ -1300,4 +1300,32 @@ As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough
 
 ---
 
+## Room: [Splunk: The Basics]
+
+**Splunk:** Splunk is a platform for collecting, storing, and analysing machine data. It provides various tools for analysing data, including search, correlation, and visualisation. It is a powerful tool that organisations of all sizes can use to improve their IT operations and security posture. /  one of the leading SIEM solutions in the market. It allows users to collect, analyze, and correlate network and machine logs in real time.
+
+**Splunk Components** 
+
+**Key Concepts:**
+* **The Data Pipeline:** Splunk operates on a very specific pipeline to turn raw endpoint activity into searchable intelligence. The data must be collected, organized, and then queried.
+* **SPL (Search Processing Language):** The powerful, proprietary query language used within Splunk to search through the massive volumes of indexed data, filter results, and generate visualizations.
+* **Lightweight Agents:** Security tools must not break the servers they are protecting. Splunk uses lightweight agents designed to consume minimal CPU/RAM while shipping logs.
+
+**Frameworks/Tables:**
+
+**The Three Main Components of Splunk:**
+*How data flows from a target machine to the analyst's screen.*
+
+| Component | Primary Role | Key Details & Actions |
+| :--- | :--- | :--- |
+| **1. Splunk Forwarder** | Data Collection | A lightweight agent installed directly on the endpoints (Web Servers, Windows/Linux hosts, Databases). It simply collects local logs and forwards them to the Indexer without impacting system performance. |
+| **2. Splunk Indexer** | Data Processing & Storage | The workhorse of the system. It receives raw data from Forwarders, parses it, normalizes it into clean **field-value pairs**, categorizes it, and stores it as searchable "events". |
+| **3. Search Head** | Analysis & Visualization | The Graphical User Interface (GUI) where SOC analysts actually work. Analysts write **SPL** queries here; the Search Head asks the Indexer for the data, and then displays the results as tables, pie charts, or bar graphs. |
+
+**Takeaways / Notes:**
+* Think of the architecture as a supply chain: The **Forwarder** mines the raw materials (logs), the **Indexer** processes and warehouses them, and the **Search Head** is the storefront where the analyst requests and views the final product.
+* Because the Indexer does the heavy lifting of normalizing data into field-value pairs, the Search Head can query millions of logs almost instantly.
+
+---
+
 ## Room: [Next Room]
