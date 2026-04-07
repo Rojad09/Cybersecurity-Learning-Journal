@@ -1328,4 +1328,90 @@ As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough
 
 ---
 
+## Room: [Introduction to SOAR]
+
+**SOAR:** SOAR stands for Security Orchestration, Automation, and Response. It is a solution that helps organisations to streamline and automate their security operations, including incident management, threat intelligence, and vulnerability response.
+
+**Traditional SOC and Challenges**
+
+**Objective:** Understand the core capabilities of a traditional Security Operations Center (SOC) and identify the primary operational challenges that drive the need for modern automation tools like SOAR.
+
+**Key Concepts:**
+* **The SOC Ecosystem:** A centralized hub relying on the right combination of people, processes, and technologies to continuously monitor, analyze, and protect an organization's digital assets.
+* **Tribal Knowledge vs. Documentation:** A common flaw in traditional SOCs is relying on the unwritten experience ("tribal knowledge") of senior analysts rather than having strictly documented, repeatable procedures.
+* **The Automation Catalyst:** The combination of alert overload, disconnected tools, and a shortage of skilled analysts creates a massive bottleneck, making manual investigations unsustainable against modern threats.
+
+**Frameworks/Tables:**
+
+**Key Capabilities of a Traditional SOC:**
+*The primary responsibilities of a security team during daily operations.*
+
+| Capability | Description | Real-World Example |
+| :--- | :--- | :--- |
+| **Monitoring & Detection** | Continuously scanning environments to flag suspicious activities in their early stages (usually via a SIEM). | Detecting numerous failed login attempts or a login from an impossible geographic location. |
+| **Recovery & Remediation** | Acting as first responders to isolate threats and stop malicious processes using tools like EDR, Firewalls, and IAM. | Isolating an infected endpoint via EDR, or disabling a compromised user account in AD/IAM. |
+| **Threat Intelligence** | Maintaining a continuous flow of the latest threat data (IPs, hashes, domains) to proactively defend the network. | Automatically blocking a newly registered domain flagged as malicious by security researchers. |
+| **Communication** | Coordinating incident response and remediation efforts across IT, management, and other departments. | Generating a Jira ticket for the IT patching team to verify a recently deployed server update. |
+
+**Challenges Faced by Traditional SOCs:**
+*The operational roadblocks that slow down incident response times.*
+
+| Challenge | Cause | Impact on the SOC |
+| :--- | :--- | :--- |
+| **Alert Fatigue** | Numerous security tools generating a massive volume of alerts, many of which are false positives. | Analysts become overwhelmed, desensitized to alarms, and may miss critical, true-positive security events. |
+| **Disconnected Tools** | Security solutions deployed in silos without proper integration. | Analysts waste time manually pivoting between separate firewall, EDR, and email gateway dashboards to piece together an attack. |
+| **Manual Processes** | A lack of standardized, documented investigation procedures (Playbooks/Workbooks). | Slows down investigations and leads to inconsistent triage quality depending on which analyst takes the ticket. |
+| **Talent Shortage** | Difficulty recruiting and retaining highly skilled security professionals. | Understaffed teams face extreme burnout, leading to prolonged response times that give adversaries more time to wreak havoc. |
+
+**Takeaways / Notes:**
+* A traditional SOC requires analysts to act as the "glue" between dozens of disconnected tools. 
+* To scale effectively and reduce burnout, a SOC must transition away from manual, repetitive tasks. This operational bottleneck is exactly what **SOAR** (Security Orchestration, Automation, and Response) is designed to fix.
+
+**Overcoming SOC Challenges with SOAR**
+
+**Key Concepts:**
+* **What is SOAR?** A unified platform that integrates all the disparate security tools in a SOC (SIEM, EDR, Firewalls, Threat Intel, Ticketing) into a single "pane of glass." Analysts no longer need to constantly switch tabs to investigate an incident.
+* **Playbooks:** Predefined, dynamic workflows that tell the SOAR system exactly how to investigate and respond to specific types of alerts. The result of one step determines the path of the next.
+* **The Analyst's Evolving Role:** SOAR does *not* replace human analysts. It handles the repetitive "grunt work" (tier 1 data gathering), freeing analysts to make complex judgment calls, understand the broader business context, and actually design the playbooks.
+
+**Frameworks/Tables:**
+
+**The Three Pillars of SOAR:**
+*How SOAR transforms a manual investigation into a streamlined pipeline.*
+
+| SOAR Pillar | Definition | Real-World Example (VPN Brute Force Alert) |
+| :--- | :--- | :--- |
+| **1. Orchestration** | Connecting and coordinating multiple disconnected security tools into a single, unified workflow. | Linking the SIEM (for logs), Threat Intel platform (for IP reputation), and IAM (for user status) so they can communicate. |
+| **2. Automation** | Executing the orchestrated playbook steps automatically, without requiring manual clicks from an analyst. | The SOAR automatically queries the SIEM for historical logins and checks the IP reputation the exact second the alert fires. |
+| **3. Response** | Taking direct, actionable steps across integrated tools to neutralize a threat from within the SOAR interface. | Automatically blocking the malicious IP on the firewall, disabling the compromised user account, and opening a Jira ticket. |
+
+**Takeaways / Notes:**
+* SOAR is the ultimate cure for "Alert Fatigue." By automating the initial triage and evidence-gathering steps, SOAR ensures analysts only spend their time on alerts that actually require human intelligence. 
+* *Orchestration* is the map (connecting the tools and defining the path). *Automation* is the vehicle driving on that map. *Response* is the destination.
+
+**SOAR Playbooks**
+
+**Objective:** Understand how to design and utilize SOAR playbooks to automate the triage and response process for common, repetitive security scenarios, using Phishing and CVE Patching as primary examples.
+
+**Key Concepts:**
+* **SOAR Playbooks:** Predefined, automated workflows built by SOC analysts. They act as actionable flowcharts instructing the SOAR platform on exactly how to handle specific categories of recurring alerts.
+* **"If/Then" Logic:** Playbooks rely heavily on conditional branching. For example: *If* an email has an attachment, *Then* send it to a malware sandbox; *Else*, notify the user.
+* **Human-in-the-Loop:** While SOAR handles the repetitive data gathering and preliminary actions, it does not replace analysts. Playbooks often contain strategic pause points where an analyst must review the automated findings and make a final judgment call.
+
+**Frameworks/Tables:**
+
+**Common Playbook Examples:**
+*How SOAR translates tedious manual investigations into automated workflows.*
+
+| Playbook Type | The Manual Challenge | The Automated SOAR Workflow |
+| :--- | :--- | :--- |
+| **Phishing Emails** | Highly common attack vector. Manually extracting URLs/attachments and cross-referencing them with Threat Intel is incredibly time-consuming. | 1. Receive Alert -> 2. Create Ticket -> 3. Extract URLs/Attachments -> 4. Scan with Threat Intel -> 5. Execute remediation (e.g., delete email, block sender). |
+| **CVE Patching** | A constant stream of newly disclosed vulnerabilities (CVEs) causes massive backlogs, leaving the environment exposed if not managed quickly. | 1. Ingest new CVE details -> 2. Assess network risk threshold -> 3. Create patching ticket -> 4. Pause for IT to test the patch -> 5. Push patch to production. |
+
+**Takeaways / Notes:**
+* Playbooks are essentially incident response flowcharts brought to life. 
+* Building a highly effective playbook requires deep SOC experience, because you must know exactly *how* a human would manually triage an alert in order to teach the SOAR platform how to do it automatically.
+
+---
+
 ## Room: [Next Room]
