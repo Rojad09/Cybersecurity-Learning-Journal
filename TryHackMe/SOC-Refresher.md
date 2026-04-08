@@ -1561,4 +1561,176 @@ MD5       9D52B46F5DE41B73418F8E0DACEC5E9F
 
   ---
 
-  ## Room: [Next Room]
+  ## Room: [Unified Kill Chain]
+
+  **What is a "Kill Chain"**
+
+  **Key Concepts:**
+* **Military Origin:** The term "Kill Chain" originated in the military to describe the structured, multi-stage process of a physical attack. 
+* **Cybersecurity Application:** In the cyber realm, a Kill Chain describes the step-by-step methodology, stages, or path that attackers (such as script kiddies or Advanced Persistent Threats - APTs) use to approach and compromise a target.
+* **The Defender's Goal:** By understanding the exact stages an attacker must go through (the chain), defenders can put measures in place to either preemptively protect the system or actively disrupt the attack before the adversary reaches their final objective.
+
+**Frameworks/Tables:**
+
+**A Basic Example of a Cyber Kill Chain:**
+*An attack is rarely a single action; it is a sequence of dependent steps.*
+
+| Stage | Attacker Action | Example |
+| :--- | :--- | :--- |
+| **1. Reconnaissance/Scanning** | Finding the weakness. | The attacker scans a corporate web server and identifies an outdated, vulnerable plugin. |
+| **2. Exploitation** | Breaking through the door. | The attacker uses a known exploit for that plugin to gain initial access to the server. |
+| **3. Privilege Escalation** | Gaining total control. | The attacker uses a misconfiguration on the server to elevate their standard user access to Administrator/root. |
+
+**Takeaways / Notes:**
+* The true power of the Kill Chain model for a SOC analyst is understanding that you do not need to stop an attacker at stage 1 to win. Because it is a *chain*, breaking the attacker's methodology at *any* stage disrupts the entire attack.
+
+**What is "Threat Modelling"**
+
+**Key Concepts:**
+* **Threat Modelling Definition:** A structured series of steps designed to identify risks, uncover vulnerabilities, and ultimately improve the security of a system or application.
+* **High-Level Overview:** It forces an organization to create a comprehensive inventory of its IT assets (both hardware and software) and understand their exact functions and criticality.
+* **Proactive Security:** Instead of just reacting to attacks, threat modelling involves putting policies in place (like a secure Software Development Life Cycle or employee training) to prevent vulnerabilities from occurring in the first place.
+
+**Frameworks/Tables:**
+
+**The Core Steps of Threat Modelling:**
+*The fundamental process of securing a system from the ground up.*
+
+| Step | Action | Example |
+| :--- | :--- | :--- |
+| **1. Identify** | Determine what systems/applications exist and their criticality. | Flagging a database because it holds sensitive customer payment info and home addresses. |
+| **2. Assess** | Discover vulnerabilities and weaknesses within those systems. | Recognizing that an externally facing web portal is susceptible to SQL Injection. |
+| **3. Plan** | Create an actionable remediation plan to secure the system. | Patching the server, rewriting the vulnerable code, or installing a Web Application Firewall (WAF). |
+| **4. Prevent** | Implement policies to stop the vulnerability from returning. | Mandating a secure Software Development Life Cycle (SDLC) or regular phishing awareness training. |
+
+**Associated Frameworks:**
+* **UKC (Unified Kill Chain):** Encourages threat modelling by helping defenders visualize potential attack surfaces and how systems might be exploited.
+* **Specific Threat Modelling Frameworks:** **STRIDE**, **DREAD**, and **CVSS** are industry-standard frameworks specifically built to evaluate, quantify, and categorize these threats.
+
+**Takeaways / Notes:**
+* Threat modelling is essentially the "measure twice, cut once" philosophy of cybersecurity. If you don't know what you are protecting, how critical it is, or what its weaknesses are, you cannot defend it effectively.
+
+**Introducing the Unified Kill Chain (UKC)**
+
+**Key Concepts:**
+* **What is the UKC?** Created by Paul Pols in 2017 (updated in 2022), the Unified Kill Chain is designed to complement existing frameworks like Lockheed Martin’s Cyber Kill Chain and MITRE ATT&CK. 
+* **The Iterative Nature of Attacks:** Traditional frameworks often treat attacks as a straight line. The UKC recognizes that real-world attacks are cyclical. For example, once an attacker exploits a system, they will loop back to the *Reconnaissance* and *Discovery* phases to find their next target deeper within the network.
+* **Comprehensive Scope:** It covers the entire lifecycle of an attack, from the initial external reconnaissance all the way to the socio-technical motives driving the adversary.
+
+**Frameworks/Tables:**
+
+**Benefits of the UKC vs. Traditional Frameworks:**
+*Why the Unified Kill Chain provides a more realistic view of modern cyber threats.*
+
+| Feature | Unified Kill Chain (UKC) | Traditional Frameworks |
+| :--- | :--- | :--- |
+| **Age / Relevance** | Modern (released in 2017, updated in 2022). | Often older (e.g., MITRE originally released in 2013 when the landscape was vastly different). |
+| **Granularity** | Extremely detailed, breaking an attack down into **18 specific phases**. | Usually rely on a much smaller handful of broad phases. |
+| **Scope** | Covers the *entire* attack lifecycle, including identifying the attacker's ultimate motivation. | Often cover a limited scope (e.g., focusing only on post-exploitation or only on network perimeter defense). |
+| **Realism** | Highlights that attack stages frequently re-occur and overlap as the attacker pivots. | Often fail to account for the attacker going back and forth between phases. |
+
+**The 18 Phases of the Unified Kill Chain:**
+*The complete tactical methodology of a cyber intrusion.*
+
+| # | Attack Phase | Description |
+| :--- | :--- | :--- |
+| **1** | **Reconnaissance** | Researching, identifying, and selecting targets using active or passive methods. |
+| **2** | **Resource Development** | Setting up the infrastructure required for the attack (e.g., buying domains, setting up C2 servers). |
+| **3** | **Delivery** | Transmitting a weaponized object (malware, phishing email) to the targeted environment. |
+| **4** | **Social Engineering** | Manipulating people to perform unsafe actions (e.g., clicking a malicious link). |
+| **5** | **Exploitation** | Exploiting vulnerabilities in systems to achieve initial code execution. |
+| **6** | **Persistence** | Making changes to the system to ensure the attacker maintains access even if the machine reboots. |
+| **7** | **Defense Evasion** | Techniques specifically used to avoid detection by security tools like AV or EDR. |
+| **8** | **Command & Control** | Establishing communication between the compromised system and the attacker's infrastructure (C2). |
+| **9** | **Pivoting** | Tunneling traffic through the controlled system to reach other systems that aren't directly accessible. |
+| **10** | **Discovery** | Gathering knowledge about the compromised system and its surrounding network environment. |
+| **11** | **Privilege Escalation** | Gaining higher-level permissions (e.g., from a standard user to Administrator/Root). |
+| **12** | **Execution** | Running attacker-controlled code on a local or remote system to further their goals. |
+| **13** | **Credential Access** | Stealing system, service, or domain passwords and hashes. |
+| **14** | **Lateral Movement** | Moving horizontally across the network to access and control other remote systems. |
+| **15** | **Collection** | Identifying and gathering sensitive data from the target network. |
+| **16** | **Exfiltration** | Removing (stealing) the gathered data from the target network to the attacker's servers. |
+| **17** | **Impact** | Manipulating, interrupting, or destroying the target system or data (e.g., Ransomware encryption). |
+| **18** | **Objectives** | The socio-technical, strategic goal the attacker intended to achieve (e.g., financial extortion, espionage). |
+
+**Takeaways / Notes:**
+* The sheer detail of the 18 phases makes the UKC an incredibly powerful tool for SOC analysts. When an alert fires, you can map the activity directly to one of these 18 steps, instantly knowing what the attacker just did, and more importantly, *what they are likely to try next*.
+
+**Goal in (Initial Foothold)**
+
+**Key Concepts:**
+* **The "In" Goal:** The primary objective of this overarching stage is to transform from an external outsider to an internal threat with a reliable foothold on the target's infrastructure.
+* **Combining Tactics:** Attackers rarely rely on a single technique. They chain these phases together (e.g., using *Reconnaissance* to find an employee directory, then using *Social Engineering* to send a *Weaponized* payload).
+* **Establishing the Beachhead:** Breaking in is only half the battle. To secure their foothold, attackers must establish *Persistence* (so they don't lose access if the machine reboots) and set up *Command & Control* to safely communicate with the compromised host.
+
+**Frameworks/Tables:**
+
+**Phases of the Initial Foothold:**
+*The specific steps an attacker takes to breach and secure an environment.*
+
+| UKC Phase | MITRE Tactic | Description | Example |
+| :--- | :--- | :--- | :--- |
+| **Reconnaissance** | TA0043 | Gathering intelligence about the target (passive or active) to find attack vectors. | Scanning for exposed services or scraping LinkedIn for employee emails. |
+| **Weaponization** | TA0001 | Setting up the necessary infrastructure and payloads required for the attack. | Spinning up a malicious Command & Control (C2) server and crafting a reverse shell payload. |
+| **Social Engineering** | TA0001* | Manipulating humans to perform actions that aid the adversary's attack. | Sending a highly targeted phishing email with a malicious PDF attachment. |
+| **Exploitation** | TA0002 | Taking advantage of software weaknesses or vulnerabilities to execute code. | Abusing an unpatched vulnerability in a web application to upload a web shell. |
+| **Persistence** | TA0003 | Modifying the system to ensure the attacker maintains access over time. | Creating a scheduled task or malicious background service that runs on system startup. |
+| **Defence Evasion** | TA0005 | Using techniques specifically designed to bypass or blind security tools. | Obfuscating malware code to hide from Antivirus, or blending in with normal traffic to bypass an IDS. |
+| **Command & Control** | TA0011 | Establishing a communication channel between the compromised host and the attacker. | The infected machine calling back to the attacker's server to receive its next set of instructions. |
+| **Pivoting** | TA0008 | Using the initial compromised system as a launching pad to reach deeper, internal systems. | Using a breached public-facing web server to scan and attack an internal SQL database. |
+
+*(Note: Some MITRE tactic IDs provided in the text, like TA0001, map broadly to Resource Development/Initial Access depending on the exact implementation).*
+
+**Takeaways / Notes:**
+* **Defence Evasion** is arguably one of the most critical phases for SOC analysts to study. Understanding *how* an attacker bypassed your Web Application Firewall (WAF) or Antivirus directly informs how you patch and tune those systems to prevent the next breach.
+* From a defensive standpoint, detecting an attacker during the **Reconnaissance** or **Weaponization** phases is ideal, as it allows you to stop the attack before they ever touch your internal network.
+
+**Goal: Through (Network Propagation)** 
+
+**Key Concepts:**
+* **The Forward Operating Base:** The initially compromised machine is rarely the attacker's final target. Instead, it becomes a "pivot point"—a staging ground used to map the internal network and launch further attacks.
+* **Blending In:** Advanced adversaries try to avoid using loud exploits once inside. By stealing legitimate credentials, they make their movements look like standard IT administrative traffic, making detection significantly harder.
+* **The Propagation Loop:** Attackers do not move in a straight line. They continuously loop through Discovery, Privilege Escalation, and Lateral Movement until they reach the high-value systems they are actually after.
+
+**Frameworks/Tables:**
+
+**Phases of Network Propagation:**
+*How an attacker navigates from a single compromised host to network-wide control.*
+
+| UKC Phase | MITRE Tactic | Description | Example |
+| :--- | :--- | :--- | :--- |
+| **Pivoting** | TA0008 | Using the compromised system as a tunnel to route traffic from the attacker's C2 server into the internal network. | Routing Nmap scans through the compromised web server to discover internal databases. |
+| **Discovery** | TA0007 | Mapping the internal environment to find active users, network shares, software versions, and configurations. | Running `whoami /priv` or listing the contents of a shared corporate drive. |
+| **Privilege Escalation** | TA0004 | Exploiting misconfigurations or vulnerabilities to upgrade from a standard user to an Administrator or SYSTEM/ROOT. | Abusing unquoted service paths to force the Windows machine to execute malicious code as SYSTEM. |
+| **Execution** | TA0002 | Running malicious code on the pivot system to maintain persistence and deploy further tools. | Creating a scheduled task that executes a remote access trojan every day at 3:00 AM. |
+| **Credential Access** | TA0006 | Stealing passwords, hashes, or Kerberos tickets to move quietly as a legitimate user. | Dumping the LSASS memory process to extract plain-text passwords of administrators who logged into the machine. |
+| **Lateral Movement** | TA0008 | Jumping from the current system to other targeted systems within the network using the elevated privileges and stolen credentials. | Using Pass-the-Hash with a stolen Administrator credential to log into the primary Domain Controller. |
+
+**Takeaways / Notes:**
+* **Credential Access** is the linchpin of network propagation. Once an attacker has Domain Admin credentials, the distinction between "malicious activity" and "normal administration" becomes practically invisible to traditional security tools. 
+* To stop an attacker in the "Through" phase, defenders must focus on internal network segmentation, monitoring for anomalous internal login locations (e.g., a receptionist's account logging into a database server), and aggressively protecting privileged accounts.
+
+**Goal: Out (Action on OBJ)**
+
+**Key Concepts:**
+* **The Endgame:** The attacker has successfully breached the perimeter, established persistence, and navigated the internal network to find critical assets. Now, they execute their primary mission.
+* **Targeting the CIA Triad:** The actions taken in this final stage are directly aimed at compromising the fundamental pillars of information security: Confidentiality (data theft), Integrity (data manipulation), and Availability (system destruction/ransomware).
+* **Technical vs. Strategic:** Technical actions like compressing a database or deploying ransomware are just means to an end. The true *Objective* is the socio-technical goal behind the attack (e.g., financial extortion, hacktivism, or corporate espionage).
+
+**Frameworks/Tables:**
+
+**Phases of the "Out" Goal:**
+*How an attacker finalizes their breach and inflicts damage.*
+
+| UKC Phase | MITRE Tactic | Description | Example & Impact |
+| :--- | :--- | :--- | :--- |
+| **Collection** | TA0009 | Gathering all the valuable data of interest from local drives, browsers, and email servers. | **Example:** Scraping the CEO's inbox for sensitive financial documents.<br>**Impact:** Breaches Confidentiality. |
+| **Exfiltration** | TA0010 | Packaging, compressing, and encrypting the gathered data to stealthily steal it from the network. | **Example:** Funneling zipped customer databases out through the previously established C2 tunnel.<br>**Impact:** Breaches Confidentiality. |
+| **Impact** | TA0040 | Manipulating, interrupting, or destroying systems and data to disrupt business operations. | **Example:** Deploying a disk wiper or Ransomware across all domain-joined machines, or launching a DoS attack.<br>**Impact:** Breaches Integrity and Availability. |
+| **Objectives** | N/A | The overarching strategic and socio-technical goal the adversary sought to achieve. | **Example:** Threatening to leak the exfiltrated data unless a $5 million cryptocurrency ransom is paid. |
+
+**Takeaways / Notes:**
+* From a SOC analyst's perspective, this is the worst-case scenario. If an alert fires for activity in the "Out" phase (like massive outbound data transfers or files suddenly being encrypted), the focus immediately shifts from *threat hunting* to critical *incident response* and *damage control*.
+* Data is often encrypted or compressed before Exfiltration specifically to evade Data Loss Prevention (DLP) systems that look for plain-text sensitive information leaving the network.
+
+---
