@@ -1414,4 +1414,151 @@ As technology evolves, the standard Enterprise ATT&CK matrix isn't always enough
 
 ---
 
-## Room: [Next Room]
+## Room: [Pyramid Of Pain]
+
+**Pyramid of Pain: Hash Values (Trivial)**
+
+**Objective:** Understand what hash values are, how they are used as Indicators of Compromise (IOCs) to identify malware, and why they are considered "Trivial" for adversaries to defeat on the Pyramid of Pain.
+
+**Key Concepts:**
+* **What is a Hash Value?** A numeric value of a fixed length that uniquely identifies data. It is the result of running a file or text through a mathematical hashing algorithm.
+* **Cryptographic Security:** A hashing algorithm is considered insecure if two entirely different files can produce the exact same hash value (this is known as a "hash collision").
+* **Threat Hunting & DFIR:** Security professionals use file hashes as unique "fingerprints" to reference malicious artifacts. Analysts use online sandboxes and databases like **VirusTotal** and **MetaDefender Cloud (OPSWAT)** to look up hashes and determine if a file is known malware.
+
+**Frameworks/Tables:**
+
+**Common Hashing Algorithms:**
+*The evolution of hashing standards and their current security status.*
+
+| Hashing Algorithm | Output Length | Security Status & Details |
+| :--- | :--- | :--- |
+| **MD5** | 128-bit | **Deprecated/Insecure.** Designed in 1992. Vulnerable to hash collisions. Do not use for cryptographic security. |
+| **SHA-1** | 160-bit (40 hex digits) | **Deprecated/Insecure.** Invented by the NSA in 1995. Banned by NIST in 2013 due to susceptibility to brute-force attacks. |
+| **SHA-256 (SHA-2 Family)** | 256-bit (64 hex digits) | **Secure.** Created by NIST/NSA in 2001 to replace SHA-1. Currently the industry standard and highly recommended. |
+
+**The "Trivial" Weakness (Example):**
+Why do hashes sit at the very bottom (Trivial) of the Pyramid of Pain? Because changing a hash takes almost zero effort for an attacker. Modifying even a single bit of a file completely changes the resulting hash. 
+
+Here is an example using PowerShell where appending a single string of text changes the entire MD5 hash of an installer:
+
+```powershell
+# 1. Checking the Hash Before Modification
+PS C:\Users\THM\Downloads> Get-FileHash .\OpenVPN_2.5.1_I601_amd64.msi -Algorithm MD5
+MD5       D1A008E3A606F24590A02B853E955CF7
+
+# 2. Modifying the file by appending a tiny text string
+PS C:\Users\THM\Downloads> echo "AppendTheHash" >> .\OpenVPN_2.5.1_I601_amd64.msi
+
+# 3. Checking the Hash After Modification
+PS C:\Users\THM\Downloads> Get-FileHash .\OpenVPN_2.5.1_I601_amd64.msi -Algorithm MD5
+MD5       9D52B46F5DE41B73418F8E0DACEC5E9F
+```
+**Takeaways / Notes**
+* Hashes are fantastic for exactly identifying a known piece of malware.
+* However, because attackers can automate the process of adding arbitrary bytes to their malware (changing the hash thousands of times a minute), relying only on hashes for detection is a losing battle. You force the attacker to do practically zero work to bypass your defenses.
+
+**Pyramid of Pain: IP Address (Easy)**
+
+**Key Concepts:**
+* **IP Address as an Indicator:** Every device connected to a network needs an IP address. From a defense standpoint, identifying the malicious IP address communicating with your network is a fundamental first step in incident response.
+* **The "Green" Level (Easy):** On the Pyramid of Pain, IP addresses are typically color-coded green. While blocking an IP address might stop an amateur, it is incredibly easy for an experienced adversary to simply switch to a new public IP address (like rotating through a VPN or cloud provider).
+* **Fast Flux:** A sophisticated DNS evasion technique used by botnets and malware. It hides the attacker's true Command & Control (C2) server by constantly rotating the IP addresses associated with a single malicious domain name, making static IP blocking completely ineffective.
+
+**Frameworks/Tables:**
+
+**Defense vs. Adversary (IP Level):**
+*How standard IP blocking plays out against advanced adversaries.*
+
+| Defense Action | Adversary Response | Result |
+| :--- | :--- | :--- |
+| **Firewall Block:** SOC analyst identifies a malicious IP and drops all inbound/outbound traffic to it at the perimeter firewall. | **IP Rotation:** Adversary abandons the blocked IP and simply spins up a new server or switches to a different VPN node. | **Temporary Win:** The attack is paused for a few minutes until the adversary switches IPs. |
+| **Blacklisting:** Adding known malicious IPs from Threat Intel feeds to a blocklist. | **Fast Flux Network:** Adversary associates hundreds of compromised proxies to a single domain name, constantly changing the resolved IP address every few minutes. | **Defense Bypassed:** Blacklisting fails because the IP address is constantly shifting; defenders cannot block them fast enough. |
+
+**Takeaways / Notes:**
+* Blocking an IP address is a necessary step to stop an active, localized attack, but it should never be your *only* defense. 
+* Because changing an IP address costs an adversary almost nothing in terms of time or money, relying solely on IP-based blocking forces the SOC to play an unwinnable game of "Whack-A-Mole."
+
+**Pyramid of Pain: Domain Names (Simple)** 
+
+**Key Concepts:**
+* **The "Teal" Level (Simple):** Domain names map text to IP addresses. They are slightly more painful for an attacker to change than a raw IP address because the attacker must actually purchase, register, and configure DNS records for the new domain. 
+* **Still Relatively Simple:** Unfortunately for defenders, many domain registrars have loose standards and provide automated APIs, making it trivial for attackers to rotate domains in bulk.
+* **Punycode Attacks:** An evasion technique where attackers use non-ASCII Unicode characters that visually look identical to English letters (e.g., using a Turkish `ı` instead of an English `i` to spoof `adidas.de` as `adıdas.de`). Browsers translate this under the hood using Punycode (e.g., `xn--addas-o4a.de`).
+* **URL Shorteners:** Attackers heavily utilize services like `bit.ly`, `tinyurl.com`, or `goo.gl` to cloak the actual malicious domain and bypass basic email/web filters.
+
+**Frameworks/Tables:**
+
+**Analyzing Network Telemetry in Sandboxes (e.g., Any.run):**
+*When malware detonates in a sandbox, analysts use these tabs to hunt for domain indicators.*
+
+| Network Tab | What it Shows | Why it Matters |
+| :--- | :--- | :--- |
+| **HTTP Requests** | Specific web resources requested by the malware. | Reveals if the malware is downloading a secondary payload (a "dropper") or calling back to a Command & Control (C2) server. |
+| **Connections** | Raw communications made between the infected host and external IPs. | Exposes C2 traffic, data exfiltration attempts, or files being transferred over protocols like FTP. |
+| **DNS Requests** | Domain Name System queries made by the host. | Malware often makes DNS requests immediately upon execution just to check if it has internet connectivity (to ensure it isn't trapped in a disconnected sandbox). |
+
+**Takeaways / Notes:**
+* **Pro-Tip for URL Shorteners:** You can often preview the actual destination of a shortened link *without* clicking it by appending a `+` to the end of the URL in your browser (e.g., `bit.ly/example+`).
+* Always check **proxy logs** and **web server logs** to detect internal hosts reaching out to unusual, newly registered, or Punycode-obfuscated domains.
+* *Safety Warning:* Never navigate to IPs, HTTP requests, or domains found in malware reports directly from your host machine!
+
+**Pyramid of Pain, Host Artifacts (Annoying)**
+
+**Host artifacts** are the traces or observables that attackers leave on the system, such as registry values, suspicious process execution, attack patterns or IOCs (Indicators of Compromise), files dropped by malicious applications, or anything exclusive to the current threat.
+
+* On this level, the attacker will feel a little more annoyed and frustrated if you can detect the attack. The attacker would need to circle back at this detection level and change his attack tools and methodologies. This is very time-consuming for the attacker, and probably, he will need to spend more resources on his adversary tools.
+
+**POP: Network Artifacts (Annoying)**
+
+**Key Concepts:**
+* **The "Yellow" Level (Annoying):** If a defender blocks a network artifact, the attacker cannot simply swap an IP or register a new domain. They must actually go back and modify their tools or malware source code to change *how* it communicates, which costs them significant time and effort.
+* **Network Artifacts:** Observable characteristics and patterns in network traffic. Examples include specific Command and Control (C2) communication protocols, unique URI structures in HTTP POST requests, or custom User-Agent strings.
+* **User-Agent Strings:** An HTTP header field that identifies the software making the request (e.g., a specific version of Chrome or Firefox). Malware (like the *Emotet* Downloader) often uses hardcoded, anomalous, or severely outdated User-Agents that stand out like a sore thumb against normal enterprise traffic.
+* **Hunting Tools:** Analysts detect these artifacts by analyzing PCAP (Packet Capture) files using tools like **Wireshark** or its command-line equivalent **TShark**, as well as actively monitoring via Intrusion Detection Systems (IDS) like **Snort**.
+
+**Frameworks/Tables:**
+
+**Hunting for Network Artifacts with TShark:**
+*How to extract specific HTTP headers from a packet capture to hunt for malicious User-Agents.*
+
+| Tool | Example Command | What it Does |
+| :--- | :--- | :--- |
+| **TShark** | `tshark -Y http.request -T fields -e http.host -e http.user_agent -r analysis_file.pcap` | Reads a PCAP file (`-r`) and filters for HTTP requests (`-Y`). It then extracts and prints only the destination Host and the User-Agent string (`-e`) for quick analysis. |
+
+**Takeaways / Notes:**
+* Catching network artifacts is where defenders start gaining a real advantage. You aren't just blocking disposable infrastructure (IPs/Domains) anymore; you are breaking the attacker's actual tools and forcing them to rewrite their code.
+* If you know the specific, weird User-Agent a malware strain uses, you can configure your firewall or proxy to instantly drop any outbound requests containing that exact string.
+
+**POP: Tools (Challenging)**
+
+**Key Concepts:**
+* **The "Challenging" Tier:** When defenders successfully detect and block a specific tool, it severely disrupts the adversary. They cannot just swap an IP or domain; they must spend significant time and money to develop a new tool, find an alternative, or retrain their operators.
+* **Examples of Attacker Tools:** Utilities used to generate malicious macro documents (maldocs) for spearphishing, backdoors used to establish Command & Control (C2), custom payloads (.EXE, .DLL), and password crackers.
+* **Fuzzy Hashing:** Traditional hashing (like MD5 or SHA256) breaks completely if an attacker changes even a single bit of their file. *Fuzzy hashing* (like **SSDeep**) performs similarity analysis. Even if an attacker makes minor modifications to their tool to evade basic signatures, a fuzzy hash will still flag it as a match based on its overall structure.
+
+**Frameworks/Tables:**
+
+**Defensive Weapons against Attacker Tools:**
+*The resources and techniques SOC analysts use to permanently burn an adversary's toolkit.*
+
+| Defensive Weapon | How it Works | Key Resources & Platforms |
+| :--- | :--- | :--- |
+| **YARA & Detection Rules** | Custom-written rules that search for specific binary patterns, strings, or behaviors unique to a specific attacker tool. | **SOC Prime Threat Detection Marketplace** (for sharing and downloading community detection rules). |
+| **Malware Analysis & Feeds** | Accessing raw malware samples to study how an attacker's tool operates in order to extract those YARA signatures. | **MalwareBazaar** and **Malshare** (repositories for malware samples and malicious feeds). |
+| **Fuzzy Hashing** | Calculating the "similarity" between files to catch attackers who only slightly alter their tools to bypass standard AV. | **SSDeep** (The industry standard tool for computing fuzzy hashes). |
+
+**Takeaways / Notes:**
+* This is the stage where defenders start winning the economic war. By detecting the tool itself rather than its disposable artifacts, you force the attacker to go back to the drawing board.
+* Antivirus catches *known* tools. YARA rules and Fuzzy Hashing catch *slightly modified* or *custom-built* tools.
+
+**P of P, TTPs (Tough)**
+
+* TTPs stands for Tactics, Techniques & Procedures. This includes the whole MITRE ATT&CK Matrix, which means all the steps taken by an adversary to achieve his goal, starting from phishing attempts to persistence and data exfiltration. 
+* If you can detect and respond to the TTPs quickly, you leave the adversaries almost no chance to fight back. For, example if you could detect a Pass-the-Hash(opens in new tab) attack using Windows Event Log Monitoring and remediate it, you would be able to find the compromised host very quickly and stop the lateral movement inside your network. At this point, the attacker would have two options:
+  
+  1. Go back, do more research and training, reconfigure their custom tools.
+  2. Give up and find another target
+
+  ---
+
+  ## Room: [Next Room]
