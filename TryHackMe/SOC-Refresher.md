@@ -1854,4 +1854,121 @@ MD5       9D52B46F5DE41B73418F8E0DACEC5E9F
 
 ---
 
+## Room: [Phishing Analysis Tools]
+
+**Identifying Artifacts**
+
+**Key Concepts:**
+* **The First Step of Analysis:** Before jumping into advanced malware sandboxing, a SOC analyst must gather the basic "Indicators of Compromise" (IOCs) directly from the email itself. 
+* **Header vs. Body:** The header reveals the *infrastructure* and *routing* (how the email got there and who claims to have sent it), while the body contains the actual *payload* (the social engineering text, malicious links, or infected files).
+
+**Frameworks/Tables:**
+
+**Header Artifacts:**
+*The metadata used to trace the email's origin and intended routing.*
+
+| Artifact | What to Ask / Look For | Investigative Value |
+| :--- | :--- | :--- |
+| **Sender Email Address** | Where did the email originate from? | Check for typosquatting (e.g., `@rnicrosoft.com`) or domain spoofing. |
+| **Sender IP Address** | What is the true source IP? | Perform a reverse DNS lookup and check IP reputation against Threat Intel (e.g., VirusTotal, AbuseIPDB). |
+| **Email Subject Line** | Does it contain urgency or a call to action? | Identifies the social engineering tactic being used (e.g., "URGENT: Invoice Overdue"). |
+| **Recipient Email Address** | Who is the intended recipient (To/CC/BCC)? | Determines if this is a targeted Spear Phishing attack or a mass Spam blast. |
+| **Reply-To Email Address** | Where are responses being directed? | Attackers often spoof the "From" address to look legitimate, but set the "Reply-To" to an attacker-controlled inbox. |
+| **Date and Time** | When was the email sent? | Crucial for building an incident timeline. |
+
+**Body Artifacts:**
+*The payload and content designed to compromise the end user.*
+
+| Artifact | What to Ask / Look For | Investigative Value |
+| :--- | :--- | :--- |
+| **URLs and Hyperlinks** | What is the true destination of the link? | Expand shortened URLs (`bit.ly`, etc.) and defang them. Check the final destination against reputation databases. |
+| **Attachment Name(s)** | What files are included? | Look for suspicious double extensions (e.g., `document.pdf.exe`) or dangerous file types (e.g., `.vbs`, `.scr`, `.js`). |
+| **Attachment Hash** | What is the cryptographic footprint of the file? | Generate an MD5, SHA-1, or SHA-256 hash of the extracted file to search for known malware signatures in threat intelligence platforms. |
+
+**Takeaways / Notes:**
+* When collecting these artifacts, **safety is paramount**. Extract attachment hashes directly from the email source (or safely within a sandbox) rather than executing the file on your host machine.
+* Always remember to **defang** your URLs and IP addresses (e.g., `hxxp[://]malicious-link[.]com`) before pasting them into your notes or ticketing system to prevent accidental clicks!
+
+**Email Header Analysis**
+
+**Key Concepts:**
+* **Automating Header Extraction:** While you can manually read the raw source code of an email, pasting the header into an analyzer tool is significantly faster and less prone to human error. These tools parse the complex routing data and highlight the true sender IP and transit hops.
+* **Reputation Checks:** Once you have the artifacts (IPs and URLs), you must determine if they are legitimate or tied to known threat actors. This is done using Open-Source Intelligence (OSINT) and Threat Intelligence platforms.
+* **Safe Investigation:** Tools like URLScan act as a secure proxy, allowing you to see what a malicious site looks like and how it behaves without ever exposing your own machine or network to the threat.
+
+**Frameworks/Tables:**
+
+**Mail Header Analysis Tools:**
+*Used to parse the raw text of an email header into readable data.*
+
+| Tool | Primary Use | What it Reveals |
+| :--- | :--- | :--- |
+| **Messageheader (Google Admin Toolbox)** | Quick parsing of raw headers. | Extracts sender IP, visualizes the routing path (hops), and highlights potential delivery misconfigurations. |
+| **Message Header Analyzer** | Similar to the Google tool. | Breaks down the complex header fields into an easy-to-read, structured table. |
+
+**IP and URL Reputation Analysis Tools:**
+*Used to determine if the extracted artifacts are malicious.*
+
+| Tool | Primary Use | Why Analysts Use It |
+| :--- | :--- | :--- |
+| **IPinfo** | IP lookup and geolocation. | To find out who owns the IP (the ISP or hosting provider) and where it is located physically. Helps spot anomalies (e.g., an internal email originating from an unexpected foreign country). |
+| **URLScan.io** | Safe web browsing simulation. | It acts as a sandbox for URLs. It visits the site for you, takes a screenshot, and records all network activity, allowing you to safely inspect a phishing page. |
+| **Talos IP & Domain Reputation Center** | Threat intelligence scoring. | Checks the IP or domain against Cisco's massive database of known threats to see if it has a history of malicious activity or spam. |
+
+**Takeaways / Notes:**
+* **The Analyst Workflow:** Your standard operating procedure should be: 
+  1. Extract the raw header.
+  2. Parse it using a Header Analyzer.
+  3. Copy the originating IP and any URLs found in the body.
+  4. Run those artifacts through Reputation Tools (Talos, URLScan, IPinfo).
+* Never navigate to a suspicious URL on your own host machine. Always use a tool like URLScan.io or a dedicated malware sandbox to safely interact with it.
+
+**Email Body Analysis** 
+
+**Key Concepts:**
+* **The True Intent:** The email body is where the actual attack takes place. This is where the adversary places their malicious payload, relying on deception to trick the user into clicking a link or opening a file.
+* **Safe Extraction:** You must extract URLs without accidentally triggering them. This can be done manually ("Copy link address") or by using automated tools to parse the raw HTML, which ensures hidden or obfuscated links aren't missed.
+* **Controlled Environments:** Never download, and certainly never execute, a suspicious attachment on your host machine. Attachments must only be handled within a secure, isolated environment (like a Virtual Machine or malware sandbox).
+* **Cryptographic Hashing:** Before analyzing what a file *does*, analysts calculate its hash (like a SHA-256 fingerprint). This allows you to check if the broader security community has already identified the file as malware, without you having to detonate it yourself.
+
+**Frameworks/Tables:**
+
+**Body Analysis & Reputation Tools:**
+*The toolkit used to safely dismantle and evaluate email payloads.*
+
+| Tool / Method | Primary Use | Why Analysts Use It |
+| :--- | :--- | :--- |
+| **URL Extraction Tools (e.g., CyberChef)** | Parsing raw email text. | Automatically finds and extracts all embedded or obfuscated links from a block of HTML/text, saving time and preventing accidental clicks. |
+| **`sha256sum` (Linux Command)** | Hash generation. | Creates a safe, unique cryptographic fingerprint (a string of characters) of an attachment to be used for Threat Intel lookups. |
+| **Talos IP & Domain Reputation Center** | Threat intelligence scoring. | Checks the file hash against Cisco's database to determine if the file is categorized as known malware, spam, or a phishing lure. |
+| **VirusTotal** | Multi-vendor reputation checking. | Aggregates scanning engines from dozens of antivirus vendors to provide a comprehensive verdict on a file hash, URL, IP, or domain. |
+
+**Takeaways / Notes:**
+* **OPSEC Pro-Tip:** When using VirusTotal, it is generally safer to search for the file's **hash** first, rather than uploading the file itself. If you upload a file, it becomes available to security researchers worldwide. If the attachment is actually a legitimate, highly confidential internal company document, uploading it to VirusTotal would cause a massive data breach.
+* Always prioritize extracting links and hashes over actively interacting with the payloads. Let the Threat Intel platforms do the heavy lifting first.
+
+**Malware Sandboxes**
+
+**Key Concepts:**
+* **What is a Sandbox?** A secure, strictly controlled, and isolated virtual environment used to execute untrusted code. If the file is malicious, it only destroys the disposable sandbox, keeping your actual network safe.
+* **Dynamic Analysis:** Instead of just looking at the file's code (Static Analysis), sandboxing allows you to observe what the file *actually does* when it runs (e.g., what IPs it contacts, what registry keys it modifies, what secondary payloads it downloads).
+* **Bridging the Skill Gap:** You do not need to be an expert malware reverse-engineer to benefit from sandboxes. They automate the heavy lifting and present the resulting Indicators of Compromise (IOCs) in an easy-to-read report.
+
+**Frameworks/Tables:**
+
+**Industry Standard Malware Sandboxes:**
+*Platforms used by SOC analysts to safely detonate suspicious artifacts.*
+
+| Sandbox Platform | Key Feature | Best Used For |
+| :--- | :--- | :--- |
+| **ANY.RUN** | **Interactive & Real-Time.** | Hands-on analysis. Unlike automated sandboxes, ANY.RUN gives you a live virtual desktop where you can actively click through prompts, open files, and watch the malware's behavior unfold in real-time. |
+| **Hybrid Analysis** | **Detailed Behavioral Insights.** | Automated detonation. Excellent for quickly uploading a file and getting a structured report detailing every system change and network call the malware attempted. |
+| **JOESandbox** | **Comprehensive Reporting.** | Advanced analysis. Combines both static (code-level) and dynamic (behavioral) analysis to generate incredibly deep threat classifications and IOC extraction. |
+
+**Takeaways / Notes:**
+* **Defensive Strategy:** When dealing with a suspicious email attachment, the safest workflow is: Extract the Hash -> Check VirusTotal -> If unknown, upload the file to a Sandbox like ANY.RUN to observe its behavior. 
+* **Sandbox Evasion:** Be aware that advanced malware is often "sandbox-aware." It will check its environment (looking for virtual machine drivers or analyzing mouse movement) and may refuse to execute its malicious payload if it realizes it is being analyzed.
+
+---
+
 ## Room: [Next Room]
