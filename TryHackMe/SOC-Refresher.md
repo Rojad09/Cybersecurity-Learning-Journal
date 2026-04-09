@@ -1734,3 +1734,124 @@ MD5       9D52B46F5DE41B73418F8E0DACEC5E9F
 * Data is often encrypted or compressed before Exfiltration specifically to evade Data Loss Prevention (DLP) systems that look for plain-text sensitive information leaving the network.
 
 ---
+
+## Room: [Phishing Analysis Fundamentals]
+
+**Phishing:** When emails are sent to a target(s) purporting to be from a trusted entity to lure individuals into providing sensitive information.
+
+**Key Concepts:**
+* **The Starting Point:** Every phishing investigation begins with the sender's email address. If you don't understand how it's built, you will miss the subtle clues (like typosquatting or spoofed domains) that attackers use to trick their victims.
+* **The ARPANET Legacy:** Ray Tomlinson introduced the `@` symbol in the 1970s to solve a simple problem: separating the person sending/receiving the mail from the computer system routing it.
+
+
+
+**Frameworks/Tables:**
+
+**Anatomy of an Email Address:**
+*Using `david@tryhackme.com` as an example.*
+
+| Component | Example | Description | Real-World Analogy |
+| :--- | :--- | :--- | :--- |
+| **Username** | `david` | Identifies the specific recipient’s mailbox on the email server. | The specific person or apartment number. |
+| **The Separator** | `@` | Separates the username from the domain and tells the system where to route the email. | The word "at" linking the person to their building. |
+| **Domain Name** | `tryhackme.com` | Specifies the exact mail server responsible for receiving the message. | The street address or apartment building itself. |
+
+**Takeaways / Notes:**
+* As a SOC Analyst, your eyes will naturally gravitate toward the **Domain Name** first. Attackers often rely on visual deception here (e.g., using `tryhackrne.com` with an "r" and "n" instead of an "m") to bypass basic visual checks.
+* Understanding this simple baseline structure is absolutely essential before you dive into the underlying network protocols that actually transport the email across the internet.
+
+**Email Delivery** 
+
+**Key Concepts:**
+* **The "Push" Protocol:** **SMTP** (Simple Mail Transfer Protocol) is responsible for pushing (sending) emails from your device to a server, and routing them across the internet to the destination server.
+* **The "Pull" Protocols:** **POP3** and **IMAP** are used exclusively for pulling (receiving) emails from the server down to the user's device. 
+* **The Role of DNS:** Just like navigating to a website, email servers rely on the Domain Name System (DNS) to look up where the recipient's email server is located (specifically using "MX" or Mail Exchange records).
+
+**Frameworks/Tables:**
+
+**Receiving Protocols: POP3 vs. IMAP**
+*How email clients handle messages once they reach the destination server.*
+
+| Protocol | Storage | Multi-Device Support | Syncing | Best For |
+| :--- | :--- | :--- | :--- | :--- |
+| **POP3** | Downloads locally to a single device (usually deleted from the server). | Poor. Emails are siloed on the device that downloaded them. | No syncing. Read/Unread status is local. | Legacy systems or strict privacy environments where server storage is limited. |
+| **IMAP** | Stored on the central mail server. | Excellent. Accessible from phone, laptop, and web simultaneously. | Full syncing. Deleting an email on your phone deletes it on your laptop. | Modern users who need access across multiple devices (the standard today). |
+
+**The Step-by-Step Email Journey:**
+*The full lifecycle of an email in transit.*
+
+| Step | Action | Protocol Used |
+| :--- | :--- | :--- |
+| **1. Sending** | User clicks "Send". The email client pushes the message to the sender's mail server. | **SMTP** |
+| **2. Routing (DNS)** | The sender's mail server asks DNS: *"Where is the mail server for @tryhackme.com?"* DNS replies with the IP address. | **DNS** |
+| **3. Delivery** | The sender's mail server pushes the message across the internet to the recipient's mail server. | **SMTP** |
+| **4. Retrieval** | The recipient opens their email app, which connects to their mail server and downloads/syncs the new message. | **IMAP** (or POP3) |
+
+**Takeaways / Notes:**
+* **SMTP** is always the engine that moves the mail. 
+* A common SOC troubleshooting or investigation scenario involves analyzing email headers. Understanding that the email hopped from the sender's client -> sender's server (SMTP) -> recipient's server (SMTP) helps analysts trace the origin of a phishing attack and identify if the sender's address was spoofed.
+
+**Email Body**
+
+**Key Concepts:**
+* **HTML vs. Plain Text:** While plain text emails are straightforward, most modern emails use HTML. Attackers heavily abuse HTML to hide malicious URLs behind legitimate-looking text (e.g., displaying "www.paypal.com" but linking to a credential harvesting site) or to embed tracking pixels.
+* **Inspecting the Source:** Just as viewing the raw headers reveals the true path of the email, viewing the raw HTML source of the body reveals the true destination of links and the structure of hidden elements that the email client might block or obscure.
+* **Attachments in Transit:** Because email protocols (like SMTP) are designed to handle text, binary files (like PDFs, images, or executables) cannot be sent natively. They must be encoded into a text format. **Base64** is the industry standard for this encoding.
+
+**Frameworks/Tables:**
+
+**Anatomy of an Email Attachment (Raw Source):**
+*When you look at the raw message source, an attachment is defined by three critical headers followed by a massive block of text.*
+
+| Header / Section | Example | What it Means for an Analyst |
+| :--- | :--- | :--- |
+| **Content-Type** | `application/pdf` | Indicates the file type. Attackers may sometimes spoof this to trick basic filters, but it tells the client how to render the file. |
+| **Content-Disposition** | `attachment; filename="Invoice_Update.pdf"` | Specifies that the data is an attachment (not inline text) and dictates the filename presented to the user. |
+| **Content-Transfer-Encoding** | `base64` | Confirms that the massive block of gibberish text below it is a Base64 encoded file. |
+| **The Payload** | `JVBERi0xLjQKJdPr...` | The actual file, converted entirely into alphanumeric characters. |
+
+**Takeaways / Notes:**
+* **Safe Analysis:** You do not need to double-click an attachment to analyze it! By extracting the Base64 string directly from the raw message source and pasting it into a tool like **CyberChef** (using the "From Base64" recipe), you can safely reconstruct and analyze the malware payload or document in a completely isolated environment.
+* Always check the underlying `href=` tag in the raw HTML source. If the visible text says `support@microsoft.com` but the `href` points to `http://login-microsoft-update-alert.ru`, you are dealing with a phishing attempt.
+
+**Types of Phishing**
+
+**Key Concepts:**
+* **The Phishing Spectrum:** Attackers scale their efforts based on their target. Some cast a massive, generic net (Spam), while others spend weeks researching a single high-value target (Whaling).
+* **Psychological Manipulation:** At its core, phishing relies on social engineering. Attackers manufacture a false sense of urgency or fear to bypass a user's critical thinking. 
+* **Defanging (Safe Analysis):** A critical SOC practice. Never paste a live, clickable malicious URL into a ticket, report, or chat. You must "defang" it to prevent accidental clicks by other analysts.
+
+**Frameworks/Tables:**
+
+**Categories of Malicious Messaging:**
+*How attackers target their victims.*
+
+| Type | Target / Medium | Description |
+| :--- | :--- | :--- |
+| **Spam / Malspam** | Everyone (Bulk) | Unsolicited bulk emails. Malspam specifically contains malicious attachments or links. |
+| **Phishing** | Broad Audience (Email) | Impersonating a trusted entity (like a bank or Microsoft) to steal credentials or deliver malware. |
+| **Spear Phishing** | Specific Individual/Org | Highly targeted. The attacker uses personalized reconnaissance (e.g., mentioning a recent company event) to build trust. |
+| **Whaling** | High-Level Executives | A specialized form of spear phishing targeting the "big fish" (CEOs, CFOs) who have high-level access and financial authority. |
+| **Smishing** | Mobile Users (SMS) | Phishing conducted via text messages (e.g., "Your package delivery failed, click here"). |
+| **Vishing** | Voice Calls | Phishing over the phone, relying on real-time social engineering (e.g., fake IT support desk). |
+
+**Anatomy of a Phishing Email:**
+*Common red flags found in a malicious message.*
+
+| Characteristic | Description | Example |
+| :--- | :--- | :--- |
+| **Spoofed Sender** | Deceptive `From` address. | `admin@micros0ft-support.com` |
+| **Urgent Tone** | Creating panic to force immediate action. | "Your account will be suspended in 2 hours." |
+| **Generic Greeting** | Lack of personalization despite claiming an existing relationship. | "Dear Valued Customer" |
+| **Hidden Links** | Hyperlinks where the display text does not match the actual destination. | Text says `paypal.com`, but links to `bit.ly/3x8Ab`. |
+| **Malicious Attachments** | Disguised payloads (often double extensions). | `Overdue_Invoice.pdf.exe` |
+
+**Takeaways / Notes:**
+* **How to Defang an Indicator:** To neutralize a URL, alter the protocol and bracket the periods. 
+    * *Live (Dangerous):* `http://www.suspiciousdomain.com/login`
+    * *Defanged (Safe):* `hxxp[://]www[.]suspiciousdomain[.]com/login`
+* While poor grammar and spelling used to be the hallmark of a phishing email, the rise of Generative AI has made modern phishing lures grammatically perfect. Analysts must rely on technical headers and hidden link destinations rather than just looking for typos.
+
+---
+
+## Room: [Next Room]
