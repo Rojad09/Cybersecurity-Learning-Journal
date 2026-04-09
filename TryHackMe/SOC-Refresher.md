@@ -1971,4 +1971,135 @@ MD5       9D52B46F5DE41B73418F8E0DACEC5E9F
 
 ---
 
+## Room: [Phishing Prevention]
+
+**Sender Policy Framework (SPF)**
+
+**Key Concepts:**
+* **What is SPF?** It is an email authentication method. An SPF record is a standard DNS TXT record that contains a public list of the IP addresses and domains that are officially authorized to send email on behalf of your domain.
+* **The Workflow:** When an email arrives, the receiving mail server checks the sender's DNS records. It looks for the SPF entry to verify if the server that just handed over the email is actually on the approved list.
+
+* **Implicit Authorization:** Sometimes an SPF record won't list individual IPs, but will instead `include` other domains (like `_spf.google.com`). This means any IP authorized by Google is automatically authorized by your domain as well.
+
+**Frameworks/Tables:**
+
+**SPF Verification Results & Actions:**
+*How a receiving server handles an email based on the SPF check.*
+
+| Verification Result | Definition | Intended Action |
+| :--- | :--- | :--- |
+| **Pass, Neutral, None** | The sender is authorized, or there is no strict policy preventing delivery. | **Accept** (Allow and process the email into the inbox). |
+| **SoftFail, PermError** | The sender is not strictly authorized, or there is a permanent syntax error in the record. | **Flag** (Mark as suspicious, often sending it to the Spam/Junk folder, but allow delivery). |
+| **Fail, TempError** | The sender is explicitly NOT authorized, or a temporary DNS timeout occurred. | **Reject** (Immediately discard or bounce the email). |
+
+**Anatomy of an SPF Record:**
+*Breaking down the syntax of `v=spf1 ip4:127.0.0.1 include:_spf.google.com -all`*
+
+| Tag | Meaning |
+| :--- | :--- |
+| `v=spf1` | The version indicator. It signifies the start of the SPF record. |
+| `ip4:127.0.0.1` | Explicitly authorizes this specific IPv4 address to send mail. |
+| `include:_spf.google.com` | Authorizes any IP address that is permitted to send mail on behalf of the listed domain. |
+| `-all` | The "Hard Fail" mechanism. Dictates that any sender NOT explicitly listed above should be rejected. (Note: `~all` would be a "Soft Fail"). |
+
+**Takeaways / Notes:**
+* **Troubleshooting Tools:** SOC analysts use tools like **Dmarcian's SPF Surveyor** (to visualize and validate DNS syntax) and **Google Admin Toolbox Messageheader** (to parse raw headers and see the actual SPF pass/fail result of a delivered email).
+* **The Limitation of SPF:** SPF only checks the `Return-Path` domain (the invisible envelope). It does *not* check the visible `From:` address that the user actually sees, which is why SPF alone cannot stop all phishing. (This gap is covered by DMARC).
+
+**DomainKeys Identified Mail (DKIM)**
+
+**Key Concepts:**
+* **What is DKIM?** An email authentication standard that uses public-key cryptography to verify that an email was truly sent by the claimed domain and that its contents were not tampered with in transit.
+* **The "Wax Seal" Analogy:** If SPF is checking the return address on the outside of an envelope, DKIM is placing a cryptographically secure wax seal on the letter inside. If the seal is broken or tampered with, the receiver knows the email is compromised.
+* **Surviving Forwarding:** Unlike SPF (which often breaks if an email is forwarded because the forwarding server's IP isn't on the original SPF list), DKIM signatures stay attached to the email itself. This makes it a more robust foundation for email security.
+
+
+
+**Frameworks/Tables:**
+
+**The Cryptographic Workflow:**
+*How the sender and receiver use keys to verify the email.*
+
+| Step | Actor | Action |
+| :--- | :--- | :--- |
+| **1. Signing** | Sending Mail Server | Uses a hidden **Private Key** to generate a unique digital signature based on the email's content and headers, attaching it to the email. |
+| **2. Lookup** | Receiving Mail Server | Looks up the sender's DNS records to find the published DKIM **Public Key**. |
+| **3. Verification** | Receiving Mail Server | Uses the Public Key to decrypt and verify the signature. If it matches, the email is authentic and unaltered. |
+
+**Anatomy of a DKIM Record:**
+*Breaking down the syntax: `v=DKIM1; k=rsa; p=<public_key>`*
+
+| Tag | Meaning |
+| :--- | :--- |
+| `v=DKIM1` | Specifies the version of DKIM being used (Optional, but common). |
+| `k=rsa` | Specifies the key type. RSA is the standard encryption algorithm used for generating the key pair. |
+| `p=...` | The actual Public Key (a long string of characters) that the receiving server uses to verify the signature. |
+
+**Takeaways / Notes:**
+* **Troubleshooting Errors:** When viewing raw email headers, an analyst might see `dkim=permerror`. This indicates a permanent failure in DKIM verification, often caused by a missing DNS record, an invalid signature, or an intermediary server modifying the email body in transit.
+* **Analysis Tools:** Just like with SPF, analysts use tools like **Dmarcian's DKIM Record Checker** and **Validator** to ensure the public keys are correctly published in the domain's DNS records.
+
+**Domain-Based Message Authentication, Reporting, and Conformance (DMARC)**
+
+**Key Concepts:**
+* **The Overarching Rulebook:** If SPF is the authorized sender list and DKIM is the cryptographic wax seal, DMARC is the policy layer that enforces them. It tells the receiving server *what to do* if those checks fail.
+* **Alignment:** DMARC introduces the concept of "alignment." It ensures that the visible "From" address (the domain the user actually sees) strictly matches the domains verified behind the scenes by SPF and DKIM. This prevents attackers from exploiting the gap between the visible and hidden header domains.
+* **Reporting:** DMARC doesn't just enforce rules; it also provides feedback. Domain owners can configure DMARC to send them reports showing who is attempting to send emails on their behalf, helping to identify spoofing campaigns or misconfigured internal services.
+
+**Frameworks/Tables:**
+
+**Anatomy of a DMARC Record:**
+*Breaking down the syntax: `v=DMARC1; p=quarantine; rua=mailto:postmaster@website.com`*
+
+| Tag | Meaning | Purpose |
+| :--- | :--- | :--- |
+| `v=DMARC1` | Version | Identifies the record as a DMARC policy (Required). |
+| `p=...` | Policy | Instructs the receiving server on how to handle emails that fail alignment (`none`, `quarantine`, or `reject`). |
+| `rua=mailto:...` | Reporting URI | (Optional) Specifies the email address where aggregate XML reports of DMARC activity should be sent. |
+
+**The Three DMARC Policies (`p=`):**
+*How a domain owner controls the fate of unauthenticated emails.*
+
+| Policy Tag | Name | Action Taken by Receiving Server |
+| :--- | :--- | :--- |
+| `p=none` | Monitor | Takes no action. The email is delivered normally, but the failure is logged in the DMARC report. (Used for testing). |
+| `p=quarantine` | Quarantine | Delivers the email, but flags it as suspicious and routes it directly to the user's Spam/Junk folder. |
+| `p=reject` | Reject | Drops the email entirely. It will never reach the user's inbox or spam folder. (The ultimate goal for maximum security). |
+
+**Takeaways / Notes:**
+* **Analysis Tools:** Analysts use tools like the **dmarcian Domain Checker** to inspect a domain's holistic email security posture (SPF, DKIM, and DMARC combined). 
+* When you see a high-profile domain like `microsoft.com` passing all checks with a `p=reject` policy, it means they have strictly locked down their domain. Any email claiming to be from Microsoft that fails SPF/DKIM alignment is instantly blocked across the internet.
+
+**Secure/Multipurpose Internet Mail Extensions (S/MIME)**
+
+**Key Concepts:**
+* **What is S/MIME?** A widely accepted standard for sending digitally signed and encrypted email messages. 
+* **Public Key Cryptography:** The mathematical foundation of S/MIME. Every user has a key pair: a **Private Key** (which must never be shared) and a **Public Key** (which is distributed openly to anyone who wants to communicate with them).
+* **The Two Pillars:** S/MIME serves two distinct security functions: applying a *Digital Signature* (to prove who sent it and that it wasn't altered) and *Encryption* (to ensure only the intended recipient can read it).
+
+**Frameworks/Tables:**
+
+**The Two Components of S/MIME:**
+*How keys are used to secure the message.*
+
+| Component | Cryptographic Mechanism | Security Features Provided |
+| :--- | :--- | :--- |
+| **Digital Signature** | The sender signs the email using their own **Private Key**. The recipient verifies it using the sender's **Public Key**. | **Authentication:** Confirms sender identity via their digital certificate.<br>**Non-repudiation:** The sender cannot deny sending the message.<br>**Data Integrity:** Detects if the message was altered in transit. |
+| **Encryption** | The sender encrypts the email using the recipient's **Public Key**. The recipient decrypts it using their own **Private Key**. | **Confidentiality:** Keeps the email content completely private, rendering it unreadable to anyone except the intended recipient. |
+
+**The S/MIME Workflow Example (Bob to Mary):**
+*How a secure exchange works in practice.*
+
+| Phase | Actor | Action |
+| :--- | :--- | :--- |
+| **1. Setup** | Bob & Mary | Bob creates a digital certificate. Bob and Mary exchange their **Public Keys** with one another. |
+| **2. Sending** | Bob | Bob "signs" the email with his **Private Key**. He then encrypts the email body using Mary's **Public Key**. |
+| **3. Receiving** | Mary | Mary decrypts the email using her **Private Key**. She then verifies Bob's identity and message integrity by checking the signature against Bob's **Public Key**. |
+
+**Takeaways / Notes:**
+* While protocols like SPF and DKIM secure email at the *domain/server* level, S/MIME secures email at the *individual user* level. 
+* A limitation of S/MIME is the administrative overhead: for two people to communicate securely, both must obtain digital certificates and successfully exchange public keys before sending the encrypted message.
+
+---
+
 ## Room: [Next Room]
