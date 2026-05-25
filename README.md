@@ -1,4 +1,4 @@
-# Cybersecurity-Lab-Documentation
+# Personal-Cybersec-Notes
 Living documentation of my continous learning, from my school career, to now.
 Including documentation such as, TryHackMe notes, HackTheBox solutions, random cheatsheets.
 
